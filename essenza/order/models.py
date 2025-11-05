@@ -5,7 +5,6 @@ class Status(models.TextChoices):
     PENDING = 'pending', 'Pending'
     PAID = 'paid', 'Paid'
     SHIPPED = 'shipped', 'Shipped'
-    CANCELLED = 'cancelled', 'Cancelled'
 
 class Order(models.Model):
     user = models.ForeignKey('user.Usuario', on_delete=models.CASCADE, related_name='orders')
@@ -13,7 +12,6 @@ class Order(models.Model):
     placed_at = models.DateTimeField(auto_now=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.email}"
@@ -26,4 +24,4 @@ class OrderProduct(models.Model):
     unity_price = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"{self.order.id} - {self.product.name}"
+        return f"{self.quantity} of {self.product.name} in order {self.order.id}"
