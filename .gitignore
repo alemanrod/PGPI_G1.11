@@ -10,7 +10,6 @@ venv/
 .venv
 
 # Archivos de base de datos
-db.sqlite3
 
 # Archivos de migraciones (si quieres omitirlos)
 **/migrations/__pycache__/
@@ -22,3 +21,4 @@ db.sqlite3
 # Archivos de Django estáticos
 staticfiles/
 
+**/*.sqlite3
