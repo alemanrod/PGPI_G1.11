@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Essenza</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #fcf6f5; /* Color de fondo del mockup */
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Header del Mockup --- */
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+            position: absolute;
+            top: 0;
+        }
+
+        .header-icon {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+
+        /* --- Logo --- */
+        .brand-logo {
+            font-size: 2.5em;
+            color: #b15b74;
+            margin-top: 100px; /* Espacio para el header */
+            margin-bottom: 30px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        /* --- Contenedor del Formulario --- */
+        .register-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Estilo para las etiquetas (Nombre, Apellidos...) */
+        form label {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        /* Estilo para los campos de texto, email y password */
+        form input[type="text"],
+        form input[type="email"],
+        form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        
+        /* Estilo para el campo 'Foto' */
+        form input[type="file"] {
+            margin-bottom: 20px;
+            font-size: 0.9em;
+        }
+        
+        /* Estilo para mensajes de error */
+        .error-message {
+            color: #b15b74;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        /* --- Botón de Registro --- */
+        .register-button {
+            background-color: #333;
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .register-button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <i class="fas fa-bars header-icon"></i> <i class="fas fa-user header-icon"></i>  </header>
+
+    <div class="brand-logo">ESSENZA</div>
+
+    <div class="register-container">
+        
+        <form method="POST" enctype="multipart/form-data">
+            
+            {% csrf_token %}
+            
+            {{ form.name.label_tag }}
+            {{ form.name }}
+            
+            
+            {{ form.email.label_tag }}
+            {{ form.email }}
+
+            {{ form.foto.label_tag }}
+            {{ form.foto }}
+
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            
+            {{ form.password.label_tag }}
+            {{ form.password }}
+
+            {% if form.errors %}
+                <div class="error-message">
+                    <p>Por favor, corrige los errores:</p>
+                    {{ form.non_field_errors }}
+                    
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <strong>{{ field.label }}:</strong> {{ field.errors|striptags }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <button type="submit" class="register-button">
+                Registrar <i class="fas fa-magic"></i>
+            </button>
+        </form>
+    </div>
+
+</body>
+</html>
