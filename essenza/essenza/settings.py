@@ -31,6 +31,14 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
 ]
 
+# Trusted origins for cross-site request forgery (CSRF) checks.
+# Include the full scheme (http:// or https://) for deployed hostnames.
+CSRF_TRUSTED_ORIGINS = [
+    'https://pgpi-g1-11.onrender.com',
+    'http://localhost',
+    'http://127.0.0.1',
+]
+
 
 # Application definition
 
