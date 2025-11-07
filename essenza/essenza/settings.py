@@ -123,3 +123,9 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# -----------------------------------------------------------------
+# SOLUCIÓN AL ERROR E304
+# Especifica que nuestro modelo 'Usuario' en la app 'user' 
+# es el modelo de autenticación oficial.
+# -----------------------------------------------------------------
+AUTH_USER_MODEL = 'user.Usuario'

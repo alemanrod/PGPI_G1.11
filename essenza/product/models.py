@@ -13,7 +13,7 @@ class Product(models.Model):
     categoria = models.CharField(max_length=20, choices=Category.choices)
     brand = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    foto = models.URLField(blank=True, null=True)
+    foto = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     stock = models.IntegerField()
     is_active = models.BooleanField(default=False)
 
