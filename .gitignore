@@ -1,0 +1,24 @@
+# Archivos de Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entorno virtual
+venv/
+.env/
+.venv
+
+# Archivos de base de datos
+
+# Archivos de migraciones (si quieres omitirlos)
+**/migrations/__pycache__/
+**/migrations/*.py
+
+# Archivos de configuración de VSCode
+.vscode/
+
+# Archivos de Django estáticos
+staticfiles/
+
+**/*.sqlite3
