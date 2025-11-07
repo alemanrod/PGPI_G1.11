@@ -47,7 +47,7 @@ def home(request):
                 .info-button:hover { background-color: #a35a34; }
                 .login-button {
                     position: absolute;
-                    top: 50%;
+                    top: 60%;
                     left: 50%;
                     transform: translate(-50%, -50%);
                     padding: 15px 35px;
