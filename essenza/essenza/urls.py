@@ -1,8 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
-from info import views
-
+from info.views import info_view
+from product.views import EscaparateView
 def home(request):
     html = """
     <html>
@@ -82,10 +82,9 @@ def home(request):
 
 urlpatterns = [
     path('', home, name='home'),
-    path('info/', views.info_view, name='info-home'),
+    path('info/', info_view, name='info-home'),
     path("user/", include("user.urls")), 
-    path('user/login/', include('user.urls')),
-    path("accounts/", include("django.contrib.auth.urls")), 
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
+    path('escaparate/', EscaparateView.as_view(), name='escaparate')
 ]
 
