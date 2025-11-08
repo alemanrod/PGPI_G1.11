@@ -113,7 +113,7 @@
       <input type="text" placeholder="Buscar...">
     </div>
 
-    <form action="{% url 'logout' %}" method="post" style="margin:0;">
+    <form action='user/logout' method="post" style="margin:0;">
       {% csrf_token %}
       <button formaction="{% url 'home' %}" type="submit" class="logout-btn">Log out</button>
     </form>
