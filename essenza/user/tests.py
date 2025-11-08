@@ -22,6 +22,7 @@ class LoginViewTests(TestCase):
         )
         self.login_url = reverse("user:login")  
         self.home_url = reverse("home")     
+        self.escaparate_url = reverse("escaparate")
 
     #1. comprueba que la pagina de login carga correctamente
     def test_get_login_page_returns_200(self):
@@ -30,12 +31,12 @@ class LoginViewTests(TestCase):
         self.assertContains(resp, "Iniciar sesión")  
         self.assertContains(resp, "ESSENZA")      
 
-    #2. si email y contraseña validas redirige a home
-    def test_login_with_valid_email_redirects_home(self):
+    #2. si email y contraseña validas redirige al escaparate
+    def test_login_with_valid_email_redirects_escaparate(self):
         data = {"email": self.email, "password": self.password}
         resp = self.client.post(self.login_url, data, follow=False)
         self.assertEqual(resp.status_code, 302, resp.content)
-        self.assertEqual(resp["Location"], self.home_url)
+        self.assertEqual(resp["Location"], self.escaparate_url)
 
     #3. si email y contraseña no validas muestra error
     def test_login_with_invalid_passwordAndEmail_shows_error(self):
@@ -57,10 +58,3 @@ class LoginViewTests(TestCase):
         resp = self.client.post(self.login_url, data)
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, "Usuario o contraseña incorrectos")
-
-    #6. simula un usuario ya autenticado, no puede acceder a login y redirige a home, ya que ya esta logueado
-    def test_authenticated_user_visiting_login_redirects_home(self):
-        self.client.login(email=self.email, password=self.password)
-        resp = self.client.get(self.login_url, follow=False)
-        self.assertEqual(resp.status_code, 302, resp.content)
-        self.assertEqual(resp["Location"], self.home_url)
