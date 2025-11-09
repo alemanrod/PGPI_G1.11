@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm
-
+from .forms import LoginForm, RegisterForm
+from .models import Usuario 
 
 class LoginView(View):
     form_class = LoginForm
@@ -35,14 +35,10 @@ class LoginView(View):
 
         return render(request, self.template_name, {'form': form})
 
-
 class LogoutView(View):
-    """Cierra la sesión y borra la cookie de sesión."""
-
     def get(self, request):
         logout(request)
         response = redirect('home')
-        # 🔥 borra cookie de sesión en el navegador
         response.delete_cookie('sessionid')
         return response
 
@@ -51,3 +47,20 @@ class LogoutView(View):
         response = redirect('home')
         response.delete_cookie('sessionid')
         return response
+    
+class RegisterView(View):
+    form_class = RegisterForm
+    template_name = 'user/register.html' 
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES) 
+        
+        if form.is_valid():
+            user = form.save() 
+            return redirect('escaparate') 
+
+        return render(request, self.template_name, {'form': form})

@@ -3,6 +3,8 @@ from django.urls import path, include
 from django.http import HttpResponse
 from info.views import info_view
 from product.views import EscaparateView
+import user
+
 def home(request):
     html = """
     <html>
@@ -45,15 +47,20 @@ def home(request):
                     transition: background-color 0.3s;
                 }
                 .info-button:hover { background-color: #a35a34; }
-                .login-button {
-                    position: absolute;
-                    top: 60%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
+                
+                .button-container {
+                    margin-top: 30px; /* Espacio desde el texto de arriba */
+                    display: flex;
+                    flex-direction: column; /* Apila los botones verticalmente */
+                    align-items: center;  /* Centra los botones horizontalmente */
+                    gap: 20px; /* Espacio automático entre cada botón */
+                }
+
+                .action-button {
                     padding: 15px 35px;
                     background-color: #c06b3e;
                     color: white;
-                    font-size: 20px;
+                    font-size: 15px;
                     font-weight: bold;
                     border: none;
                     border-radius: 10px;
@@ -61,11 +68,17 @@ def home(request):
                     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
                     text-decoration: none;
                     transition: background-color 0.3s, transform 0.2s;
+                    
+                    display: block;
+                    width: 300px; /* Ancho fijo para que se vean uniformes */
+                    box-sizing: border-box; /* Para que el padding no afecte el ancho */
                 }
-                .login-button:hover {
+                
+                .action-button:hover {
                     background-color: #a35a34;
-                    transform: translate(-50%, -50%) scale(1.05);
+                    transform: scale(1.05); /* Efecto de zoom simple */
                 }
+                
             </style>
         </head>
         <body>
@@ -74,7 +87,11 @@ def home(request):
             <p>Tu espacio online de cosmética natural, belleza y cuidado personal.</p>
             <p>Explora nuestros productos, descubre nuevas fragancias y disfruta de la experiencia Essenza 🌸</p>
 
-            <a href="/user/login" class="login-button" title="Iniciar Sesión">Iniciar sesión</a>
+            <div class="button-container">
+                <a href="/user/register" class="action-button" title="Registro">Registro</a>
+                <a href="/user/login" class="action-button" title="Iniciar Sesión">Iniciar sesión</a>
+                <a href="/escaparate" class="action-button" title="invitado">Continuar como invitado</a>
+            </div>
         </body>
     </html>
     """
@@ -87,4 +104,3 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('escaparate/', EscaparateView.as_view(), name='escaparate')
 ]
-

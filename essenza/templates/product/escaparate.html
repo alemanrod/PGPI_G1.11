@@ -105,18 +105,26 @@
   </style>
 </head>
 
-<body>
-  <header>
+<header>
     <div class="brand">ESSENZA</div>
 
     <div class="search-bar">
       <input type="text" placeholder="Buscar...">
     </div>
 
-    <form action='user/logout' method="post" style="margin:0;">
-      {% csrf_token %}
-      <button formaction="{% url 'home' %}" type="submit" class="logout-btn">Log out</button>
-    </form>
-  </header>
-</body>
+    {% if user.is_authenticated %}
+      
+      <form action="{% url 'logout' %}" method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="logout-btn">Log out</button>
+      </form>
+
+    {% else %}
+
+      <a href="{% url 'login' %}" class="logout-btn" style="text-decoration: none;">
+        Log in
+      </a>
+
+    {% endif %}
+    </header>
 </html>
