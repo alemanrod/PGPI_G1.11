@@ -170,3 +170,49 @@ class RegisterViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         new_user = User.objects.get(email=data['email'])
         self.assertFalse(new_user.foto)
+        
+class LogoutViewTests(TestCase):
+    def setUp(self):
+        self.client = self.client = self.client = self.client_class()
+        self.user = User.objects.create_user(
+            username='userlogout',
+            email='logout@example.com',
+            password='testlogout123'
+        )
+        self.login_url = reverse('login')
+        self.logout_url = reverse('logout')
+        self.home_url = reverse('home')
+
+    # 1. Comprobar que un usuario logueado se desloguea y redirige correctamente
+    def test_logout_redirects_to_home_and_clears_session(self):
+        # Iniciar sesión
+        self.client.login(username='logout@example.com', password='testlogout123')
+
+        # Verificar que la sesión está activa
+        self.assertIn('_auth_user_id', self.client.session)
+
+        # Hacer logout
+        response = self.client.get(self.logout_url)
+
+        # Verificar redirección al home
+        self.assertRedirects(response, self.home_url)
+
+        # Verificar que se ha cerrado la sesión
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    # 2. Comprobar que el logout borra la cookie de sesión
+    def test_logout_deletes_session_cookie(self):
+        """El logout deja la cookie de sesión vacía y expirada."""
+        self.client.login(username='logout@example.com', password='testlogout123')
+        response = self.client.get(self.logout_url)
+
+        # Django deja la cookie 'sessionid', pero vacía o marcada para expirar
+        self.assertIn('sessionid', response.cookies)
+        cookie = response.cookies['sessionid']
+        self.assertTrue(cookie.value == '' or cookie['max-age'] == 0 or cookie['expires'])
+        self.assertRedirects(response, self.home_url)
+
+    # 3. Comprobar que un usuario no autenticado también redirige correctamente
+    def test_logout_redirects_even_if_not_authenticated(self):
+        response = self.client.get(self.logout_url)
+        self.assertRedirects(response, self.home_url)
