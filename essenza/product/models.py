@@ -10,12 +10,13 @@ class Category(models.TextChoices):
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
-    categoria = models.CharField(max_length=20, choices=Category.choices)
+    category = models.CharField(max_length=20, choices=Category.choices)
     brand = models.CharField(max_length=255)
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    foto = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    photo = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     stock = models.IntegerField()
     is_active = models.BooleanField(default=False)
+
 
     def __str__(self):
         return self.name
