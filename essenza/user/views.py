@@ -2,17 +2,16 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
 from .forms import LoginForm, RegisterForm
-from .models import Usuario 
 
 class LoginView(View):
     form_class = LoginForm
     template_name = 'user/login.html'
 
     def get(self, request, *args, **kwargs):
-        # Si el usuario ya está autenticado, lo mandamos a escaparate
+        # Si el usuario ya está autenticado, lo mandamos a dashboard
         logout(request)
         if request.user.is_authenticated:
-            return redirect('escaparate')
+            return redirect('dashboard')
         # Si no está autenticado, renderiza el formulario de login
         return render(request, self.template_name, {'form': self.form_class()})
 
@@ -27,8 +26,7 @@ class LoginView(View):
 
             if user is not None:
                 login(request, user)
-                # Redirige al escaparate después del login
-                return redirect('escaparate')
+                return redirect('dashboard')
             else:
                 # Si falla el login, muestra error en el formulario
                 form.add_error(None, "Usuario o contraseña incorrectos")
@@ -38,13 +36,13 @@ class LoginView(View):
 class LogoutView(View):
     def get(self, request):
         logout(request)
-        response = redirect('home')
+        response = redirect('dashboard')
         response.delete_cookie('sessionid')
         return response
 
     def post(self, request):
         logout(request)
-        response = redirect('home')
+        response = redirect('dashboard')
         response.delete_cookie('sessionid')
         return response
     
@@ -61,6 +59,7 @@ class RegisterView(View):
         
         if form.is_valid():
             user = form.save() 
-            return redirect('escaparate') 
+            login(request, user)
+            return redirect('dashboard') 
 
         return render(request, self.template_name, {'form': form})

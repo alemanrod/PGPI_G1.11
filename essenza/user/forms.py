@@ -26,7 +26,7 @@ class RegisterForm(UserCreationForm):
         label="Correo electrónico", 
         required=True
     )
-    foto = forms.ImageField(
+    photo = forms.ImageField(
         label="Foto (Opcional)", 
         required=False
     )
@@ -35,4 +35,11 @@ class RegisterForm(UserCreationForm):
         
         model = Usuario
 
-        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email', 'foto')
+        fields = ('first_name', 'last_name', 'email', 'photo')
+        
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
