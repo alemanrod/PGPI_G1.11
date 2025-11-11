@@ -135,10 +135,7 @@
         
         <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
         {{ form.last_name }}
-
-        <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
-        {{ form.username }}
-
+        
         <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
         {{ form.email }}
         
@@ -148,8 +145,8 @@
         <label for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
         {{ form.password2 }}
         
-        <label for="{{ form.foto.id_for_label }}">Foto (Opcional)</label>
-        {{ form.foto }}
+        <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
+        {{ form.photo }}
         
         {% if form.errors %}
             <div style="margin-top: 15px;">
