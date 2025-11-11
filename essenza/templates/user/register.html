@@ -1,163 +1,176 @@
-<!DOCTYPE html>
+{% load static %}
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - Essenza</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <style>
-        body {
-            background-color: #fcf6f5; /* Color de fondo del mockup */
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        /* --- Header del Mockup --- */
-        .header {
-            width: 100%;
-            max-width: 1200px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-sizing: border-box;
-            position: absolute;
-            top: 0;
-        }
-
-        .header-icon {
-            font-size: 24px;
-            color: #333;
-            cursor: pointer;
-        }
-
-        /* --- Logo --- */
-        .brand-logo {
-            font-size: 2.5em;
-            color: #b15b74;
-            margin-top: 100px; /* Espacio para el header */
-            margin-bottom: 30px;
-            font-family: 'Times New Roman', serif;
-        }
-
-        /* --- Contenedor del Formulario --- */
-        .register-container {
-            background-color: #fff;
-            padding: 30px 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Estilo para las etiquetas (Nombre, Apellidos...) */
-        form label {
-            font-size: 0.9em;
-            color: #555;
-            margin-bottom: 5px;
-        }
-
-        /* Estilo para los campos de texto, email y password */
-        form input[type="text"],
-        form input[type="email"],
-        form input[type="password"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-bottom: 15px;
-        }
+  <meta charset="utf-8">
+  <title>Registro · Essenza</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+ <style>
+    body {
+        /* --- Variables de Color --- */
+        --color-principal: #c06b3e;
+        --color-principal-hover: #a35a34;
+        --color-fondo: #faf7f2;
+        --color-fondo-tarjeta: #fff;
+        --color-texto-base: #333;
+        --color-borde-claro: #eee;
+        --color-error: #b00020;
+        --color-foco-sombra: rgba(192, 107, 62, 0.2);
         
-        /* Estilo para el campo 'Foto' */
-        form input[type="file"] {
-            margin-bottom: 20px;
-            font-size: 0.9em;
-        }
-        
-        /* Estilo para mensajes de error */
-        .error-message {
-            color: #b15b74;
-            font-size: 0.9em;
-            margin-bottom: 10px;
-        }
+        background-color: var(--color-fondo);
+        margin: 0;
+        font-family: 'Segoe UI', Arial, sans-serif;
+    }
 
-        /* --- Botón de Registro --- */
-        .register-button {
-            background-color: #333;
-            color: white;
-            padding: 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .register-button:hover {
-            background-color: #555;
-        }
-    </style>
+    .page {
+        min-height: 100dvh;
+        display: grid;
+        place-items: start center; /* Centrado horizontal, arriba vertical */
+        padding: 56px 0;
+    }
+
+    .brand {
+        color: var(--color-principal);
+        font-size: 48px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .form-card {
+        width: min(420px, 88vw);
+        background: var(--color-fondo-tarjeta);
+        border: 2px solid var(--color-principal);
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        padding: 22px 24px;
+        box-sizing: border-box;
+    }
+
+    /* --- 3. Elementos del Formulario (Inputs y Labels) --- */
+    label {
+        display: block;
+        font-size: 13px;
+        color: var(--color-texto-base);
+        margin: 10px 0 6px;
+    }
+
+    /* Estilos comunes para inputs de texto */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--color-borde-claro);
+        border-radius: 10px;
+        background: #fafafa; /* Este es un gris muy claro, lo mantenemos */
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    /* Estilo para el input de archivo */
+    input[type="file"] {
+        width: 100%;
+        font-size: 13px;
+        color: #555; /* Un gris un poco más oscuro para el texto */
+        margin: 10px 0 15px;
+        padding: 8px;
+        border: 1px solid var(--color-borde-claro);
+        border-radius: 10px;
+        background: #fafafa;
+        box-sizing: border-box;
+    }
+
+    /* Efecto :focus (resplandor) usando variables */
+    input:focus {
+        border-color: var(--color-principal);
+        box-shadow: 0 0 0 3px var(--color-foco-sombra);
+    }
+
+    /* --- 4. Botones y Clases de Ayuda --- */
+    .btn-primary {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--color-principal);
+        color: var(--color-fondo-tarjeta); /* Blanco */
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-principal-hover);
+    }
+
+    /* Link para "Ya tienes cuenta?" */
+    .login-link {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    .login-link a {
+        color: var(--color-principal);
+        text-decoration: underline;
+    }
+
+    /* Mensajes de error */
+    .form-error {
+        color: var(--color-error);
+        font-size: 13px;
+        margin: 6px 0;
+    }
+</style>
 </head>
-<body>
-
-    <header class="header">
-        <i class="fas fa-bars header-icon"></i> <i class="fas fa-user header-icon"></i>  </header>
-
-    <div class="brand-logo">ESSENZA</div>
-
-    <div class="register-container">
+<body class="login-bg">
+  <div class="page">
+    <h1 class="brand">ESSENZA</h1>
+    <div class="form-card">
+      <form method="post" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
         
-        <form method="POST" enctype="multipart/form-data">
-            
-            {% csrf_token %}
-            
-            {{ form.name.label_tag }}
-            {{ form.name }}
-            
-            
-            {{ form.email.label_tag }}
-            {{ form.email }}
+        <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+        {{ form.first_name }}
+        
+        <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+        {{ form.last_name }}
 
-            {{ form.foto.label_tag }}
-            {{ form.foto }}
+        <label for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+        {{ form.username }}
 
-            {{ form.username.label_tag }}
-            {{ form.username }}
-            
-            {{ form.password.label_tag }}
-            {{ form.password }}
-
-            {% if form.errors %}
-                <div class="error-message">
-                    <p>Por favor, corrige los errores:</p>
-                    {{ form.non_field_errors }}
-                    
-                    {% for field in form %}
-                        {% if field.errors %}
-                            <strong>{{ field.label }}:</strong> {{ field.errors|striptags }}
-                        {% endif %}
+        <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+        {{ form.email }}
+        
+        <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+        {{ form.password1 }}
+        
+        <label for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
+        {{ form.password2 }}
+        
+        <label for="{{ form.foto.id_for_label }}">Foto (Opcional)</label>
+        {{ form.foto }}
+        
+        {% if form.errors %}
+            <div style="margin-top: 15px;">
+                {% for field in form %}
+                    {% for error in field.errors %}
+                        <p class="form-error">{{ error }}</p>
                     {% endfor %}
-                </div>
-            {% endif %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                    <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
 
-            <button type="submit" class="register-button">
-                Registrar <i class="fas fa-magic"></i>
-            </button>
-        </form>
+        <button type="submit" class="btn-primary">Crear cuenta</button>
+        
+        <p class="login-link">
+          <a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
+        </p>
+      </form>
     </div>
-
+  </div>
 </body>
 </html>

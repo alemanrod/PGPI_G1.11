@@ -1,35 +1,38 @@
-# user/forms.py (Crea este archivo)
 from django import forms
-from .models import Usuario # Importa tu modelo User personalizado
+from django.contrib.auth.forms import UserCreationForm
+from .models import Usuario 
 
-class RegisterForm(forms.ModelForm):
-    """
-    Formulario de registro personalizado basado en el mockup.
-    """
-    class Meta:
+class LoginForm(forms.Form):
+    email = forms.CharField(
+        label="Correo electrónico o usuario",
+        widget=forms.TextInput(attrs={"placeholder": "Introduce tu correo electrónico"})
+    )
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={"placeholder": "Introduce tu contraseña"})
+    )
+
+class RegisterForm(UserCreationForm):
+    
+    first_name = forms.CharField(
+        label="Nombre", 
+        required=True
+    )
+    last_name = forms.CharField(
+        label="Apellidos", 
+        required=True
+    )
+    email = forms.EmailField(
+        label="Correo electrónico", 
+        required=True
+    )
+    foto = forms.ImageField(
+        label="Foto (Opcional)", 
+        required=False
+    )
+
+    class Meta(UserCreationForm.Meta):
+        
         model = Usuario
-        
-        # Campos que se pedirán en el formulario
-        fields = [
-            'name',  # Corresponde a 'Nombre'
-            'email',       # Corresponde a 'Correo electrónico'
-            'foto',        # El nuevo campo 'Foto'
-            'password',   # Contraseña
-        ]
-        
-        # Etiquetas para que coincidan 100% con el mockup
-        labels = {
-            'name': 'Nombre',
-            'email': 'Correo electrónico',
-            'foto': 'Foto',
-            'password': 'Contraseña',
-        }
 
-    def _init_(self, *args, **kwargs):
-        super(RegisterForm, self)._init_(*args, **kwargs)
-        
-        # Hacemos que 'Nombre', 'Email' y 'Contraseña' sean obligatorios
-        self.fields['name'].required = True
-        self.fields['email'].required = True
-        self.fields['foto'].required = False  # 'Foto' es opcional
-        self.fields['password'].required = True
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email', 'foto')
