@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from info.views import info_view
 from product.views import DashboardView
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('info/', info_view, name='info-home'),
@@ -9,3 +11,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', DashboardView.as_view(), name='dashboard')
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.IMAGES_URL, document_root=settings.IMAGES_ROOT)
