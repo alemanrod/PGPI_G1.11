@@ -150,7 +150,7 @@ class RegisterViewTests(TestCase):
         
         self.assertEqual(resp.status_code, 302)
         new_user = User.objects.get(email=data['email'])
-        self.assertTrue(new_user.photo.name.startswith('images/test_photo'))
+        self.assertTrue(new_user.photo.name.startswith('profile_pics/test_photo'))
 
         # Elimina la foto creada
         if new_user.photo:

@@ -92,39 +92,18 @@
     .profile-data strong {
         color: var(--color-principal);
     }
-
-    /* (Añadido) Estilos para mensajes de Django */
-    .messages {
-        width: min(420px, 88vw);
-        margin-bottom: 15px;
-    }
-    .message {
-        padding: 12px;
-        border-radius: 10px;
-        color: #fff;
-        background-color: var(--color-exito);
-        font-size: 14px;
-    }
   </style>
 </head>
 <body>
   <div class="page">
     <h1 class="brand">ESSENZA</h1>
 
-    {% if messages %}
-      <div class="messages">
-        {% for message in messages %}
-          <div class="message success">{{ message }}</div>
-        {% endfor %}
-      </div>
-    {% endif %}
-
     <div class="form-card">
       
       {% if user.photo %}
         <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-pic">
       {% else %}
-        <img src="{% static 'img/default_user.png' %}" alt="Foto de perfil por defecto" class="profile-pic">
+        <img src="{% static 'images/default_user.png' %}" alt="Foto de perfil por defecto" class="profile-pic">
       {% endif %}
 
       <div class="profile-data">

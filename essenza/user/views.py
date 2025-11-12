@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from django.contrib import messages # Para mostrar mensajes de éxito
 from .forms import LoginForm, RegisterForm, ProfileEditForm
 from django.contrib.auth.mixins import LoginRequiredMixin # Para proteger vistas
 
@@ -82,13 +81,22 @@ class ProfileEditView(LoginRequiredMixin, View):
         return render(request, self.template_name, {'form': form})
 
     def post(self, request, *args, **kwargs):
+
+        # Guarda la foto antigua para borrarla si se ha cambiado
+        try:
+            old_photo = request.user.photo
+        except AttributeError:
+            old_photo = None
+
         # Rellena el formulario con los datos enviados 
         form = self.form_class(request.POST, request.FILES, instance=request.user)
         
         # Si el formulario es válido, se redirige a la vista de perfil
         if form.is_valid():
-            form.save()
-            messages.success(request, '¡Tu perfil ha sido actualizado con éxito!')
+            new_user = form.save()
+            # Si había una foto antigua y es distinta a la nueva, la borramos del sistema
+            if old_photo and old_photo != new_user.photo:
+                old_photo.delete(save=False)
             return redirect('profile') 
         
         # Si el formulario no es válido, se vuelve a mostrar con errores
@@ -103,12 +111,20 @@ class ProfileDeleteView(LoginRequiredMixin, View):
         return render(request, self.template_name)
 
     def post(self, request, *args, **kwargs):
+
+        # Guarda la foto antigua para borrarla
+        try:
+            photo_to_delete = request.user.photo
+        except AttributeError:
+            photo_to_delete = None
         user = request.user
         
         # Cierra la sesión ANTES de borrar al usuario para evitar errores
         logout(request)
         # Borra el usuario de la base de datos
         user.delete()
+        # Borra, si la hay, la foto del sistema de archivos
+        if photo_to_delete:
+            photo_to_delete.delete(save=False)
         
-        messages.success(request, 'Tu cuenta ha sido eliminada de manera permanente.')
         return redirect('dashboard')

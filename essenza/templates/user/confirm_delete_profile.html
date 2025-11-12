@@ -16,18 +16,20 @@
         --color-texto-base: #333;
         --color-borde-claro: #eee;
         --color-error: #b00020;
-        --color-error-hover: #8e0019; /* (Añadido) */
+        --color-error-hover: #8e0019;
         --color-foco-sombra: rgba(192, 107, 62, 0.2);
         
         background-color: var(--color-fondo);
         margin: 0;
         font-family: 'Segoe UI', Arial, sans-serif;
     }
-    .page {
-        min-height: 100dvh;
-        display: grid;
-        place-items: start center;
-        padding: 56px 0;
+    .page { 
+        min-height:100dvh; 
+        display:flex; 
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap:2rem; 
     }
     .brand {
         color: var(--color-principal);

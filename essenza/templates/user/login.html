@@ -14,9 +14,11 @@
         
         .page{ 
             min-height:100dvh; 
-            display:grid; 
-            place-items:start center; 
-            padding-top:56px; 
+            display:flex; 
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap:2rem; 
         }
         
         .brand{
@@ -57,10 +59,23 @@
           background-color: #a35a34; 
         }
 
-        .forgot{ margin-top:10px; text-align:left; }
-        .forgot a{ color:#333; text-decoration:underline; font-size:12.5px; }
+        /* Link para "Aún no tienes cuenta?" */
+        .login-link {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 13px;
+        }
 
-        .form-error{ color:#b00020; }
+        .login-link a {
+            color: #c06b3e;
+            text-decoration: underline;
+        }
+
+        .form-error {
+            color: #b00020;
+            font-size: 13px;
+            margin: 6px 0;
+        }
     </style>
 </head>
 
@@ -86,10 +101,13 @@
 
         <button type="submit" class="btn-primary">Iniciar sesión</button>
         
+        <p class="login-link">
+          <a href="{% url 'register' %}">¿Aún no tienes cuenta? Regístrate</a>
+        </p>
+        
         
       </form>
     </div>
   </div>
-
 </body>
 </html>
