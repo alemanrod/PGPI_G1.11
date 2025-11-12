@@ -94,9 +94,32 @@
     .profile-data strong {
         color: var(--color-principal);
     }
+    .return-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 80px;
+        height: 30px;
+        background-color: #c06b3e;
+        border-radius: 15px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: background-color 0.3s;
+    }
+    .return-button:hover { background-color: #a35a34; 
+    }
   </style>
 </head>
 <body>
+
+  <a href="/" class="return-button" title="Volver">Volver</a>
+
   <div class="page">
     <h1 class="brand">ESSENZA</h1>
 

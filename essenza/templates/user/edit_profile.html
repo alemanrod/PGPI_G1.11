@@ -2,12 +2,12 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8">
-  <title>Editar Perfil · Essenza</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <title>Editar Perfil · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+    /* --- Variables de Color --- */
     body {
-        /* --- Variables de Color --- */
         --color-principal: #c06b3e;
         --color-principal-hover: #a35a34;
         --color-fondo: #faf7f2;
@@ -21,12 +21,14 @@
         margin: 0;
         font-family: 'Segoe UI', Arial, sans-serif;
     }
-
+    
     .page {
-        min-height: 100dvh;
-        display: grid;
-        place-items: start center; /* Centrado horizontal, arriba vertical */
-        padding: 56px 0;
+        min-height:100dvh; 
+        display:flex; 
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap:2rem; 
     }
 
     .brand {
@@ -86,20 +88,26 @@
         box-sizing: border-box;
     }
     
-    /* (NUEVO) Estilo simple para el label del checkbox */
+    /* Estilo simple para el label del checkbox */
     label[for="id_remove_photo"] {
-        display: inline; /* Para que esté al lado del checkbox */
+        display: inline;
         color: var(--color-error);
         font-weight: 500;
         margin-left: 5px;
     }
     
-    /* (NUEVO) Estilo para el checkbox */
+    /* Estilo para el checkbox */
     input[type="checkbox"] {
-         accent-color: var(--color-principal);
-         width: 16px;
-         height: 16px;
-         vertical-align: middle;
+        accent-color: var(--color-principal);
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+    }
+
+    /* Estilo para deshabilitar visualmente el input de archivo */
+    input[type="file"]:disabled {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
     }
 
     input:focus {
@@ -142,74 +150,105 @@
 </style>
 </head>
 <body class="login-bg">
-  <div class="page">
-    <h1 class="brand">ESSENZA</h1>
-    <div class="form-card">
-      <form method="post" enctype="multipart/form-data" novalidate>
-        {% csrf_token %}
-        
-        <label for="{{ form.first_name.id_for_label }}">Nombre</label>
-        {{ form.first_name }}
-        
-        <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
-        {{ form.last_name }}
-        
-        <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
-        {{ form.email }}
-        
-        <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
-        {{ form.photo }}
-        
-        {% if not form.remove_photo.is_hidden %}
-            <div style="margin-bottom: 15px;">
-                {{ form.remove_photo }}
-                <label for="{{ form.remove_photo.id_for_label }}">{{ form.remove_photo.label }}</label>
-            </div>
-        {% endif %}
-        
-        {% if form.errors %}
-            <div style="margin-top: 15px;">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <p class="form-error">{{ error }}</p>
-                    {% endfor %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <p class="form-error">{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-
-        {% if form.errors %}
-            <div style="background: #fff0f0; border: 2px solid var(--color-error); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                <p style="color: var(--color-error); margin-top: 0; font-weight: bold;">¡El formulario tiene errores!</p>
-                {% for field in form %}
-                    {% if field.errors %}
-                        <div class="form-error">
-                            <strong>{{ field.label }}:</strong>
-                            <ul>
-                            {% for error in field.errors %}
-                                <li>{{ error }}</li>
-                            {% endfor %}
-                            </ul>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <div class="form-error">
-                        <strong>Error general:</strong> {{ error }}
+    <div class="page">
+        <h1 class="brand">ESSENZA</h1>
+        <div class="form-card">
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                
+                <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+                {{ form.first_name }}
+                
+                <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+                {{ form.last_name }}
+                
+                <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+                {{ form.email }}
+                
+                <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
+                {{ form.photo }}
+                
+                {% if not form.remove_photo.is_hidden %}
+                    <div style="margin-bottom: 15px;">
+                        {{ form.remove_photo }}
+                        <label for="{{ form.remove_photo.id_for_label }}">{{ form.remove_photo.label }}</label>
                     </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+                {% endif %}
+                
+                {% if form.errors %}
+                    <div style="margin-top: 15px;">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <p class="form-error">{{ error }}</p>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-        <button type="submit" class="btn-primary">Guardar Cambios</button>
-        
-        <p class="login-link">
-          <a href="{% url 'profile' %}">Cancelar y volver al perfil</a>
-        </p>
-      </form>
+                {% if form.errors %}
+                    <div style="background: #fff0f0; border: 2px solid var(--color-error); border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                        <p style="color: var(--color-error); margin-top: 0; font-weight: bold;">¡El formulario tiene errores!</p>
+                        {% for field in form %}
+                            {% if field.errors %}
+                                <div class="form-error">
+                                    <strong>{{ field.label }}:</strong>
+                                    <ul>
+                                    {% for error in field.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div class="form-error">
+                                <strong>Error general:</strong> {{ error }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn-primary">Guardar Cambios</button>
+                
+                <p class="login-link">
+                    <a href="{% url 'profile' %}">Cancelar y volver al perfil</a>
+                </p>
+            </form>
+        </div>
     </div>
-  </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 1. Obtener referencias
+            const fileInput = document.getElementById('{{ form.photo.id_for_label }}');
+            const removeCheckbox = document.getElementById('{{ form.remove_photo.id_for_label }}');
+
+            if (!fileInput || !removeCheckbox) {
+                return;
+            }
+
+            // 2. Lógica para el Checkbox (Deshabilita el selector)
+            function handleRemovePhotoChange() {
+                const isRemoveChecked = removeCheckbox.checked;
+
+                if (isRemoveChecked) {
+                    // Si está marcado, deshabilitar (ignorar) el selector de archivos
+                    fileInput.disabled = true; 
+                } else {
+                    // Si está desmarcado, volver a habilitar el selector
+                    fileInput.disabled = false;
+                }
+            }
+
+            // 4. Añadir escuchadores de eventos
+            removeCheckbox.addEventListener('change', handleRemovePhotoChange);
+
+            // 5. Ejecutar al inicio para establecer el estado inicial
+            handleRemovePhotoChange();
+        });
+    </script>
 </body>
 </html>
