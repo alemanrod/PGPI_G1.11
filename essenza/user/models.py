@@ -6,7 +6,7 @@ class Role(models.TextChoices):
     USER = 'user', 'User'
 
 class Usuario(AbstractUser):
-    photo = models.ImageField(upload_to='images/', null=True, blank=True)
+    photo = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     role = models.CharField(max_length=10, choices=Role.choices, default=Role.USER)
 
     email = models.EmailField(unique=True) 

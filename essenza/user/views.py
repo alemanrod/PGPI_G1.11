@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views import View
 from django.contrib.auth import authenticate, login, logout
-from .forms import LoginForm, RegisterForm
+from .forms import LoginForm, RegisterForm, ProfileEditForm
+from django.contrib.auth.mixins import LoginRequiredMixin # Para proteger vistas
 
 class LoginView(View):
     form_class = LoginForm
@@ -9,7 +10,6 @@ class LoginView(View):
 
     def get(self, request, *args, **kwargs):
         # Si el usuario ya está autenticado, lo mandamos a dashboard
-        logout(request)
         if request.user.is_authenticated:
             return redirect('dashboard')
         # Si no está autenticado, renderiza el formulario de login
@@ -63,3 +63,68 @@ class RegisterView(View):
             return redirect('dashboard') 
 
         return render(request, self.template_name, {'form': form})
+    
+class ProfileView(LoginRequiredMixin, View):
+    template_name = 'user/profile.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
+class ProfileEditView(LoginRequiredMixin, View):
+    form_class = ProfileEditForm
+    template_name = 'user/edit_profile.html'
+
+    def get(self, request, *args, **kwargs):
+        # Rellena el formulario con los datos actuales del usuario
+        form = self.form_class(instance=request.user)
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+
+        # Guarda la foto antigua para borrarla si se ha cambiado
+        try:
+            old_photo = request.user.photo
+        except AttributeError:
+            old_photo = None
+
+        # Rellena el formulario con los datos enviados 
+        form = self.form_class(request.POST, request.FILES, instance=request.user)
+        
+        # Si el formulario es válido, se redirige a la vista de perfil
+        if form.is_valid():
+            new_user = form.save()
+            # Si había una foto antigua y es distinta a la nueva, la borramos del sistema
+            if old_photo and old_photo != new_user.photo:
+                old_photo.delete(save=False)
+            return redirect('profile') 
+        
+        # Si el formulario no es válido, se vuelve a mostrar con errores
+        return render(request, self.template_name, {'form': form})
+
+
+class ProfileDeleteView(LoginRequiredMixin, View):
+    template_name = 'user/confirm_delete_profile.html'
+
+    def get(self, request, *args, **kwargs):
+        # Muestra la página de confirmación
+        return render(request, self.template_name)
+
+    def post(self, request, *args, **kwargs):
+
+        # Guarda la foto antigua para borrarla
+        try:
+            photo_to_delete = request.user.photo
+        except AttributeError:
+            photo_to_delete = None
+        user = request.user
+        
+        # Cierra la sesión ANTES de borrar al usuario para evitar errores
+        logout(request)
+        # Borra el usuario de la base de datos
+        user.delete()
+        # Borra, si la hay, la foto del sistema de archivos
+        if photo_to_delete:
+            photo_to_delete.delete(save=False)
+        
+        return redirect('dashboard')
