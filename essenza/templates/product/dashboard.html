@@ -1,4 +1,5 @@
 {% load static %}
+{% load humanize %}
 <!doctype html>
 <html lang="es">
 <head>
@@ -13,7 +14,7 @@
       font-family: 'Segoe UI', Arial, sans-serif;
     }
 
-    /* ====== CABECERA ====== */
+    /* ====== CABECERA (Tu CSS original) ====== */
     header {
       display: flex;
       justify-content: space-between;
@@ -62,45 +63,45 @@
       background: #fafafa;
     }
 
-    /* ====== ESTILOS PARA EL DESPLEGABLE DE PERFIL ====== */
-
-    /* 1. El contenedor (necesario para posicionar el menú) */
+    /* ====== DESPLEGABLE DE PERFIL (Tu CSS original + botón modificado) ====== */
     .profile-dropdown {
       position: relative;
       display: inline-block;
     }
-
-    /* 2. El botón (ícono de usuario) */
+    
     .profile-icon-btn {
-      background-color: #faf7f2;
-      border: 1px solid #c06b3e;
-      border-radius: 50%; /* Lo hace redondo */
-      cursor: pointer;
-      padding: 4px; /* Un pequeño espacio alrededor del ícono */
-      display: flex; /* Para centrar bien la imagen */
-      align-items: center;
-      justify-content: center;
+        width: 30px;
+        height: 30px;
+        background-color: #c06b3e;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        transition: background-color 0.3s;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex; 
+        align-items: center;
+        justify-content: center;
     }
-
+    .profile-icon-btn:hover {
+        background-color: #a35a34;
+    }
+    
     .profile-icon-btn img {
-      display: block; /* Evita espacios extra */
+      display: block; 
     }
-
-    /* 3. El contenido del menú (oculto por defecto) */
     .dropdown-content {
-      display: none; /* Oculto hasta que JS añada la clase .show */
+      display: none; 
       position: absolute;
-      right: 0; /* Alineado a la derecha */
-      top: 45px; /* Espacio desde el ícono */
+      right: 0; 
+      top: 45px; 
       background-color: #ffffff;
       min-width: 160px;
       box-shadow: 0 8px 16px rgba(0,0,0,0.15);
       border-radius: 8px;
       z-index: 10;
-      overflow: hidden; /* Para que los bordes redondeados afecten a los links */
+      overflow: hidden; 
     }
-
-    /* 4. Los links y botones dentro del menú */
     .dropdown-content a,
     .dropdown-logout-btn {
       color: #333;
@@ -109,8 +110,6 @@
       display: block;
       font-size: 14px;
     }
-
-    /* Estilo para el botón de logout (para que parezca un link) */
     .dropdown-logout-btn {
       width: 100%;
       text-align: left;
@@ -118,25 +117,27 @@
       border: none;
       cursor: pointer;
     }
-
-    /* 5. El efecto hover (resaltar) */
     .dropdown-content a:hover,
     .dropdown-logout-btn:hover {
       background-color: #f1f1f1;
     }
-
-    /* 6. La clase que JS usará para mostrar el menú */
     .dropdown-content.show {
       display: block;
     }
 
 
-    /* ====== ESCAPARATE ====== */
+    /* ====== ESCAPARATE (CSS MODIFICADO PARA LAYOUT HORIZONTAL) ====== */
     main {
       max-width: 1100px;
       margin: 40px auto;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      
+      /* 4 columnas fijas */
+      grid-template-columns: repeat(4, 1fr);
+      
+      /* MODIFICADO: Filas más bajas para tarjetas horizontales */
+      grid-auto-rows: 220px; 
+      
       gap: 20px;
       padding: 0 24px;
     }
@@ -149,6 +150,10 @@
       text-align: center;
       padding: 16px;
       transition: transform .2s ease;
+      
+      /* Flex para alinear contenido (precio abajo) */
+      display: flex;
+      flex-direction: column;
     }
 
     .product-card:hover {
@@ -157,7 +162,7 @@
 
     .product-card img {
       width: 100%;
-      height: 180px;
+      height: 150px; 
       object-fit: cover;
       border-radius: 10px;
     }
@@ -167,13 +172,29 @@
       color: #333;
       margin-top: 10px;
       font-weight: 500;
+      flex-grow: 1; /* Empuja el precio hacia abajo */
     }
 
     .product-price {
       color: #c06b3e;
       font-weight: bold;
       margin-top: 6px;
-}
+    }
+    
+    /* Estilos para el layout 2x2 */
+    .product-card:nth-child(1),
+    .product-card:nth-child(2) {
+        grid-column: span 2;
+        grid-row: span 2;
+    }
+
+    /* Ajustamos la imagen SÓLO para esas dos tarjetas grandes */
+    .product-card:nth-child(1) img,
+    .product-card:nth-child(2) img {
+        /* MODIFICADO: Nueva altura para imágenes grandes (220px * 2 + 20px gap) - padding - texto */
+        height: 350px;
+    }
+
   </style>
 </head>
 
@@ -188,34 +209,53 @@
     </div>
 
     <div class="profile-dropdown">
+      
       <button onclick="toggleDropdown()" class="profile-icon-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c06b3e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
           <circle cx="12" cy="7" r="4"></circle>
         </svg>
       </button>
-    </div>
 
       <div id="myDropdown" class="dropdown-content">
-
-        {% if user.is_authenticated %}
-
-          <a href="{% url 'profile' %}">Mi perfil</a> 
-          <form action="{% url 'logout' %}" method="post" style="margin:0;">
-            {% csrf_token %}
-            <button type="submit" class="dropdown-logout-btn">Log out</button>
-          </form>
-
-        {% else %}
-
-          <a href="{% url 'register' %}">Registrarse</a> 
-          <a href="{% url 'login' %}">Iniciar sesión</a>
-
-        {% endif %}
-
+          {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}">Mi perfil</a> 
+            <form action="{% url 'logout' %}" method="post" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-logout-btn">Log out</button>
+            </form>
+          {% else %}
+            <a href="{% url 'register' %}">Registrarse</a> 
+            <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
       </div>
+      
     </div>
   </header>
+  
+  <main>
+    {% if products %}
+      {% for product in products %}
+      <div class="product-card">
+        {% if product.photo %}
+          <img src="{{ product.photo.url }}" alt="{{ product.name }}">
+        {% else %}
+          <img src="{% static 'images/default_product.png' %}" alt="Producto sin imagen">
+        {% endif %}
+        <div class="product-name">
+          {{ product.name }}
+        </div>
+        <div class="product-price">
+          {{ product.price|floatformat:2 }} €
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555;">
+        No hay productos disponibles en este momento.
+      </p>
+    {% endif %}
+  </main>
 
   <script>
     /*
