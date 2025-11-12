@@ -28,7 +28,7 @@ class StockView(View):
             return redirect("stock")
 
         # Actualiza el stock del producto
-        new_stock = int(stock)
+        new_stock = int(stock or 0)
         product.stock = new_stock
         product.save(update_fields=["stock"])
         messages.success(
