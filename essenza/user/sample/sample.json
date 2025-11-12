@@ -30,6 +30,7 @@
             "photo": "profile_pics/carla_gonzalez.jpg",
             "role": "user",
             "password": "pbkdf2_sha256$1000000$X4rPLmVEgJfrZJ3gVwUwKg$alBh41D6b/3X9GiA2fo2X8X5Q8aHT91Jk5mwY6GLgdE="
+            
         }
     },
     {
