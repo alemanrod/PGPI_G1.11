@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, render
 from django.views import View
 
@@ -10,7 +11,12 @@ class DashboardView(View):
         return render(request, "product/dashboard.html")
 
 
-class StockView(View):
+class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
+    # Solo los administradores pueden acceder a esta vista
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    # Solo se ejecutan métodos GET y POST si el usuario pasa la prueba
     def get(self, request):
         # Carga y muestra todos los productos ordenados por nombre
         products = Product.objects.all().order_by("name")
