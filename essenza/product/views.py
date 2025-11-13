@@ -32,7 +32,6 @@ class DashboardView(View):
         products = Product.objects.filter(
             is_active=True, id__in=most_purchased_products
         )
-        print(products)
 
         return render(request, self.template_name, {"products": products})
 
