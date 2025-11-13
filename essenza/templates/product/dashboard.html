@@ -13,7 +13,7 @@
         font-family: "Segoe UI", Arial, sans-serif;
       }
 
-      /* ====== CABECERA (Tu CSS original) ====== */
+      /* ====== CABECERA ====== */
       header {
         display: flex;
         justify-content: space-between;
@@ -22,7 +22,6 @@
         background-color: #fff;
         border-bottom: 2px solid #c06b3e;
       }
-
       .info-button {
         margin-right: 15px;
         width: 30px;
@@ -42,19 +41,16 @@
       .info-button:hover {
         background-color: #a35a34;
       }
-
       .brand {
         font-size: 32px;
         color: #c06b3e;
         font-weight: bold;
         letter-spacing: 1px;
       }
-
       .search-bar {
         flex: 1;
         margin: 0 20px;
       }
-
       .search-bar input {
         width: 100%;
         max-width: 380px;
@@ -64,12 +60,11 @@
         background: #fafafa;
       }
 
-      /* ====== DESPLEGABLE DE PERFIL (Tu CSS original + botón modificado) ====== */
+      /* ====== DESPLEGABLE DE PERFIL ====== */
       .profile-dropdown {
         position: relative;
         display: inline-block;
       }
-
       .profile-icon-btn {
         width: 34px;
         height: 34px;
@@ -87,7 +82,6 @@
       .profile-icon-btn:hover {
         background-color: #a35a34;
       }
-
       .profile-icon-btn img {
         display: block;
       }
@@ -126,18 +120,14 @@
         display: block;
       }
 
-      /* ====== ESCAPARATE (CSS MODIFICADO PARA LAYOUT HORIZONTAL) ====== */
+      /* ====== ESCAPARATE ====== */
       main {
         max-width: 1100px;
         margin: 40px auto;
         display: grid;
-
-        /* 4 columnas fijas */
-        grid-template-columns: repeat(4, 1fr);
-
-        /* MODIFICADO: Filas más bajas para tarjetas horizontales */
-        grid-auto-rows: 220px;
-
+        grid-template-columns: repeat(30, 1fr);
+        grid-template-rows: 220px 220px 280px;
+        grid-auto-rows: 280px;
         gap: 20px;
         padding: 0 24px;
       }
@@ -151,10 +141,11 @@
         transition: transform 0.2s ease;
         display: flex;
         flex-direction: column;
-        text-align: center;
         align-items: center;
-        justify-content: space-between;
-        gap: 12px;
+        text-align: center;
+        height: 100%;
+        box-sizing: border-box;
+        position: relative;
       }
 
       .product-card:hover {
@@ -162,38 +153,100 @@
       }
 
       .product-card img {
-        width: 100%;
-        height: 140px;
-        object-fit: cover;
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
         border-radius: 10px;
         flex-shrink: 0;
       }
 
+      .product-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        flex-grow: 1;
+        justify-content: center;
+      }
+
       .product-name {
-        font-size: 15px;
+        font-size: 16px;
+        font-weight: 600;
         color: #333;
-        margin-top: 10px;
-        font-weight: 500;
-        flex-grow: 1; /* Empuja el precio hacia abajo */
+        margin-top: 16px;
+        width: 100%;
       }
 
       .product-price {
-        color: #c06b3e;
+        font-size: 18px;
         font-weight: bold;
-        margin-top: 6px;
+        color: #c06b3e;
+        margin-top: 8px;
+      }
+      .product-description {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+        width: 100%;
+        white-space: nowrap; /* Evita que el texto salte de línea */
+        overflow: hidden; /* Oculta el texto que se desborda */
+        text-overflow: ellipsis; /* Añade los '...' */
       }
 
-      /* Estilos para el layout 2x2 */
+      .card-link-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
+
+      /* --- FILA 1 (Items 1-2) --- */
       .product-card:nth-child(1),
       .product-card:nth-child(2) {
-        grid-column: span 2;
-        grid-row: span 2;
+        grid-column: span 15;
+        flex-direction: row;
+        justify-content: flex-start;
       }
 
-      /* Ajustamos la imagen SÓLO para esas dos tarjetas grandes */
-      .product-card:nth-child(1) img,
-      .product-card:nth-child(2) img {
-        height: 300px;
+      /* --- FILA 2 (Items 3-5) --- */
+      .product-card:nth-child(3),
+      .product-card:nth-child(4),
+      .product-card:nth-child(5) {
+        grid-column: span 10;
+        flex-direction: row;
+        justify-content: flex-start;
+      }
+
+      /* --- FILA 3 (Items 6-10) --- */
+      .product-card:nth-child(6),
+      .product-card:nth-child(7),
+      .product-card:nth-child(8),
+      .product-card:nth-child(9),
+      .product-card:nth-child(10) {
+        grid-column: span 6;
+      }
+
+      /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
+      .product-card:nth-child(1) .product-info,
+      .product-card:nth-child(2) .product-info,
+      .product-card:nth-child(3) .product-info,
+      .product-card:nth-child(4) .product-info,
+      .product-card:nth-child(5) .product-info {
+        margin-left: 20px;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .product-card:nth-child(1) .product-name,
+      .product-card:nth-child(2) .product-name,
+      .product-card:nth-child(3) .product-name,
+      .product-card:nth-child(4) .product-name,
+      .product-card:nth-child(5) .product-name {
+        margin-top: 0;
       }
     </style>
   </head>
@@ -204,11 +257,9 @@
         >i</a
       >
       <div class="brand">ESSENZA</div>
-
       <div class="search-bar">
         <input type="text" placeholder="Buscar..." />
       </div>
-
       <div class="profile-dropdown">
         <button onclick="toggleDropdown()" class="profile-icon-btn">
           <svg
@@ -225,7 +276,6 @@
             <circle cx="12" cy="7" r="4"></circle>
           </svg>
         </button>
-
         <div id="myDropdown" class="dropdown-content">
           {% if user.is_authenticated %}
           <a href="{% url 'profile' %}">Mi perfil</a>
@@ -241,14 +291,21 @@
     <main>
       {% if products %} {% for p in products %}
       <div class="product-card">
+        <a href="#" class="card-link-overlay"></a>
+
         {% if p.photo %}
         <img src="{{ p.photo.url }}" />
         {% else %}
         <img src="{% static 'images/default_product.png' %}" />
         {% endif %}
+
         <div class="product-info">
           <div class="product-name">{{ p.name }}</div>
           <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+
+          {% if forloop.counter <= 2 %}
+          <div class="product-description">{{ p.description }}</div>
+          {% endif %}
         </div>
       </div>
       {% endfor %} {% else %}
@@ -271,13 +328,11 @@
        * hace clic fuera de él
        */
       window.onclick = function (event) {
-        // Comprueba si el clic NO fue en el botón del ícono
         if (!event.target.closest(".profile-icon-btn")) {
           var dropdowns = document.getElementsByClassName("dropdown-content");
           var i;
           for (i = 0; i < dropdowns.length; i++) {
             var openDropdown = dropdowns[i];
-            // Si el menú está abierto (tiene la clase .show), la cierra
             if (openDropdown.classList.contains("show")) {
               openDropdown.classList.remove("show");
             }

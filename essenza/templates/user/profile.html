@@ -114,15 +114,18 @@
       }
       .return-button:hover {
         background-color: #a35a34;
+        text-decoration: none;
       }
     </style>
   </head>
   <body>
-    {% if user.role == "user" %}
-    <a href="/" class="return-button" title="Volver">Volver</a>
-    {% else %}
-    <a href="/product/stock" class="return-button" title="Volver">Volver</a>
-    {% endif %}
+    <a
+      href="#"
+      onclick="history.back(); return false;"
+      class="return-button"
+      title="Volver"
+      >Volver</a
+    >
 
     <div class="page">
       <h1 class="brand">ESSENZA</h1>
