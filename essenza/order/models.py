@@ -1,16 +1,22 @@
 from django.db import models
 
+
 # Create your models here.
 class Status(models.TextChoices):
-    PENDING = 'pending', 'Pending'
-    PAID = 'paid', 'Paid'
-    SHIPPED = 'shipped', 'Shipped'
+    PENDING = "pending", "Pending"
+    PAID = "paid", "Paid"
+    SHIPPED = "shipped", "Shipped"
+
 
 class Order(models.Model):
-    user = models.ForeignKey('user.Usuario', on_delete=models.CASCADE, related_name='orders')
+    user = models.ForeignKey(
+        "user.Usuario", on_delete=models.CASCADE, related_name="orders"
+    )
     address = models.CharField(max_length=255)
     placed_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
+    status = models.CharField(
+        max_length=10, choices=Status.choices, default=Status.PENDING
+    )
 
     @property
     def total_price(self):
@@ -24,8 +30,12 @@ class Order(models.Model):
 
 
 class OrderProduct(models.Model):
-    order = models.ForeignKey('order.Order', on_delete=models.CASCADE, related_name='order_products')
-    product = models.ForeignKey('product.Product', on_delete=models.CASCADE, related_name='product_orders')
+    order = models.ForeignKey(
+        "order.Order", on_delete=models.CASCADE, related_name="order_products"
+    )
+    product = models.ForeignKey(
+        "product.Product", on_delete=models.CASCADE, related_name="product_orders"
+    )
     quantity = models.IntegerField()
 
     def __str__(self):

@@ -1,13 +1,13 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Mi Perfil · Essenza</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <style>
-    body {
+  <head>
+    <meta charset="utf-8" />
+    <title>Mi Perfil · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      body {
         /* --- Variables de Color --- */
         --color-principal: #c06b3e;
         --color-principal-hover: #a35a34;
@@ -18,26 +18,26 @@
         --color-error: #b00020;
         --color-foco-sombra: rgba(192, 107, 62, 0.2);
         --color-exito: #00695c; /* (Añadido para mensajes) */
-        
+
         background-color: var(--color-fondo);
         margin: 0;
-        font-family: 'Segoe UI', Arial, sans-serif;
-    }
-    .page {
-        min-height:100dvh; 
-        display:flex; 
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+      .page {
+        min-height: 100dvh;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap:2rem; 
-    }
-    .brand {
+        gap: 2rem;
+      }
+      .brand {
         color: var(--color-principal);
         font-size: 48px;
         margin-bottom: 10px;
         text-align: center;
-    }
-    .form-card {
+      }
+      .form-card {
         width: min(420px, 88vw);
         background: var(--color-fondo-tarjeta);
         border: 2px solid var(--color-principal);
@@ -45,9 +45,9 @@
         box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
         padding: 22px 24px;
         box-sizing: border-box;
-    }
-    /* Estilos de botones y links (copiados) */
-    .btn-primary {
+      }
+      /* Estilos de botones y links (copiados) */
+      .btn-primary {
         width: 100%;
         margin-top: 14px;
         padding: 10px 12px;
@@ -61,22 +61,22 @@
         display: inline-block; /* Para enlaces */
         box-sizing: border-box; /* Para enlaces */
         text-align: center; /* Para enlaces */
-    }
-    .btn-primary:hover {
+      }
+      .btn-primary:hover {
         background-color: var(--color-principal-hover);
-    }
-    .login-link {
+      }
+      .login-link {
         margin-top: 15px;
         text-align: center;
         font-size: 13px;
-    }
-    .login-link a {
+      }
+      .login-link a {
         color: var(--color-principal);
         text-decoration: underline;
-    }
+      }
 
-    /* (Añadido) Estilos para la vista de perfil */
-    .profile-pic {
+      /* (Añadido) Estilos para la vista de perfil */
+      .profile-pic {
         width: 150px;
         height: 150px;
         border-radius: 50%;
@@ -84,17 +84,17 @@
         display: block;
         margin: 10px auto;
         border: 2px solid var(--color-principal);
-    }
-    .profile-data p {
+      }
+      .profile-data p {
         font-size: 16px;
         color: var(--color-texto-base);
         border-bottom: 1px solid var(--color-borde-claro);
         padding: 10px 0;
-    }
-    .profile-data strong {
+      }
+      .profile-data strong {
         color: var(--color-principal);
-    }
-    .return-button {
+      }
+      .return-button {
         position: fixed;
         top: 20px;
         left: 20px;
@@ -109,39 +109,54 @@
         color: white;
         text-decoration: none;
         cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         transition: background-color 0.3s;
-    }
-    .return-button:hover { background-color: #a35a34; 
-    }
-  </style>
-</head>
-<body>
+      }
+      .return-button:hover {
+        background-color: #a35a34;
+      }
+    </style>
+  </head>
+  <body>
+    {% if user.role == "user" %}
+    <a href="/" class="return-button" title="Volver">Volver</a>
+    {% else %}
+    <a href="/product/stock" class="return-button" title="Volver">Volver</a>
+    {% endif %}
 
-  <a href="/" class="return-button" title="Volver">Volver</a>
+    <div class="page">
+      <h1 class="brand">ESSENZA</h1>
 
-  <div class="page">
-    <h1 class="brand">ESSENZA</h1>
+      <div class="form-card">
+        {% if user.photo %}
+        <img
+          src="{{ user.photo.url }}"
+          alt="Foto de perfil"
+          class="profile-pic"
+        />
+        {% else %}
+        <img
+          src="{% static 'images/default_user.png' %}"
+          alt="Foto de perfil por defecto"
+          class="profile-pic"
+        />
+        {% endif %}
 
-    <div class="form-card">
-      
-      {% if user.photo %}
-        <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-pic">
-      {% else %}
-        <img src="{% static 'images/default_user.png' %}" alt="Foto de perfil por defecto" class="profile-pic">
-      {% endif %}
+        <div class="profile-data">
+          <p><strong>Nombre:</strong> {{ user.first_name }}</p>
+          <p><strong>Apellidos:</strong> {{ user.last_name }}</p>
+          <p><strong>Email:</strong> {{ user.email }}</p>
+        </div>
 
-      <div class="profile-data">
-        <p><strong>Nombre:</strong> {{ user.first_name }}</p>
-        <p><strong>Apellidos:</strong> {{ user.last_name }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
+        <a href="{% url 'profile_edit' %}" class="btn-primary"
+          >Editar mis datos</a
+        >
+        <p class="login-link">
+          <a href="{% url 'profile_delete' %}" style="color: var(--color-error)"
+            >Eliminar mi cuenta</a
+          >
+        </p>
       </div>
-
-      <a href="{% url 'profile_edit' %}" class="btn-primary">Editar mis datos</a>
-      <p class="login-link">
-        <a href="{% url 'profile_delete' %}" style="color: var(--color-error);">Eliminar mi cuenta</a>
-      </p>
     </div>
-  </div>
-</body>
+  </body>
 </html>
