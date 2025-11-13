@@ -11,9 +11,9 @@ class LoginView(View):
     template_name = "user/login.html"
 
     def get(self, request, *args, **kwargs):
-        # Si el usuario ya está autenticado, lo mandamos a dashboard
+        # Si el usuario ya está autenticado, lo mandamos a home
         if request.user.is_authenticated:
-            return redirect("dashboard")
+            return redirect("home")
         # Si no está autenticado, renderiza el formulario de login
         return render(request, self.template_name, {"form": self.form_class()})
 
@@ -29,7 +29,7 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 if user.role == "user":
-                    return redirect("dashboard")
+                    return redirect("home")
                 else:
                     return redirect("stock")
             else:
@@ -42,13 +42,13 @@ class LoginView(View):
 class LogoutView(View):
     def get(self, request):
         logout(request)
-        response = redirect("dashboard")
+        response = redirect("home")
         response.delete_cookie("sessionid")
         return response
 
     def post(self, request):
         logout(request)
-        response = redirect("dashboard")
+        response = redirect("home")
         response.delete_cookie("sessionid")
         return response
 
@@ -67,7 +67,7 @@ class RegisterView(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect("dashboard")
+            return redirect("home")
 
         return render(request, self.template_name, {"form": form})
 
@@ -133,4 +133,4 @@ class ProfileDeleteView(LoginRequiredMixin, View):
         if photo_to_delete:
             photo_to_delete.delete(save=False)
 
-        return redirect("dashboard")
+        return redirect("home")

@@ -6,9 +6,9 @@ from django.views import View
 from .models import Product
 
 
-class DashboardView(View):
+class BaseView(View):
     def get(self, request):
-        return render(request, "product/dashboard.html")
+        return render(request, "base.html")
 
 
 class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
