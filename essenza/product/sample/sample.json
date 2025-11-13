@@ -33,7 +33,7 @@
         "fields": {
             "name": "Secador de Pelo",
             "description": "Secador de pelo con 3 niveles de temperatura, 2000W.",
-            "category": "herramienta",
+            "category": "cabello",
             "brand": "Braun",
             "price": 45.99,
             "photo": "products/secador_pelo.jpg",
@@ -75,7 +75,7 @@
         "fields": {
             "name": "Rizador de Pelo",
             "description": "Rizador de pelo con control de temperatura, 25mm.",
-            "category": "herramienta",
+            "category": "cabello",
             "brand": "Remington",
             "price": 29.99,
             "photo": "products/rizador_pelo.jpg",
