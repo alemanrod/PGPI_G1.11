@@ -1,14 +1,39 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from django.views import View
+from order.models import OrderProduct
 
 from .models import Product
 
 
 class DashboardView(View):
-    def get(self, request):
-        return render(request, "product/dashboard.html")
+    template_name = "product/dashboard.html"
+
+    def get(self, request, *args, **kwargs):
+        # Obtenemos de los datos
+        order_products = OrderProduct.objects.all()
+        month_ago = timezone.now() - timezone.timedelta(days=30)
+        times_purchased = {}
+        for order_product in order_products:
+            order = order_product.order
+            if order.placed_at >= month_ago:
+                if order_product.product.id in times_purchased:
+                    times_purchased[order_product.product.id] += order_product.quantity
+                else:
+                    times_purchased[order_product.product.id] = order_product.quantity
+        times_purchased_ordered = dict(
+            sorted(
+                times_purchased.items(), key=lambda quantity: quantity[1], reverse=True
+            )
+        )
+        most_purchased_products = list(times_purchased_ordered.keys())[:10]
+        products = Product.objects.filter(
+            is_active=True, id__in=most_purchased_products
+        )
+
+        return render(request, self.template_name, {"products": products})
 
 
 class StockView(LoginRequiredMixin, UserPassesTestMixin, View):

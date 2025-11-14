@@ -1,250 +1,374 @@
-{% load static %}
-<!doctype html>
+{% load static %} {% load humanize %}
+<!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="utf-8">
-  <title>Escaparate · Essenza</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <head>
+    <meta charset="utf-8" />
+    <title>Escaparate · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <style>
-    body {
-      margin: 0;
-      background-color: #faf7f2;
-      font-family: 'Segoe UI', Arial, sans-serif;
-    }
+    <style>
+      body {
+        margin: 0;
+        background-color: #faf7f2;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
 
-    /* ====== CABECERA ====== */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 14px 30px;
-      background-color: #fff;
-      border-bottom: 2px solid #c06b3e;
-    }
-    
-    .info-button {
-      margin-right: 15px; 
-      width: 30px;
-      height: 30px;
-      background-color: #c06b3e;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      color: white;
-      text-decoration: none;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-      transition: background-color 0.3s;
-    }
-    .info-button:hover { background-color: #a35a34; }
+      /* ====== CABECERA ====== */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 30px;
+        background-color: #fff;
+        border-bottom: 2px solid #c06b3e;
+      }
+      .info-button {
+        margin-right: 15px;
+        width: 30px;
+        height: 30px;
+        background-color: #c06b3e;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+      }
+      .info-button:hover {
+        background-color: #a35a34;
+      }
+      .brand {
+        font-size: 32px;
+        color: #c06b3e;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+      .search-bar {
+        flex: 1;
+        margin: 0 20px;
+      }
+      .search-bar input {
+        width: 100%;
+        max-width: 380px;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background: #fafafa;
+      }
 
-    .brand {
-      font-size: 32px;
-      color: #c06b3e;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
+      /* ====== DESPLEGABLE DE PERFIL ====== */
+      .profile-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .profile-icon-btn {
+        width: 34px;
+        height: 34px;
+        background-color: #c06b3e;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .profile-icon-btn:hover {
+        background-color: #a35a34;
+      }
+      .profile-icon-btn img {
+        display: block;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 45px;
+        background-color: #ffffff;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 10;
+        overflow: hidden;
+      }
+      .dropdown-content a,
+      .dropdown-logout-btn {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+      }
+      .dropdown-logout-btn {
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .dropdown-content a:hover,
+      .dropdown-logout-btn:hover {
+        background-color: #f1f1f1;
+      }
+      .dropdown-content.show {
+        display: block;
+      }
 
-    .search-bar {
-      flex: 1;
-      margin: 0 20px;
-    }
+      /* ====== ESCAPARATE ====== */
+      main {
+        max-width: 1100px;
+        margin: 40px auto;
+        display: grid;
+        grid-template-columns: repeat(30, 1fr);
+        grid-template-rows: 200px 200px 350px;
+        grid-auto-rows: 350px;
+        gap: 20px;
+        padding: 0 24px;
+      }
 
-    .search-bar input {
-      width: 100%;
-      max-width: 380px;
-      padding: 8px 12px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      background: #fafafa;
-    }
+      .product-card {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 16px;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        height: 350px;
+        box-sizing: border-box;
+        position: relative;
+        /* Si hay más productos, serán en filas de 5 elementos */
+        grid-column: span 6;
+      }
 
-    /* ====== ESTILOS PARA EL DESPLEGABLE DE PERFIL ====== */
+      .product-card:hover {
+        transform: translateY(-4px);
+      }
 
-    /* 1. El contenedor (necesario para posicionar el menú) */
-    .profile-dropdown {
-      position: relative;
-      display: inline-block;
-    }
+      .product-card:hover .product-name {
+        color: #c06b3e;
+        text-decoration: underline;
+      }
 
-    /* 2. El botón (ícono de usuario) */
-    .profile-icon-btn {
-      background-color: #faf7f2;
-      border: 1px solid #c06b3e;
-      border-radius: 50%; /* Lo hace redondo */
-      cursor: pointer;
-      padding: 4px; /* Un pequeño espacio alrededor del ícono */
-      display: flex; /* Para centrar bien la imagen */
-      align-items: center;
-      justify-content: center;
-    }
+      .product-card img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
 
-    .profile-icon-btn img {
-      display: block; /* Evita espacios extra */
-    }
+      .product-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        flex-grow: 1;
+        justify-content: center;
+      }
 
-    /* 3. El contenido del menú (oculto por defecto) */
-    .dropdown-content {
-      display: none; /* Oculto hasta que JS añada la clase .show */
-      position: absolute;
-      right: 0; /* Alineado a la derecha */
-      top: 45px; /* Espacio desde el ícono */
-      background-color: #ffffff;
-      min-width: 160px;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-      border-radius: 8px;
-      z-index: 10;
-      overflow: hidden; /* Para que los bordes redondeados afecten a los links */
-    }
+      .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-top: 16px;
+        width: 100%;
+      }
 
-    /* 4. Los links y botones dentro del menú */
-    .dropdown-content a,
-    .dropdown-logout-btn {
-      color: #333;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      font-size: 14px;
-    }
+      .product-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #c06b3e;
+        margin-top: 8px;
+      }
 
-    /* Estilo para el botón de logout (para que parezca un link) */
-    .dropdown-logout-btn {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
+      .product-description {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+        width: 100%;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
 
-    /* 5. El efecto hover (resaltar) */
-    .dropdown-content a:hover,
-    .dropdown-logout-btn:hover {
-      background-color: #f1f1f1;
-    }
+      .card-link-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
 
-    /* 6. La clase que JS usará para mostrar el menú */
-    .dropdown-content.show {
-      display: block;
-    }
+      /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
 
+      /* --- FILA 1 (Items 1-2) --- */
+      .product-card:nth-child(1),
+      .product-card:nth-child(2) {
+        grid-column: span 15;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 200px;
+      }
 
-    /* ====== ESCAPARATE ====== */
-    main {
-      max-width: 1100px;
-      margin: 40px auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-      padding: 0 24px;
-    }
+      /* --- FILA 2 (Items 3-5) --- */
+      .product-card:nth-child(3),
+      .product-card:nth-child(4),
+      .product-card:nth-child(5) {
+        grid-column: span 10;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 200px;
+      }
 
-    .product-card {
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
-      text-align: center;
-      padding: 16px;
-      transition: transform .2s ease;
-    }
+      /* --- FILA 3 (Items 6-10) --- */
+      .product-card:nth-child(6),
+      .product-card:nth-child(7),
+      .product-card:nth-child(8),
+      .product-card:nth-child(9),
+      .product-card:nth-child(10) {
+        grid-column: span 6;
+      }
 
-    .product-card:hover {
-      transform: translateY(-4px);
-    }
+      /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
+      .product-card:nth-child(1) .product-info,
+      .product-card:nth-child(2) .product-info,
+      .product-card:nth-child(3) .product-info,
+      .product-card:nth-child(4) .product-info,
+      .product-card:nth-child(5) .product-info {
+        margin-left: 20px;
+        align-items: flex-start;
+        text-align: left;
+      }
 
-    .product-card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+      .product-card:nth-child(1) .product-name,
+      .product-card:nth-child(2) .product-name,
+      .product-card:nth-child(3) .product-name,
+      .product-card:nth-child(4) .product-name,
+      .product-card:nth-child(5) .product-name {
+        margin-top: 0;
+      }
 
-    .product-name {
-      font-size: 15px;
-      color: #333;
-      margin-top: 10px;
-      font-weight: 500;
-    }
+      .showcase-title {
+        text-align: center;
+        margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
+      }
+      .showcase-title h2 {
+        font-size: 28px;
+        color: #c06b3e; /* Color de la marca */
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .showcase-title p {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+      }
+    </style>
+  </head>
 
-    .product-price {
-      color: #c06b3e;
-      font-weight: bold;
-      margin-top: 6px;
-}
-  </style>
-</head>
-
-<body>
-
-  <header>
-    <a href="/info/" class="info-button" title="Información Legal y Contacto">i</a>
-    <div class="brand">ESSENZA</div>
-
-    <div class="search-bar">
-      <input type="text" placeholder="Buscar...">
-    </div>
-
-    <div class="profile-dropdown">
-      <button onclick="toggleDropdown()" class="profile-icon-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c06b3e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-      </button>
-    </div>
-
-      <div id="myDropdown" class="dropdown-content">
-
-        {% if user.is_authenticated %}
-
-          <a href="{% url 'profile' %}">Mi perfil</a> 
-          <form action="{% url 'logout' %}" method="post" style="margin:0;">
-            {% csrf_token %}
-            <button type="submit" class="dropdown-logout-btn">Log out</button>
-          </form>
-
-        {% else %}
-
-          <a href="{% url 'register' %}">Registrarse</a> 
+  <body>
+    <header>
+      <a href="/info/" class="info-button" title="Información Legal y Contacto"
+        >i</a
+      >
+      <div class="brand">ESSENZA</div>
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar..." />
+      </div>
+      <div class="profile-dropdown">
+        <button onclick="toggleDropdown()" class="profile-icon-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="#fff"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+        <div id="myDropdown" class="dropdown-content">
+          {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}">Mi perfil</a>
+          <a href="{% url 'logout' %}">Cerrar sesión</a>
+          {% else %}
+          <a href="{% url 'register' %}">Registrarse</a>
           <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
 
+    <div class="showcase-title">
+      <h2>Top 10 Bestsellers</h2>
+      <p>Una cuidada selección de los productos estrella de la temporada.</p>
+    </div>
+
+    <main>
+      {% if products %} {% for p in products %}
+      <div class="product-card">
+        <a href="#" class="card-link-overlay"></a>
+
+        {% if p.photo %}
+        <img src="{{ p.photo.url }}" />
+        {% else %}
+        <img src="{% static 'images/default_product.png' %}" />
         {% endif %}
 
+        <div class="product-info">
+          <div class="product-name">{{ p.name }}</div>
+          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+          <div class="product-description">{{ p.description }}</div>
+        </div>
       </div>
-    </div>
-  </header>
+      {% endfor %} {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555">
+        No hay productos disponibles en este momento.
+      </p>
+      {% endif %}
+    </main>
 
-  <script>
-    /*
-     * Función para mostrar/ocultar el desplegable
-     */
-    function toggleDropdown() {
-      document.getElementById("myDropdown").classList.toggle("show");
-    }
+    <script>
+      /*
+       * Función para mostrar/ocultar el desplegable
+       */
+      function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+      }
 
-    /*
-     * Cierra el desplegable si el usuario
-     * hace clic fuera de él
-     */
-    window.onclick = function(event) {
-      // Comprueba si el clic NO fue en el botón del ícono
-      if (!event.target.closest('.profile-icon-btn')) {
-        
-        var dropdowns = document.getElementsByClassName("dropdown-content");
-        var i;
-        for (i = 0; i < dropdowns.length; i++) {
-          var openDropdown = dropdowns[i];
-          // Si el menú está abierto (tiene la clase .show), la cierra
-          if (openDropdown.classList.contains('show')) {
-            openDropdown.classList.remove('show');
+      /*
+       * Cierra el desplegable si el usuario
+       * hace clic fuera de él
+       */
+      window.onclick = function (event) {
+        if (!event.target.closest(".profile-icon-btn")) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains("show")) {
+              openDropdown.classList.remove("show");
+            }
           }
         }
-      }
-    }
-  </script>
-
-</body>
+      };
+    </script>
+  </body>
 </html>
