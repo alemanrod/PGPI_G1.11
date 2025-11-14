@@ -126,8 +126,8 @@
         margin: 40px auto;
         display: grid;
         grid-template-columns: repeat(30, 1fr);
-        grid-template-rows: 220px 220px 280px;
-        grid-auto-rows: 280px;
+        grid-template-rows: 200px 200px 350px;
+        grid-auto-rows: 350px;
         gap: 20px;
         padding: 0 24px;
       }
@@ -143,13 +143,20 @@
         flex-direction: column;
         align-items: center;
         text-align: center;
-        height: 100%;
+        height: 350px;
         box-sizing: border-box;
         position: relative;
+        /* Si hay más productos, serán en filas de 5 elementos */
+        grid-column: span 6;
       }
 
       .product-card:hover {
         transform: translateY(-4px);
+      }
+
+      .product-card:hover .product-name {
+        color: #c06b3e;
+        text-decoration: underline;
       }
 
       .product-card img {
@@ -183,14 +190,17 @@
         color: #c06b3e;
         margin-top: 8px;
       }
+
       .product-description {
         font-size: 14px;
         color: #666;
         margin-top: 8px;
         width: 100%;
-        white-space: nowrap; /* Evita que el texto salte de línea */
-        overflow: hidden; /* Oculta el texto que se desborda */
-        text-overflow: ellipsis; /* Añade los '...' */
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .card-link-overlay {
@@ -210,6 +220,7 @@
         grid-column: span 15;
         flex-direction: row;
         justify-content: flex-start;
+        height: 200px;
       }
 
       /* --- FILA 2 (Items 3-5) --- */
@@ -219,6 +230,7 @@
         grid-column: span 10;
         flex-direction: row;
         justify-content: flex-start;
+        height: 200px;
       }
 
       /* --- FILA 3 (Items 6-10) --- */
@@ -247,6 +259,22 @@
       .product-card:nth-child(4) .product-name,
       .product-card:nth-child(5) .product-name {
         margin-top: 0;
+      }
+
+      .showcase-title {
+        text-align: center;
+        margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
+      }
+      .showcase-title h2 {
+        font-size: 28px;
+        color: #c06b3e; /* Color de la marca */
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .showcase-title p {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
       }
     </style>
   </head>
@@ -288,6 +316,11 @@
       </div>
     </header>
 
+    <div class="showcase-title">
+      <h2>Top 10 Bestsellers</h2>
+      <p>Una cuidada selección de los productos estrella de la temporada.</p>
+    </div>
+
     <main>
       {% if products %} {% for p in products %}
       <div class="product-card">
@@ -302,10 +335,7 @@
         <div class="product-info">
           <div class="product-name">{{ p.name }}</div>
           <div class="product-price">{{ p.price|floatformat:2 }} €</div>
-
-          {% if forloop.counter <= 2 %}
           <div class="product-description">{{ p.description }}</div>
-          {% endif %}
         </div>
       </div>
       {% endfor %} {% else %}
