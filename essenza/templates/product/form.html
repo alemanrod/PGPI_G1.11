@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Producto - Essenza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #faf7f2;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #c06b3e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        input[type="file"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="file"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #c06b3e;
+            box-shadow: 0 0 5px rgba(192, 107, 62, 0.2);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        .form-group input[type="checkbox"] + .checkbox-label {
+            margin-left: 0;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+        .btn-submit {
+            background-color: #c06b3e;
+            color: white;
+        }
+        .btn-submit:hover {
+            opacity: 0.85;
+        }
+        .btn-cancel {
+            background-color: #ddd;
+            color: #333;
+        }
+        .btn-cancel:hover {
+            opacity: 0.85;
+        }
+        .error-list {
+            background-color: #ffe8e8;
+            border: 1px solid #ffb3b3;
+            color: #c00;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .error-list li {
+            margin-left: 20px;
+        }
+        .helptext {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .form-group label span.required {
+            color: #c00;
+            margin-left: 4px;
+        }
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .field-group .form-group {
+            margin-bottom: 0;
+        }
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+            .field-group {
+                grid-template-columns: 1fr;
+            }
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>{% if form.instance.pk %}✏️ Editar Producto{% else %} Crear nuevo producto{% endif %}</h1>
+
+
+            {% if form.non_field_errors %}
+                <div class="error-list">
+                    <strong>Errores:</strong>
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+
+                {% for field in form %}
+                    {% if field.name == "is_active" %}
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                {{ field }}
+                                <span>{{ field.label }}</span>
+                            </label>
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {% if field.name == "stock" %}
+                                <div class="field-group">
+                                    {% endif %}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <small class="helptext">{{ field.help_text|safe }}</small>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="error-list" style="margin-top: 4px;">
+                                            {% for error in field.errors %}
+                                                <div>{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                            {% if field.name == "price" %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+
+                <div class="actions">
+                    <button type="submit" class="btn-submit">💾 Guardar</button>
+                    <a href="{% url 'product_list' %}" class="btn-cancel" style="text-align: center; text-decoration: none;">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
