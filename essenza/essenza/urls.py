@@ -3,7 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from info.views import info_view
-from product.views import BaseView
+from product.views import BaseView , DashboardView
 
 urlpatterns = [
     path("info/", info_view, name="info-home"),
@@ -11,6 +11,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("product/", include("product.urls")),
     path("", BaseView.as_view(), name="home"),
+    path("dashboard/", DashboardView.as_view(), name="dashboard"),
 ]
 
 if settings.DEBUG:
