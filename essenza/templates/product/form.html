@@ -21,6 +21,7 @@
             margin: 0 auto;
         }
         .form-container {
+            /* Contenedor principal blanco del formulario */
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -38,6 +39,14 @@
         }
         .form-group {
             margin-bottom: 20px;
+            /* Separador sutil */
+            padding-bottom: 5px; 
+            border-bottom: 1px solid #eee; 
+        }
+        /* Eliminar el separador del último form-group (antes de las acciones) */
+        .form-group:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
         }
         label {
             display: block;
@@ -49,7 +58,6 @@
         input[type="text"],
         input[type="email"],
         input[type="number"],
-        input[type="file"],
         textarea,
         select {
             width: 100%;
@@ -63,7 +71,6 @@
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="number"]:focus,
-        input[type="file"]:focus,
         textarea:focus,
         select:focus {
             outline: none;
@@ -74,6 +81,8 @@
             resize: vertical;
             min-height: 120px;
         }
+        
+        /* Estilos del checkbox 'Is active' */
         .form-group input[type="checkbox"] {
             width: auto;
             margin-right: 8px;
@@ -84,17 +93,27 @@
             align-items: center;
             font-weight: normal;
             margin-bottom: 0;
+            font-weight: bold;
+            font-size: 14px;
         }
-        .form-group input[type="checkbox"] + .checkbox-label {
-            margin-left: 0;
-        }
+        
+        /* Contenedor de botones */
         .actions {
             display: flex;
             gap: 10px;
             margin-top: 30px;
+            justify-content: flex-end; /* Alineación a la derecha */
         }
-        button {
-            flex: 1;
+        /* Ajuste de márgenes para el bloque de botones */
+        .form-container > form > .actions {
+            margin-top: 20px; 
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Estilo general del botón */
+        button{
+            flex: 0 0 auto; 
             padding: 12px 20px;
             border: none;
             border-radius: 5px;
@@ -103,20 +122,46 @@
             font-size: 16px;
             transition: opacity 0.3s;
         }
-        .btn-submit {
-            background-color: #c06b3e;
-            color: white;
-        }
-        .btn-submit:hover {
-            opacity: 0.85;
-        }
         .btn-cancel {
             background-color: #ddd;
             color: #333;
+            flex: 1;
         }
         .btn-cancel:hover {
             opacity: 0.85;
         }
+        
+        /* Estilo del botón Guardar */
+        .btn-submit {
+            background-color: #c06b3e;
+            color: white;
+            display: flex; 
+            align-items: center;
+        }
+        .btn-submit:hover {
+            opacity: 0.85;
+        }
+        
+        /* Estilo del botón Cancelar (que es un enlace) */
+        .btn-cancel {
+            background-color: #ddd; 
+            color: #333; 
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px 0; 
+            line-height: 1;
+            margin-right: 15px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cancel:hover {
+            text-decoration: underline;
+            opacity: 0.85;
+        }
+
+        /* Estilos para errores y ayuda */
         .error-list {
             background-color: #ffe8e8;
             border: 1px solid #ffb3b3;
@@ -139,23 +184,35 @@
             color: #c00;
             margin-left: 4px;
         }
-        .field-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+        
+        /* Estilos específicos para el campo de foto */
+        .photo-current-info {
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex; /* Para alinear el texto y el checkbox 'Limpiar' */
+            align-items: center;
         }
-        .field-group .form-group {
-            margin-bottom: 0;
+        .photo-clear {
+            display: flex; /* Para alinear el checkbox y el texto 'Limpiar' */
+            align-items: center;
+            margin-left: 10px;
+            font-weight: normal;
         }
+        .photo-clear input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
         @media (max-width: 600px) {
             .form-container {
                 padding: 20px;
             }
-            .field-group {
-                grid-template-columns: 1fr;
-            }
             .actions {
                 flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-cancel {
+                margin-right: 0;
             }
         }
     </style>
@@ -163,7 +220,7 @@
 <body>
     <div class="container">
         <div class="form-container">
-            <h1>{% if form.instance.pk %}✏️ Editar Producto{% else %} Crear nuevo producto{% endif %}</h1>
+            <h1>{% if form.instance.pk %}Editar producto{% else %} Crear nuevo producto{% endif %}</h1>
 
 
             {% if form.non_field_errors %}
@@ -184,10 +241,10 @@
 
                 {% for field in form %}
                     {% if field.name == "is_active" %}
-                        <div class="form-group">
-                            <label class="checkbox-label">
+                        <div class="form-group" style="border-bottom: none;">
+                            <label class="checkbox-label" style="font-weight: normal;">
                                 {{ field }}
-                                <span>{{ field.label }}</span>
+                                <span style="font-weight: bold;">{{ field.label }}</span>
                             </label>
                             {% if field.errors %}
                                 <div class="error-list" style="margin-top: 4px;">
@@ -197,24 +254,43 @@
                                 </div>
                             {% endif %}
                         </div>
-                    {% else %}
+                    {% elif field.name == "photo" %}
+                        <div class="form-group">
+                            <label>Photo:</label>
+                            
+                            {% if form.instance.pk and field.value %}
+                                <div class="photo-current-info" style="margin-bottom: 10px;">
+                                   
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <label style="font-weight: normal; margin-bottom: 0;"></label>
+                            {{ field }}
+                            
+                            {% if field.help_text %}
+                                <small class="helptext">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
                         <div class="form-group">
                             {{ field.label_tag }}
-                            {% if field.name == "stock" %}
-                                <div class="field-group">
-                                    {% endif %}
-                                    {{ field }}
-                                    {% if field.help_text %}
-                                        <small class="helptext">{{ field.help_text|safe }}</small>
-                                    {% endif %}
-                                    {% if field.errors %}
-                                        <div class="error-list" style="margin-top: 4px;">
-                                            {% for error in field.errors %}
-                                                <div>{{ error }}</div>
-                                            {% endfor %}
-                                        </div>
-                                    {% endif %}
-                            {% if field.name == "price" %}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="helptext">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
                                 </div>
                             {% endif %}
                         </div>
@@ -223,8 +299,8 @@
 
 
                 <div class="actions">
-                    <button type="submit" class="btn-submit">💾 Guardar</button>
-                    <a href="{% url 'product_list' %}" class="btn-cancel" style="text-align: center; text-decoration: none;">← Cancelar</a>
+                    <button type="submit" class="btn-submit">Guardar</button>
+                    <a href="{% url 'product_list' %}" class="btn btn-cancel">← Cancelar</a>
                 </div>
             </form>
         </div>

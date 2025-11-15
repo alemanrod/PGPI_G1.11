@@ -135,7 +135,7 @@
         <form method="post" style="margin: 0;">
             {% csrf_token %}
             <div class="actions">
-                <button type="submit" class="btn-delete">🗑️ Sí, borrar producto</button>
+                <button type="submit" class="btn-delete">Sí, borrar producto</button>
                 <a href="{% url 'product_detail' product.pk %}" class="btn-cancel">← No, cancelar</a>
             </div>
         </form>

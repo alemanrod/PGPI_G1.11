@@ -69,22 +69,27 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("stock")
     
 
-class ProductListView(View):
+class ProductListView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = 'product/list.html'
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def get(self, request):
         products = Product.objects.all()
         return render(request, self.template_name, {'products': products})
 
-class ProductDetailView(View):
+class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = 'product/detail.html'
 
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         return render(request, self.template_name, {'product': product})
     
-class ProductCreateView(View):
+class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = 'product/form.html'
     form_class = ProductForm
     def test_func(self):
@@ -101,7 +106,7 @@ class ProductCreateView(View):
             return redirect('product_list')
         return render(request, self.template_name, {'form': form})
 
-class ProductUpdateView(View):
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = 'product/form.html'
     form_class = ProductForm
     
@@ -122,9 +127,8 @@ class ProductUpdateView(View):
             return redirect('product_detail', pk=product.pk)
         return render(request, self.template_name, {'form': form, 'product': product})
 
-class ProductDeleteView(View):
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin,View):
     template_name = 'product/confirm_delete.html'
-
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
     
