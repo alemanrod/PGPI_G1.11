@@ -329,7 +329,7 @@
     <main>
       {% if products %} {% for p in products %}
       <div class="product-card">
-        <a href="{% url 'product_detail' p.pk %}" class="card-link-overlay"></a>
+        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
 
         {% if p.photo %}
         <img src="{{ p.photo.url }}" />

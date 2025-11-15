@@ -181,17 +181,33 @@
   </head>
 
   <body>
-    <!-- CABECERA -->
     <header>
-      <a href="/info/" class="info-button">i</a>
+      <a
+        href="{% url 'info-home' %}"
+        class="info-button"
+        title="Información Legal y Contacto"
+        >i</a
+      >
       <div class="brand">ESSENZA</div>
-
       <div class="search-bar">
-        <input id="searchInput" type="text" placeholder="Buscar productos..." />
+        <input type="text" placeholder="Buscar..." />
       </div>
-
       <div class="profile-dropdown">
-        <button onclick="toggleDropdown()" class="profile-icon-btn">👤</button>
+        <button onclick="toggleDropdown()" class="profile-icon-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="#fff"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
         <div id="myDropdown" class="dropdown-content">
           {% if user.is_authenticated %}
           <a href="{% url 'profile' %}">Mi perfil</a>

@@ -140,7 +140,7 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = self.form_class(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            return redirect("product_detail", pk=product.pk)
+            return redirect("product_list")
         return render(request, self.template_name, {"form": form, "product": product})
 
 
@@ -174,4 +174,3 @@ class CatalogDetailView(View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
         return render(request, self.template_name, {"product": product})
-        return redirect("product_list")
