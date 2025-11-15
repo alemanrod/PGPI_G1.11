@@ -316,10 +316,12 @@
       </div>
     </header>
 
+    {% if products.size > 1 %}
     <div class="showcase-title">
-      <h2>Top 10 Bestsellers</h2>
+      <h2>Top Bestsellers</h2>
       <p>Una cuidada selección de los productos estrella de la temporada.</p>
     </div>
+    {% endif %}
 
     <main>
       {% if products %} {% for p in products %}
