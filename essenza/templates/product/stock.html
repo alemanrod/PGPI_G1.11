@@ -285,6 +285,7 @@
           <a href="{% url 'profile' %}">Mi perfil</a>
           {% if user.role == 'admin' %}
           <a href="{% url 'stock' %}">Gestión de Stock</a>
+          <a href="{% url 'product_list' %}">Gestión de Productos</a>
           {% endif %}
           <a href="{% url 'logout' %}">Cerrar sesión</a>
           {% else %}
