@@ -1,8 +1,10 @@
+from decimal import Decimal
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from order.models import Order, OrderProduct
+from order.models import Category, Order, OrderProduct
 
 from .models import Category, Product
 
@@ -335,3 +337,105 @@ class ProductCRUDTests(TestCase):
         self.assertEqual(resp_post.status_code, 302)
 
         self.assertFalse(Product.objects.filter(pk=self.product.pk).exists())
+
+
+class CatalogViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Producto visible en el catálogo (is_active = True)
+        cls.active_product = Product.objects.create(
+            name="Producto Activo",
+            description="Descripción producto activo",
+            category=Category.MAQUILLAJE,
+            brand="Marca A",
+            price=Decimal("19.99"),
+            stock=10,
+            is_active=True,
+        )
+
+        # Producto NO visible en el catálogo (is_active = False)
+        cls.inactive_product = Product.objects.create(
+            name="Producto Inactivo",
+            description="Descripción producto inactivo",
+            category=Category.TRATAMIENTO,
+            brand="Marca B",
+            price=Decimal("9.99"),
+            stock=5,
+            is_active=False,
+        )
+
+    def test_catalog_url_status_code(self):
+        """La URL del catálogo responde con 200."""
+        url = reverse("catalog")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_catalog_uses_correct_template(self):
+        """El catálogo usa la plantilla correcta."""
+        url = reverse("catalog")
+        response = self.client.get(url)
+        self.assertTemplateUsed(response, "product/catalog.html")
+
+    def test_catalog_shows_only_active_products(self):
+        """
+        En el catálogo solo aparecen productos activos
+        (is_active=True).
+        """
+        url = reverse("catalog")
+        response = self.client.get(url)
+
+        products = response.context["products"]
+
+        self.assertIn(self.active_product, products)
+        self.assertNotIn(self.inactive_product, products)
+
+
+class CatalogDetailViewTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.active_product = Product.objects.create(
+            name="Detalle Activo",
+            description="Descripción detalle activo",
+            category=Category.CABELLO,
+            brand="Marca C",
+            price=Decimal("29.99"),
+            stock=20,
+            is_active=True,
+        )
+
+        cls.inactive_product = Product.objects.create(
+            name="Detalle Inactivo",
+            description="Descripción detalle inactivo",
+            category=Category.PERFUME,
+            brand="Marca D",
+            price=Decimal("39.99"),
+            stock=0,
+            is_active=False,
+        )
+
+    def test_catalog_detail_status_code_and_template(self):
+        """
+        El detalle de un producto activo devuelve 200 y usa
+        la plantilla de detalle para usuario.
+        """
+        url = reverse("catalog_detail", args=[self.active_product.pk])
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "product/detail_user.html")
+        self.assertContains(response, self.active_product.name)
+
+    def test_catalog_detail_returns_404_for_inactive_product(self):
+        """
+        Si el producto está inactivo, el detalle del catálogo
+        debe devolver 404.
+        """
+        url = reverse("catalog_detail", args=[self.inactive_product.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_catalog_detail_returns_404_for_nonexistent_product(self):
+        """Si el producto no existe, también 404."""
+        url = reverse("catalog_detail", args=[9999])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

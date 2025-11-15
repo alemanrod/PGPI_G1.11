@@ -5,6 +5,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ product.name }} - Essenza</title>
+
     <style>
       * {
         margin: 0;
@@ -40,7 +41,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
         overflow: hidden;
       }
       .product-image img {
@@ -77,7 +77,6 @@
       .product-stock {
         font-size: 16px;
         margin-bottom: 15px;
-        color: #333;
       }
       .product-stock strong {
         color: #c06b3e;
@@ -86,51 +85,9 @@
         background-color: #f9f5f2;
         padding: 20px;
         border-left: 4px solid #c06b3e;
-        margin: 20px 0;
+        margin: 30px 0;
         border-radius: 4px;
         line-height: 1.6;
-      }
-      .actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 30px;
-        padding-top: 30px;
-        border-top: 1px solid #ddd;
-      }
-      .btn {
-        padding: 12px 25px;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        text-align: center;
-        transition: opacity 0.3s;
-        cursor: pointer;
-        border: none;
-        font-size: 14px;
-      }
-      .btn-edit {
-        background-color: #b7b099;
-        color: white;
-        flex: 1;
-      }
-      .btn-edit:hover {
-        opacity: 0.8;
-      }
-      .btn-delete {
-        background-color: #c85a54;
-        color: white;
-        flex: 1;
-      }
-      .btn-delete:hover {
-        opacity: 0.8;
-      }
-      .btn-back {
-        background-color: #ddd;
-        color: #333;
-        flex: 1;
-      }
-      .btn-back:hover {
-        opacity: 0.8;
       }
       .info-grid {
         display: grid;
@@ -147,32 +104,135 @@
         color: #c06b3e;
         font-weight: bold;
         font-size: 12px;
-        text-transform: uppercase;
       }
       .info-value {
-        color: #333;
+        margin-top: 6px;
         font-size: 14px;
-        margin-top: 4px;
       }
+
+      /* -------- BOTONES -------- */
+      .actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid #ddd;
+      }
+
+      .btn {
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 15px;
+        border: none;
+        cursor: pointer;
+        transition: 0.25s ease;
+        flex: 1;
+        text-align: center;
+      }
+
+      .btn-back {
+        background: #ddd;
+        color: #333;
+      }
+      .btn-back:hover {
+        background: #c4c4c4;
+      }
+
+      /* ---- Botón PRO ---- */
+      .btn-add {
+        background: #c06b3e;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn-add:hover {
+        background: #a54f2b;
+      }
+
+      /* Icono + texto normal */
+      .add-text {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Animación de vibración */
+      .shake {
+        animation: shake 0.3s ease;
+      }
+
+      @keyframes shake {
+        0% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-4px);
+        }
+        50% {
+          transform: translateX(4px);
+        }
+        75% {
+          transform: translateX(-4px);
+        }
+        100% {
+          transform: translateX(0);
+        }
+      }
+
+      /* Mensaje check verde */
+      .added-message {
+        display: none;
+        position: absolute;
+        inset: 0;
+        background: #4caf50;
+        color: white;
+        font-weight: bold;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+      }
+
+      .added-message.show {
+        display: flex;
+        animation: fade 1.8s ease;
+      }
+
+      @keyframes fade {
+        0% {
+          opacity: 0;
+        }
+        10% {
+          opacity: 1;
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+
       @media (max-width: 768px) {
         .product-header {
           grid-template-columns: 1fr;
         }
-        .product-image {
-          height: 300px;
-        }
         .actions {
           flex-direction: column;
-        }
-        .info-grid {
-          grid-template-columns: 1fr;
         }
       }
     </style>
   </head>
+
   <body>
     <div class="container">
       <div class="product-container">
+        <!-- -------- CABECERA DEL PRODUCTO -------- -->
         <div class="product-header">
           <div class="product-image">
             {% if product.photo %}
@@ -180,30 +240,35 @@
             {% else %}
             <img
               src="{% static 'images/default_product.png' %}"
-              alt="Foto de producto por defecto"
+              alt="{{ product.name }}"
             />
             {% endif %}
           </div>
+
           <div class="product-details">
             <h1>{{ product.name }}</h1>
             <div class="product-brand">{{ product.brand }}</div>
             <div class="product-price">€ {{ product.price }}</div>
+
             {% if product.get_categoria_display %}
             <span class="product-category"
               >{{ product.get_categoria_display }}</span
             >
             {% endif %}
+
             <div class="product-stock">
               Stock: <strong>{{ product.stock }} unidades</strong>
             </div>
           </div>
         </div>
 
+        <!-- -------- DESCRIPCIÓN -------- -->
         <div class="product-description">
           <strong>Descripción:</strong>
-          <p style="margin-top: 8px">{{ product.description }}</p>
+          <p style="margin-top: 10px">{{ product.description }}</p>
         </div>
 
+        <!-- -------- INFO EXTRA -------- -->
         <div class="info-grid">
           <div class="info-item">
             <div class="info-label">Estado</div>
@@ -221,10 +286,57 @@
           </div>
         </div>
 
+        <!-- -------- BOTONES -------- -->
         <div class="actions">
-          <a href="{% url 'product_list' %}" class="btn btn-back">← Volver</a>
+          <!-- Botón PRO con animación -->
+          <button class="btn btn-add" id="addToCartBtn">
+            <span class="add-text" id="normalText">
+              <!-- Icono carrito -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="21"
+                height="21"
+                fill="none"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <circle cx="9" cy="19" r="2"></circle>
+                <circle cx="17" cy="19" r="2"></circle>
+                <path d="M5 6h16l-1.5 9h-13z"></path>
+                <path d="M5 6L4 3H1"></path>
+              </svg>
+              Añadir al carrito
+            </span>
+
+            <!-- Mensaje de añadido -->
+            <span class="added-message" id="addedMessage"> ✓ Añadido </span>
+          </button>
+
+          <a href="{% url 'catalog' %}" class="btn btn-back">← Volver</a>
         </div>
       </div>
     </div>
+
+    <!-- -------- JS para animaciones -------- -->
+    <script>
+      const btn = document.getElementById("addToCartBtn");
+      const addedMsg = document.getElementById("addedMessage");
+
+      btn.addEventListener("click", () => {
+        // Vibración ligera del botón
+        btn.classList.add("shake");
+
+        // Mostrar mensaje PRO animado
+        addedMsg.classList.add("show");
+
+        // Ocultarlo después de 1.8s
+        setTimeout(() => {
+          addedMsg.classList.remove("show");
+          btn.classList.remove("shake");
+        }, 1800);
+      });
+    </script>
   </body>
 </html>

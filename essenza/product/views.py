@@ -158,3 +158,20 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
         product = get_object_or_404(Product, pk=pk)
         product.delete()
         return redirect("product_list")
+
+
+class CatalogView(View):
+    template_name = "product/catalog.html"
+
+    def get(self, request):
+        products = Product.objects.filter(is_active=True)
+        return render(request, self.template_name, {"products": products})
+
+
+class CatalogDetailView(View):
+    template_name = "product/detail_user.html"
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk, is_active=True)
+        return render(request, self.template_name, {"product": product})
+        return redirect("product_list")
