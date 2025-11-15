@@ -281,7 +281,10 @@
 
   <body>
     <header>
-      <a href="/info/" class="info-button" title="Información Legal y Contacto"
+      <a
+        href="{% url 'info-home' %}"
+        class="info-button"
+        title="Información Legal y Contacto"
         >i</a
       >
       <div class="brand">ESSENZA</div>
@@ -326,7 +329,9 @@
     <main>
       {% if products %} {% for p in products %}
       <div class="product-card">
-        <a href="#" class="card-link-overlay"></a>
+        <a href="#" class="card-link-overlay"
+          >{# {% url 'product_detail' p.pk %} #}</a
+        >
 
         {% if p.photo %}
         <img src="{{ p.photo.url }}" />
