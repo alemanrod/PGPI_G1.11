@@ -9,7 +9,7 @@ from .forms import ProductForm
 from .models import Product
 
 
-class DashboardView(View):
+class DashboardView(UserPassesTestMixin, View):
     template_name = "product/dashboard.html"
 
     # Todos excepto los administradores pueden acceder a esta vista
