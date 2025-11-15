@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -13,7 +14,7 @@ class Order(models.Model):
         "user.Usuario", on_delete=models.CASCADE, related_name="orders"
     )
     address = models.CharField(max_length=255)
-    placed_at = models.DateTimeField(auto_now=True)
+    placed_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.PENDING
     )
