@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
-from order.models import Category, Order, OrderProduct
+from order.models import Order, OrderProduct
 
 from .models import Category, Product
 
