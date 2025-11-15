@@ -1,12 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import View
+from .forms import ProductForm
 from order.models import OrderProduct
-
 from .models import Product
-
 
 class DashboardView(View):
     template_name = "product/dashboard.html"
@@ -68,3 +67,77 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
         # Recarga la misma página
         return redirect("stock")
+    
+
+class ProductListView(LoginRequiredMixin, UserPassesTestMixin,View):
+    template_name = 'product/list.html'
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def get(self, request):
+        products = Product.objects.all()
+        return render(request, self.template_name, {'products': products})
+
+class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin,View):
+    template_name = 'product/detail.html'
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        return render(request, self.template_name, {'product': product})
+    
+class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin,View):
+    template_name = 'product/form.html'
+    form_class = ProductForm
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def get(self, request):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('product_list')
+        return render(request, self.template_name, {'form': form})
+
+class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin,View):
+    template_name = 'product/form.html'
+    form_class = ProductForm
+    
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+   
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        form = self.form_class(instance=product)
+        return render(request, self.template_name, {'form': form, 'product': product})
+
+
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        form = self.form_class(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            form.save()
+            return redirect('product_detail', pk=product.pk)
+        return render(request, self.template_name, {'form': form, 'product': product})
+
+class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin,View):
+    template_name = 'product/confirm_delete.html'
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+    
+    def get(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        return render(request, self.template_name, {'product': product})
+
+
+    def post(self, request, pk):
+        product = get_object_or_404(Product, pk=pk)
+        product.delete()
+        return redirect('product_list')
