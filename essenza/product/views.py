@@ -53,7 +53,10 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
-    # Solo se ejecutan métodos GET y POST si el usuario pasa la prueba
+    # Redirige a 'dashboard' si no pasa el test_func
+    def handle_no_permission(self):
+        return redirect("dashboard")
+
     def get(self, request):
         # Carga y muestra todos los productos ordenados por nombre
         products = Product.objects.all().order_by("name")
@@ -62,21 +65,27 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
     def post(self, request):
         # Coge datos del formulario para actualizar stock
         product_id = request.POST.get("product_id")
-        stock = request.POST.get("stock")
+        stock_value = request.POST.get("stock")  # Renombrado para claridad
 
-        # Encuentra el producto por su ID
-        product = Product.objects.get(pk=product_id)
-        if not product:
-            messages.error(request, "Producto no encontrado.")
-            return redirect("stock")
+        product = get_object_or_404(Product, pk=product_id)
 
-        # Actualiza el stock del producto
-        new_stock = int(stock or 0)
-        product.stock = new_stock
-        product.save(update_fields=["stock"])
-        messages.success(
-            request, f"Stock de '{product.name}' actualizado a {new_stock}."
-        )
+        try:
+            # Comprobamos si el valor es un número
+            new_stock = int(stock_value or 0)
+            if new_stock < 0:
+                # No permitir stock negativo
+                raise ValueError("El stock no puede ser negativo")
+
+            product.stock = new_stock
+            product.save(update_fields=["stock"])
+            messages.success(
+                request, f"Stock de '{product.name}' actualizado a {new_stock}."
+            )
+
+        except (ValueError, TypeError):
+            messages.error(
+                request, f"El valor de stock '{stock_value}' no es un número válido."
+            )
 
         # Recarga la misma página
         return redirect("stock")
