@@ -1,38 +1,49 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import View
-from order.models import OrderProduct
 
 from .forms import ProductForm
 from .models import Product
 
 
-class DashboardView(View):
+class DashboardView(UserPassesTestMixin, View):
     template_name = "product/dashboard.html"
 
+    # Todos excepto los administradores pueden acceder a esta vista
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role != "admin"
+        )
+
     def get(self, request, *args, **kwargs):
-        # Obtenemos de los datos
-        order_products = OrderProduct.objects.all()
         month_ago = timezone.now() - timezone.timedelta(days=30)
-        times_purchased = {}
-        for order_product in order_products:
-            order = order_product.order
-            if order.placed_at >= month_ago:
-                if order_product.product.id in times_purchased:
-                    times_purchased[order_product.product.id] += order_product.quantity
-                else:
-                    times_purchased[order_product.product.id] = order_product.quantity
-        times_purchased_ordered = dict(
-            sorted(
-                times_purchased.items(), key=lambda quantity: quantity[1], reverse=True
+        year_ago = timezone.now() - timezone.timedelta(days=365)
+
+        def get_top_selling_products(since):
+            # Paso 1: Definir el filtro base.
+            base_query = Product.objects.filter(
+                is_active=True, product_orders__order__placed_at__gte=since
             )
-        )
-        most_purchased_products = list(times_purchased_ordered.keys())[:10]
-        products = Product.objects.filter(
-            is_active=True, id__in=most_purchased_products
-        )
+            # Paso 2: Anotar (calcular) el total vendido para esos productos.
+            query_with_totals = base_query.annotate(
+                total_quantity=Sum("product_orders__quantity")
+            )
+            # Paso 3: Filtrar de nuevo, sobre el campo calculado.
+            filtered_query = query_with_totals.filter(total_quantity__gt=0)
+            # Paso 4: Ordenar (descendente).
+            ordered_query = filtered_query.order_by("-total_quantity")
+            # Paso 5: Limitar.
+            top_products = ordered_query[:10]
+            return top_products
+
+        products = get_top_selling_products(since=month_ago)
+        if not products.exists():
+            products = get_top_selling_products(since=year_ago)
+        if not products.exists():
+            products = Product.objects.filter(is_active=True).order_by("-stock")[:10]
 
         return render(request, self.template_name, {"products": products})
 
@@ -138,7 +149,7 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
         form = self.form_class(request.POST, request.FILES, instance=product)
         if form.is_valid():
             form.save()
-            return redirect("product_detail", pk=product.pk)
+            return redirect("product_list")
         return render(request, self.template_name, {"form": form, "product": product})
 
 
