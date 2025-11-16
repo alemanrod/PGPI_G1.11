@@ -1,400 +1,427 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lista de Productos - Essenza</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background-color: #faf7f2;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
-            padding: 0;
-        }
-        .container {
-            /* Mantenemos el contenedor principal centrado para el contenido */
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 {
-            color: #c06b3e;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 32px;
-        }
-        .header-actions {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .btn-create {
-            display: inline-block;
-            padding: 12px 30px;
-            background-color: #c06b3e;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-        .btn-create:hover {
-            background-color: #a35a34;
-        }
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-        }
-        .product-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        .product-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 14px;
-        }
-        .product-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-        .product-info {
-            padding: 15px;
-        }
-        .product-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #c06b3e;
-            margin-bottom: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .product-brand {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
-        }
-        .product-price {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-        }
-        .product-stock {
-            font-size: 13px;
-            color: #999;
-            margin-bottom: 12px;
-        }
-        .product-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-small {
-            flex: 1;
-            padding: 8px 0px; 
-            text-decoration: none;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 16px; 
-            font-weight: bold;
-            transition: opacity 0.3s;
-        }
-        
-        /* === ESTILO DE BOTÓN === */
-        .btn-detail {
-            background-color: #c06b3e; 
-            color: white;
-        }
-        .btn-detail:hover {
-            opacity: 0.8;
-        }
-        .btn-edit {
-            background-color: #B7B099; 
-            color: white;
-        }
-        .btn-edit:hover {
-            opacity: 0.8;
-        }
-        .btn-delete {
-            background-color: #c85a54; 
-            color: white;
-        }
-        .btn-delete:hover {
-            opacity: 0.8;
-        }
-        /* ======================== */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #faf7f2;
+        font-family: "Segoe UI", Arial, sans-serif;
+        color: #333;
+        padding: 0;
+      }
+      .container {
+        /* Mantenemos el contenedor principal centrado para el contenido */
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      h1 {
+        color: #c06b3e;
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 32px;
+      }
+      .header-actions {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .btn-create {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: #c06b3e;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+      }
+      .btn-create:hover {
+        background-color: #a35a34;
+      }
+      .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+      .product-card {
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+      }
+      .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 14px;
+      }
+      .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .product-info {
+        padding: 15px;
+      }
+      .product-name {
+        font-size: 18px;
+        font-weight: bold;
+        color: #c06b3e;
+        margin-bottom: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .product-brand {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 8px;
+      }
+      .product-price {
+        font-size: 20px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 8px;
+      }
+      .product-stock {
+        font-size: 13px;
+        color: #999;
+        margin-bottom: 12px;
+      }
+      .product-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .btn-small {
+        flex: 1;
+        padding: 8px 0px;
+        text-decoration: none;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        transition: opacity 0.3s;
+      }
 
-        .empty-message {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-            font-size: 16px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #ddd;
-            color: #666;
-        }
-        
-        /* ====== CABECERA - CORRECCIÓN FINAL PARA PEGAR A EXTREMOS ====== */
-        header {
-            background-color: #fff;
-            border-bottom: 2px solid #c06b3e;
-            
-            /* CLAVE: Aplica FLEX al header para separar los grupos */
-            display: flex;     
-            justify-content: space-between; /* Separa left-group del profile-dropdown */
-            align-items: center;
-            
-            /* CLAVE: Añade padding a los lados para crear el margen visible */
-            padding: 14px 20px; 
-        }
+      /* === ESTILO DE BOTÓN === */
+      .btn-detail {
+        background-color: #c06b3e;
+        color: white;
+      }
+      .btn-detail:hover {
+        opacity: 0.8;
+      }
+      .btn-edit {
+        background-color: #b7b099;
+        color: white;
+      }
+      .btn-edit:hover {
+        opacity: 0.8;
+      }
+      .btn-delete {
+        background-color: #c85a54;
+        color: white;
+      }
+      .btn-delete:hover {
+        opacity: 0.8;
+      }
+      /* ======================== */
 
-        /* ELIMINAMOS .header-inner (ya no es necesario) */
-        
-        /* NUEVO: Contenedor para agrupar (i + ESSENZA + Buscar) */
-        .left-group {
-            display: flex;
-            align-items: center;
-            gap: 15px; /* Espacio entre los elementos i, ESSENZA y Buscar... */
-        }
-        
-        .info-button {
-            width: 30px;
-            height: 30px;
-            background-color: #c06b3e;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            font-size: 18px;
-            font-weight: bold;
-            color: white;
-            text-decoration: none;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
-        }
-        .info-button:hover {
-            background-color: #a35a34;
-        }
+      .empty-message {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+        font-size: 16px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        color: #666;
+      }
 
-        .brand {
-            font-size: 32px;
-            color: #c06b3e;
-            font-weight: bold;
-            letter-spacing: 1px;
-        }
+      /* ====== CABECERA - CORRECCIÓN FINAL PARA PEGAR A EXTREMOS ====== */
+      header {
+        background-color: #fff;
+        border-bottom: 2px solid #c06b3e;
 
-        /* Barra de búsqueda: No debe crecer, solo tener un ancho fijo. */
-        .search-bar {
-            width: 250px; 
-            margin-left: 30px; /* Separación estética del logo */
-        }
+        /* CLAVE: Aplica FLEX al header para separar los grupos */
+        display: flex;
+        justify-content: space-between; /* Separa left-group del profile-dropdown */
+        align-items: center;
 
-        .search-bar input {
-            width: 100%;
-            max-width: 100%; 
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 20px;
-            background: #fafafa;
-        }
-        
-        /* ====== DESPLEGABLE DE PERFIL ====== */
-        .profile-dropdown {
-            position: relative;
-            display: inline-block;
-        }
-        .profile-icon-btn {
-            width: 34px;
-            height: 34px;
-            background-color: #c06b3e;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: background-color 0.3s;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .profile-icon-btn:hover {
-            background-color: #a35a34;
-        }
-        .profile-icon-btn img {
-            display: block;
-        }
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 45px;
-            background-color: #ffffff;
-            min-width: 160px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-            border-radius: 8px;
-            z-index: 10;
-            overflow: hidden;
-        }
-        .dropdown-content a,
-        .dropdown-logout-btn {
-            color: #333;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            font-size: 14px;
-        }
-        .dropdown-logout-btn {
-            width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-        .dropdown-content a:hover,
-        .dropdown-logout-btn:hover {
-            background-color: #f1f1f1;
-        }
-        .dropdown-content.show {
-            display: block;
-        }
+        /* CLAVE: Añade padding a los lados para crear el margen visible */
+        padding: 14px 20px;
+      }
+
+      /* ELIMINAMOS .header-inner (ya no es necesario) */
+
+      /* NUEVO: Contenedor para agrupar (i + ESSENZA + Buscar) */
+      .left-group {
+        display: flex;
+        align-items: center;
+        gap: 15px; /* Espacio entre los elementos i, ESSENZA y Buscar... */
+      }
+
+      .info-button {
+        width: 30px;
+        height: 30px;
+        background-color: #c06b3e;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+      }
+      .info-button:hover {
+        background-color: #a35a34;
+      }
+
+      .brand {
+        font-size: 32px;
+        color: #c06b3e;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      /* Barra de búsqueda: No debe crecer, solo tener un ancho fijo. */
+      .search-bar {
+        width: 250px;
+        margin-left: 30px; /* Separación estética del logo */
+      }
+
+      .search-bar input {
+        width: 100%;
+        max-width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        background: #fafafa;
+      }
+
+      /* ====== DESPLEGABLE DE PERFIL ====== */
+      .profile-dropdown {
+        position: relative;
+        display: inline-block;
+      }
+      .profile-icon-btn {
+        width: 34px;
+        height: 34px;
+        background-color: #c06b3e;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .profile-icon-btn:hover {
+        background-color: #a35a34;
+      }
+      .profile-icon-btn img {
+        display: block;
+      }
+      .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 45px;
+        background-color: #ffffff;
+        min-width: 160px;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        border-radius: 8px;
+        z-index: 10;
+        overflow: hidden;
+      }
+      .dropdown-content a,
+      .dropdown-logout-btn {
+        color: #333;
+        padding: 12px 16px;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+      }
+      .dropdown-logout-btn {
+        width: 100%;
+        text-align: left;
+        background: none;
+        border: none;
+        cursor: pointer;
+      }
+      .dropdown-content a:hover,
+      .dropdown-logout-btn:hover {
+        background-color: #f1f1f1;
+      }
+      .dropdown-content.show {
+        display: block;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <header>
-        <div class="left-group"> 
-            <a href="/info/" class="info-button" title="Información Legal y Contacto">i</a>
-            <div class="brand">ESSENZA</div>
-            
-            <div class="search-bar">
-                <input type="text" placeholder="Buscar..." />
-            </div>
-        </div>
+      <div class="left-group">
+        <a
+          href="/info/"
+          class="info-button"
+          title="Información Legal y Contacto"
+          >i</a
+        >
+        <div class="brand">ESSENZA</div>
 
-        <div class="profile-dropdown">
-            <button onclick="toggleDropdown()" class="profile-icon-btn">
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="24"
-                    height="24"
-                    fill="none"
-                    stroke="#fff"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                >
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-            </button>
-
-            <div id="myDropdown" class="dropdown-content">
-                {% if user.is_authenticated %}
-                <a href="{% url 'profile' %}">Mi perfil</a>
-                {% if user.role == 'admin' %}
-                <a href="{% url 'stock' %}">Gestión de Stock</a>
-                <a href="{% url 'product_list' %}">Gestión de Productos</a>
-                {% endif %}
-                <a href="{% url 'logout' %}">Cerrar sesión</a>
-                {% else %}
-                <a href="{% url 'register' %}">Registrarse</a>
-                <a href="{% url 'login' %}">Iniciar sesión</a>
-                {% endif %}
-            </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Buscar..." />
         </div>
+      </div>
+
+      <div class="profile-dropdown">
+        <button onclick="toggleDropdown()" class="profile-icon-btn">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="none"
+            stroke="#fff"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+
+        <div id="myDropdown" class="dropdown-content">
+          {% if user.is_authenticated %}
+          <a href="{% url 'profile' %}">Mi perfil</a>
+          {% if user.role == 'admin' %}
+          <a href="{% url 'stock' %}">Gestión de Stock</a>
+          <a href="{% url 'product_list' %}">Gestión de Productos</a>
+          {% endif %}
+          <a href="{% url 'logout' %}">Cerrar sesión</a>
+          {% else %}
+          <a href="{% url 'register' %}">Registrarse</a>
+          <a href="{% url 'login' %}">Iniciar sesión</a>
+          {% endif %}
+        </div>
+      </div>
     </header>
 
     <div class="container">
-        <h1>🌸 Productos Essenza</h1>
-        <div class="header-actions">
-            <a href="{% url 'product_create' %}" class="btn-create"> Crear producto</a>
-        </div>
+      <h1>🌸 Productos Essenza</h1>
+      <div class="header-actions">
+        <a href="{% url 'product_create' %}" class="btn-create">
+          Crear producto</a
+        >
+      </div>
 
-
-        {% if products %}
-            <div class="products-grid">
-                {% for product in products %}
-                    <div class="product-card">
-                        <div class="product-image">
-                            {% if product.photo %}
-                                <img src="{{ product.photo.url }}" alt="{{ product.name }}">
-                            {% else %}
-                                <span>Sin imagen</span>
-                            {% endif %}
-                        </div>
-                        <div class="product-info">
-                            <div class="product-name">{{ product.name }}</div>
-                            <div class="product-brand">{{ product.brand }}</div>
-                            <div class="product-price">€ {{ product.price }}</div>
-                            <div class="product-stock">Stock: {{ product.stock }}</div>
-                            <div class="product-actions">
-                                <a href="{% url 'product_detail' product.pk %}" class="btn-small btn-detail">Ver</a>
-                                <a href="{% url 'product_update' product.pk %}" class="btn-small btn-edit">Editar</a>
-                                <a href="{% url 'product_delete' product.pk %}" class="btn-small btn-delete">Borrar</a>
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+      {% if products %}
+      <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+          <div class="product-image">
+            {% if product.photo %}
+            <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
+            {% else %}
+            <span>Sin imagen</span>
+            {% endif %}
+          </div>
+          <div class="product-info">
+            <div class="product-name">{{ product.name }}</div>
+            <div class="product-brand">{{ product.brand }}</div>
+            <div class="product-price">€ {{ product.price }}</div>
+            <div class="product-stock">Stock: {{ product.stock }}</div>
+            <div class="product-actions">
+              <a
+                href="{% url 'product_detail' product.pk %}"
+                class="btn-small btn-detail"
+                >Ver</a
+              >
+              <a
+                href="{% url 'product_update' product.pk %}"
+                class="btn-small btn-edit"
+                >Editar</a
+              >
+              <a
+                href="{% url 'product_delete' product.pk %}"
+                class="btn-small btn-delete"
+                >Borrar</a
+              >
             </div>
-        {% else %}
-            <div class="empty-message">
-                <p>No hay productos disponibles. <a href="{% url 'product_create' %}">¡Crea uno!</a></p>
-            </div>
-        {% endif %}
-
-
-        <div class="footer">
-            <p><a href="/product/stock" style="color: #c06b3e; text-decoration: none;">← Volver a inicio</a></p>
+          </div>
         </div>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="empty-message">
+        <p>
+          No hay productos disponibles.
+          <a href="{% url 'product_create' %}">¡Crea uno!</a>
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="footer">
+        <p>
+          <a
+            href="#"
+            onclick="history.back(); return false;"
+            style="color: #c06b3e; text-decoration: none"
+            >← Volver</a
+          >
+        </p>
+      </div>
     </div>
     <script>
-       /*
-        * Función para mostrar/ocultar el desplegable
-        */
-       function toggleDropdown() {
+      /*
+       * Función para mostrar/ocultar el desplegable
+       */
+      function toggleDropdown() {
         document.getElementById("myDropdown").classList.toggle("show");
       }
- 
+
       /*
-        * Cierra el desplegable si el usuario hace clic fuera de él
-        */
-       window.onclick = function (event) {
-         // Comprueba si el clic NO fue en el botón del ícono
-         if (!event.target.closest(".profile-icon-btn")) {
-           var dropdowns = document.getElementsByClassName("dropdown-content");
-           var i;
-           for (i = 0; i < dropdowns.length; i++) {
-             var openDropdown = dropdowns[i];
-             // Si el menú está abierto (tiene la clase .show), la cierra
-             if (openDropdown.classList.contains("show")) {
-               openDropdown.classList.remove("show");
-             }
-           }
-         }
-       };
-     </script>
-</body>
+       * Cierra el desplegable si el usuario hace clic fuera de él
+       */
+      window.onclick = function (event) {
+        // Comprueba si el clic NO fue en el botón del ícono
+        if (!event.target.closest(".profile-icon-btn")) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            // Si el menú está abierto (tiene la clase .show), la cierra
+            if (openDropdown.classList.contains("show")) {
+              openDropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
 </html>
