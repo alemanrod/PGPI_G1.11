@@ -35,7 +35,6 @@ class DashboardView(UserPassesTestMixin, View):
             filtered_query = query_with_totals.filter(total_quantity__gt=0)
             # Paso 4: Ordenar (descendente).
             ordered_query = filtered_query.order_by("-total_quantity")
-            # Paso 5: Limitar.
             top_products = ordered_query[:10]
             return top_products
 

@@ -325,6 +325,53 @@ class ProductCRUDTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, self.product.name)
 
+    def test_admin_can_create_product(self):
+        """Prueba que un admin puede crear un nuevo producto (POST)."""
+        self.client.force_login(self.admin)
+        
+        initial_count = Product.objects.count()
+
+        data = {
+            "name": "Nuevo Producto Creado",
+            "description": "Creado por el test de admin",
+            "category": "perfume", 
+            "brand": "NewBrand",
+            "price": "99.99",
+            "stock": 100,
+            "is_active": True,
+        }
+        resp = self.client.post(self.create_url, data)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(Product.objects.count(), initial_count + 1)
+        self.assertTrue(Product.objects.filter(name="Nuevo Producto Creado").exists())
+
+    def test_admin_can_update_product(self):
+        """Prueba que un admin puede actualizar un producto existente (POST)."""
+        self.client.force_login(self.admin)
+
+        updated_name = "Nombre Actualizado Admin"
+        updated_price = "15.50"
+
+        data = {
+            "name": updated_name,
+            "description": "Descripción actualizada",
+            "category": "tratamiento", 
+            "brand": self.product.brand,
+            "price": updated_price,
+            "stock": 50,
+            "is_active": False,
+        }
+        resp = self.client.post(self.update_url, data)
+        self.assertEqual(resp.status_code, 302)
+
+        self.assertRedirects(resp, reverse("product_list"))
+        
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.name, updated_name)
+        self.assertEqual(self.product.price, Decimal(updated_price))
+        self.assertFalse(self.product.is_active)
+        self.assertEqual(self.product.stock, 50)
+
     def test_admin_can_delete_product(self):
         self.client.force_login(self.admin)
         url = reverse("product_delete", args=[self.product.pk])
