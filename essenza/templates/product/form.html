@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if form.instance.pk %}Editar{% else %}Crear{% endif %} Producto - Essenza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #faf7f2;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-container {
+            /* Contenedor principal blanco del formulario */
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #c06b3e;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            /* Separador sutil */
+            padding-bottom: 5px; 
+            border-bottom: 1px solid #eee; 
+        }
+        /* Eliminar el separador del último form-group (antes de las acciones) */
+        .form-group:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #c06b3e;
+            box-shadow: 0 0 5px rgba(192, 107, 62, 0.2);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* Estilos del checkbox 'Is active' */
+        .form-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin-bottom: 0;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        /* Contenedor de botones */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: flex-end; /* Alineación a la derecha */
+        }
+        /* Ajuste de márgenes para el bloque de botones */
+        .form-container > form > .actions {
+            margin-top: 20px; 
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        /* Estilo general del botón */
+        button{
+            flex: 0 0 auto; 
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: opacity 0.3s;
+        }
+        .btn-cancel {
+            background-color: #ddd;
+            color: #333;
+            flex: 1;
+        }
+        .btn-cancel:hover {
+            opacity: 0.85;
+        }
+        
+        /* Estilo del botón Guardar */
+        .btn-submit {
+            background-color: #c06b3e;
+            color: white;
+            display: flex; 
+            align-items: center;
+        }
+        .btn-submit:hover {
+            opacity: 0.85;
+        }
+        
+        /* Estilo del botón Cancelar (que es un enlace) */
+        .btn-cancel {
+            background-color: #ddd; 
+            color: #333; 
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            padding: 12px 0; 
+            line-height: 1;
+            margin-right: 15px; 
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-cancel:hover {
+            text-decoration: underline;
+            opacity: 0.85;
+        }
+
+        /* Estilos para errores y ayuda */
+        .error-list {
+            background-color: #ffe8e8;
+            border: 1px solid #ffb3b3;
+            color: #c00;
+            padding: 10px 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .error-list li {
+            margin-left: 20px;
+        }
+        .helptext {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .form-group label span.required {
+            color: #c00;
+            margin-left: 4px;
+        }
+        
+        /* Estilos específicos para el campo de foto */
+        .photo-current-info {
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex; /* Para alinear el texto y el checkbox 'Limpiar' */
+            align-items: center;
+        }
+        .photo-clear {
+            display: flex; /* Para alinear el checkbox y el texto 'Limpiar' */
+            align-items: center;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+        .photo-clear input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 20px;
+            }
+            .actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .btn-cancel {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1>{% if form.instance.pk %}Editar producto{% else %} Crear nuevo producto{% endif %}</h1>
+
+
+            {% if form.non_field_errors %}
+                <div class="error-list">
+                    <strong>Errores:</strong>
+                    <ul>
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+
+                {% for field in form %}
+                    {% if field.name == "is_active" %}
+                        <div class="form-group" style="border-bottom: none;">
+                            <label class="checkbox-label" style="font-weight: normal;">
+                                {{ field }}
+                                <span style="font-weight: bold;">{{ field.label }}</span>
+                            </label>
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% elif field.name == "photo" %}
+                        <div class="form-group">
+                            <label>Photo:</label>
+                            
+                            {% if form.instance.pk and field.value %}
+                                <div class="photo-current-info" style="margin-bottom: 10px;">
+                                   
+                                    </label>
+                                </div>
+                            {% endif %}
+
+                            <label style="font-weight: normal; margin-bottom: 0;"></label>
+                            {{ field }}
+                            
+                            {% if field.help_text %}
+                                <small class="helptext">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="form-group">
+                            {{ field.label_tag }}
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="helptext">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                            {% if field.errors %}
+                                <div class="error-list" style="margin-top: 4px;">
+                                    {% for error in field.errors %}
+                                        <div>{{ error }}</div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+
+                <div class="actions">
+                    <button type="submit" class="btn-submit">Guardar</button>
+                    <a href="{% url 'product_list' %}" class="btn btn-cancel">← Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

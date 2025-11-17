@@ -1,42 +1,20 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
-from django.http import HttpResponse
-
-def home(request):
-    html = """
-    <html>
-        <head>
-            <title>Essenza</title>
-            <style>
-                body {
-                    background-color: #faf7f2;
-                    font-family: 'Segoe UI', Arial, sans-serif;
-                    text-align: center;
-                    padding-top: 100px;
-                    color: #444;
-                }
-                h1 {
-                    color: #c06b3e;
-                    font-size: 48px;
-                    margin-bottom: 10px;
-                }
-                p {
-                    font-size: 20px;
-                    color: #555;
-                }
-            </style>
-        </head>
-        <body>
-            <h1>Bienvenidos a Essenza</h1>
-            <p>Tu espacio online de cosmética natural, belleza y cuidado personal.</p>
-            <p>Explora nuestros productos, descubre nuevas fragancias y disfruta de la experiencia Essenza 🌸</p>
-        </body>
-    </html>
-    """
-    return HttpResponse(html)
+from django.urls import include, path
+from info.views import info_view
+from product.views import DashboardView
+from product.views import CatalogView, CatalogDetailView
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('admin/', admin.site.urls),
+    path("info/", info_view, name="info-home"),
+    path("user/", include("user.urls")),
+    path("admin/", admin.site.urls),
+    path("product/", include("product.urls")),
+    path("", DashboardView.as_view(), name="dashboard"),
+    path("catalogo/", CatalogView.as_view(), name="catalog"),
+    path("catalogo/<int:pk>/", CatalogDetailView.as_view(), name="catalog_detail"),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

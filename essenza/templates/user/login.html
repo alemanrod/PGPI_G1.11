@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Iniciar sesión · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      body.login-bg {
+        background-color: #faf7f2;
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      .page {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .brand {
+        color: #c06b3e;
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+
+      .login-card {
+        width: min(420px, 88vw);
+        background: #fff;
+        border: 2px solid #c06b3e;
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        padding: 22px 24px;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        color: #333;
+        margin: 10px 0 6px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 90%;
+        padding: 10px 12px;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        background: #fafafa;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: #c06b3e;
+        box-shadow: 0 0 0 3px rgba(192, 107, 62, 0.2);
+      }
+
+      .btn-primary {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: #c06b3e;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s; /* Añadida transición */
+      }
+
+      .btn-primary:hover {
+        background-color: #a35a34;
+      }
+
+      /* Link para "Aún no tienes cuenta?" */
+      .login-link {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 13px;
+      }
+
+      .login-link a {
+        color: #c06b3e;
+        text-decoration: underline;
+      }
+
+      .form-error {
+        color: #b00020;
+        font-size: 13px;
+        margin: 6px 0;
+      }
+      .return-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        width: 80px;
+        height: 30px;
+        background-color: #c06b3e;
+        border-radius: 15px;
+        text-align: center;
+        line-height: 30px;
+        font-size: 18px;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: background-color 0.3s;
+      }
+      .return-button:hover {
+        background-color: #a35a34;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+
+  <body class="login-bg">
+    <a
+      href="#"
+      onclick="history.back(); return false;"
+      class="return-button"
+      title="Volver"
+      >Volver</a
+    >
+    <div class="page">
+      <h1 class="brand">ESSENZA</h1>
+
+      <div class="login-card">
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <label for="id_email">Correo electrónico</label>
+          {{ form.email }}
+
+          <label for="id_password">Contraseña</label>
+          {{ form.password }} {% if form.non_field_errors %}
+          <p class="form-error">{{ form.non_field_errors.0 }}</p>
+          {% endif %}
+
+          <button type="submit" class="btn-primary">Iniciar sesión</button>
+
+          <p class="login-link">
+            <a href="{% url 'register' %}">¿Aún no tienes cuenta? Regístrate</a>
+          </p>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

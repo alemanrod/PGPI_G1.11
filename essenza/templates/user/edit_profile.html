@@ -1,0 +1,264 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Editar Perfil · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      /* --- Variables de Color --- */
+      body {
+        --color-principal: #c06b3e;
+        --color-principal-hover: #a35a34;
+        --color-fondo: #faf7f2;
+        --color-fondo-tarjeta: #fff;
+        --color-texto-base: #333;
+        --color-borde-claro: #eee;
+        --color-error: #b00020;
+        --color-foco-sombra: rgba(192, 107, 62, 0.2);
+
+        background-color: var(--color-fondo);
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+
+      .page {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+      }
+
+      .brand {
+        color: var(--color-principal);
+        font-size: 48px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+
+      .form-card {
+        width: min(420px, 88vw);
+        background: var(--color-fondo-tarjeta);
+        border: 2px solid var(--color-principal);
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        padding: 22px 24px;
+        box-sizing: border-box;
+      }
+
+      /* --- Elementos del Formulario (Inputs y Labels) --- */
+      label {
+        display: block;
+        font-size: 13px;
+        color: var(--color-texto-base);
+        margin: 10px 0 6px;
+      }
+
+      input[type="text"],
+      input[type="email"],
+      input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid var(--color-borde-claro);
+        border-radius: 10px;
+        background: #fafafa;
+        outline: none;
+        box-sizing: border-box;
+      }
+
+      /* Estilo para el email deshabilitado */
+      input[type="email"]:disabled {
+        background: #eee;
+        color: #777;
+        cursor: not-allowed;
+      }
+
+      /* Estilo para el input de archivo */
+      input[type="file"] {
+        width: 100%;
+        font-size: 13px;
+        color: #555;
+        margin: 10px 0 15px;
+        padding: 8px;
+        border: 1px solid var(--color-borde-claro);
+        border-radius: 10px;
+        background: #fafafa;
+        box-sizing: border-box;
+      }
+
+      /* Estilo simple para el label del checkbox */
+      label[for="id_remove_photo"] {
+        display: inline;
+        color: var(--color-error);
+        font-weight: 500;
+        margin-left: 5px;
+      }
+
+      /* Estilo para el checkbox */
+      input[type="checkbox"] {
+        accent-color: var(--color-principal);
+        width: 16px;
+        height: 16px;
+        vertical-align: middle;
+      }
+
+      /* Estilo para deshabilitar visualmente el input de archivo */
+      input[type="file"]:disabled {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+      }
+
+      input:focus {
+        border-color: var(--color-principal);
+        box-shadow: 0 0 0 3px var(--color-foco-sombra);
+      }
+
+      /* --- Botones y Clases de Ayuda --- */
+      .btn-primary {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--color-principal);
+        color: var(--color-fondo-tarjeta); /* Blanco */
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .btn-primary:hover {
+        background-color: var(--color-principal-hover);
+      }
+
+      .login-link {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 13px;
+      }
+      .login-link a {
+        color: var(--color-principal);
+        text-decoration: underline;
+      }
+
+      /* Mensajes de error */
+      .form-error {
+        color: var(--color-error);
+        font-size: 13px;
+        margin: 6px 0;
+      }
+    </style>
+  </head>
+  <body class="login-bg">
+    <div class="page">
+      <h1 class="brand">ESSENZA</h1>
+      <div class="form-card">
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+          {{ form.first_name }}
+
+          <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+          {{ form.last_name }}
+
+          <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+          {{ form.email }}
+
+          <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
+          {{ form.photo }} {% if not form.remove_photo.is_hidden %}
+          <div style="margin-bottom: 15px">
+            {{ form.remove_photo }}
+            <label for="{{ form.remove_photo.id_for_label }}"
+              >{{ form.remove_photo.label }}</label
+            >
+          </div>
+          {% endif %} {% if form.errors %}
+          <div style="margin-top: 15px">
+            {% for field in form %} {% for error in field.errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %} {% endfor %} {% for error in form.non_field_errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %} {% if form.errors %}
+          <div
+            style="
+              background: #fff0f0;
+              border: 2px solid var(--color-error);
+              border-radius: 10px;
+              padding: 15px;
+              margin-bottom: 15px;
+            "
+          >
+            <p
+              style="
+                color: var(--color-error);
+                margin-top: 0;
+                font-weight: bold;
+              "
+            >
+              ¡El formulario tiene errores!
+            </p>
+            {% for field in form %} {% if field.errors %}
+            <div class="form-error">
+              <strong>{{ field.label }}:</strong>
+              <ul>
+                {% for error in field.errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %} {% endfor %} {% for error in form.non_field_errors %}
+            <div class="form-error">
+              <strong>Error general:</strong> {{ error }}
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn-primary">Guardar Cambios</button>
+
+          <p class="login-link">
+            <a href="{% url 'profile' %}">Cancelar y volver al perfil</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 1. Obtener referencias
+        const fileInput = document.getElementById(
+          "{{ form.photo.id_for_label }}"
+        );
+        const removeCheckbox = document.getElementById(
+          "{{ form.remove_photo.id_for_label }}"
+        );
+
+        if (!fileInput || !removeCheckbox) {
+          return;
+        }
+
+        // 2. Lógica para el Checkbox (Deshabilita el selector)
+        function handleRemovePhotoChange() {
+          const isRemoveChecked = removeCheckbox.checked;
+
+          if (isRemoveChecked) {
+            // Si está marcado, deshabilitar (ignorar) el selector de archivos
+            fileInput.disabled = true;
+          } else {
+            // Si está desmarcado, volver a habilitar el selector
+            fileInput.disabled = false;
+          }
+        }
+
+        // 4. Añadir escuchadores de eventos
+        removeCheckbox.addEventListener("change", handleRemovePhotoChange);
+
+        // 5. Ejecutar al inicio para establecer el estado inicial
+        handleRemovePhotoChange();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmar Borrado - Essenza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #faf7f2;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #333;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .confirm-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+        }
+        .warning-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: block;
+        }
+        h1 {
+            color: #c85a54;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        p {
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .product-info {
+            background-color: #f9f5f2;
+            border-left: 4px solid #c06b3e;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+            text-align: left;
+        }
+        .product-info strong {
+            display: block;
+            color: #c06b3e;
+            margin-bottom: 8px;
+        }
+        .product-name {
+            font-size: 18px;
+            color: #333;
+            word-break: break-word;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        button,
+        a.btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 16px;
+            transition: opacity 0.3s;
+            display: inline-block;
+        }
+        .btn-delete {
+            background-color: #c85a54;
+            color: white;
+            flex: 1;
+        }
+        .btn-delete:hover {
+            opacity: 0.85;
+        }
+        .btn-cancel {
+            background-color: #ddd;
+            color: #333;
+            flex: 1;
+        }
+        .btn-cancel:hover {
+            opacity: 0.85;
+        }
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        @media (max-width: 500px) {
+            .confirm-container {
+                padding: 30px 20px;
+            }
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="confirm-container">
+        <span class="warning-icon">⚠️</span>
+        <p>¿Está seguro de que desea borrar este producto?</p>
+
+
+        <div class="product-info">
+            <strong>Producto:</strong>
+            <div class="product-name">{{ product.name }}</div>
+        </div>
+
+
+        <p style="margin-bottom: 10px; font-size: 14px; color: #999;">
+            Esta acción es <strong>irreversible</strong> y no se puede deshacer.
+        </p>
+
+
+        <form method="post" style="margin: 0;">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit" class="btn-delete">Sí, borrar producto</button>
+                <a href="{% url 'product_list' %}" class="btn-cancel">← No, cancelar</a>
+            </div>
+        </form>
+
+
+        <div class="note">
+            💡 Si borras este producto, se eliminará toda la información asociada.
+        </div>
+    </div>
+</body>
+</html>
+
+

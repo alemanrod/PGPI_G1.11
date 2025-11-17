@@ -1,0 +1,313 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>{% block title %}Essenza{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body { margin: 0; background-color: #faf7f2; font-family: 'Segoe UI', Arial, sans-serif; }
+
+    /* ====== NAVBAR / CABECERA ====== */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 40px;
+      background: linear-gradient(to bottom, #ffffff 0%, #fcfcfc 100%);
+      border-bottom: 1px solid #e8e0d8;
+      box-shadow: 0 2px 12px rgba(192, 107, 62, 0.08);
+    }
+
+    .nav-left, .nav-center, .nav-right { display: flex; align-items: center; }
+
+    .brand { 
+      font-size: 30px; 
+      color: #c06b3e; 
+      font-weight: 700; 
+      letter-spacing: 2px; 
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+    .brand:hover { 
+      color: #a35a34;
+      letter-spacing: 2.5px;
+    }
+
+    .nav-links { margin-left: 30px; display: flex; gap: 8px; }
+    .nav-links a { 
+      color: #c06b3e; 
+      text-decoration: none; 
+      padding: 10px 18px; 
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .nav-links a:hover { 
+      background: #c06b3e;
+      color: #fff;
+      border-color: #c06b3e;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(192, 107, 62, 0.25);
+    }
+
+    /* Centrar el buscador */
+    .nav-center {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .search-bar input { 
+      width: 100%; 
+      max-width: 420px; 
+      padding: 11px 20px; 
+      border: 1px solid #e0d5ca; 
+      border-radius: 24px; 
+      background: #fafafa;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .search-bar input:focus {
+      outline: none;
+      border-color: #c06b3e;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(192, 107, 62, 0.12);
+    }
+
+    /* Info link en la derecha */
+    .nav-info a {
+      color: #c06b3e; 
+      text-decoration: none; 
+      margin-right: 20px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .nav-info a:hover {
+      color: #a35a34;
+    }
+
+    /* Profile dropdown */
+    .profile-dropdown { position: relative; display: inline-block; }
+    .profile-icon-btn { 
+      background-color: #fff; 
+      border: 2px solid #c06b3e; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      padding: 6px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(192, 107, 62, 0.15);
+    }
+    .profile-icon-btn:hover { 
+      background-color: #faf7f2;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(192, 107, 62, 0.25);
+    }
+    .dropdown-content { 
+      display: none; 
+      position: absolute; 
+      right: 0; 
+      top: 50px; 
+      background-color: #ffffff; 
+      min-width: 180px; 
+      box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+      border-radius: 12px; 
+      z-index: 10; 
+      overflow: hidden;
+      border: 1px solid #f0e8e0;
+    }
+    .dropdown-content a, .dropdown-logout-btn { 
+      color: #333; 
+      padding: 14px 20px; 
+      text-decoration: none; 
+      display: block; 
+      font-size: 14.5px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+    .dropdown-logout-btn { 
+      width: 100%; 
+      text-align: left; 
+      background: none; 
+      border: none; 
+      cursor: pointer; 
+      font-family: inherit;
+    }
+    .dropdown-content a:hover, .dropdown-logout-btn:hover { 
+      background: linear-gradient(to right, #faf7f2 0%, #f5f0ea 100%);
+      color: #c06b3e;
+      padding-left: 24px;
+    }
+    .dropdown-content.show { display: block; }
+
+    /* ====== ESCAPARATE ====== */
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+      padding: 0 24px;
+    }
+
+    .product-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+      text-align: center;
+      padding: 16px;
+      transition: transform .2s ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .product-name {
+      font-size: 15px;
+      color: #333;
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    .product-price {
+      color: #c06b3e;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+
+    .info-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin-right: 25px; /* 🔹 más separación del perfil */
+      background: linear-gradient(145deg, #c06b3e, #d77b46);
+      border: 1.5px solid #b35f35;
+      border-radius: 50%;
+      color: #fff;
+      font-family: 'Georgia', 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: bold;
+      font-size: 16px;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      transition: all 0.25s ease;
+    }
+
+    .info-button:hover {
+      background: linear-gradient(145deg, #a35a34, #c06b3e);
+      transform: scale(1.08);
+      box-shadow: 0 3px 8px rgba(192, 107, 62, 0.35), inset 0 1px 2px rgba(255, 255, 255, 0.25);
+    }
+
+
+
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      header { flex-wrap: wrap; padding: 12px 20px; }
+      .nav-center { order: 3; width: 100%; margin-top: 12px; }
+      .search-bar input { max-width: 100%; }
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <header>
+    
+    <div class="nav-left">
+      <a href="/info/" class="info-button" title="Información">i</a>
+      <a href="/" class="brand">ESSENZA</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        {% if not user.is_staff and not user.is_superuser %}
+        <a href="/">Escaparate</a>
+        <a href="/catalogo">Catalogo</a>
+        {% endif %}
+        {% if user.is_staff or user.is_superuser %}
+          <a href="/product/stock/">Stock</a>
+          <a href="/product/">Productos</a>
+        {% endif %}
+      </nav>
+    </div>
+
+    <div class="nav-center">
+      <div class="search-bar">
+        <input type="text" placeholder="Buscar..." aria-label="Buscar productos">
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div class="profile-dropdown">
+        <button id="profileBtn" class="profile-icon-btn" aria-haspopup="true" aria-expanded="false" aria-label="Menú de usuario">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c06b3e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+
+        <div id="myDropdown" class="dropdown-content" role="menu">
+          {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" role="menuitem">Mi perfil</a>
+            <form action="{% url 'logout' %}" method="post" style="margin:0;">
+              {% csrf_token %}
+              <button type="submit" class="dropdown-logout-btn" role="menuitem">Log out</button>
+            </form>
+          {% else %}
+            <a href="{% url 'register' %}" role="menuitem">Registrarse</a>
+            <a href="{% url 'login' %}" role="menuitem">Iniciar sesión</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </header>
+
+  {% block content %}{% endblock %}
+
+  <script>
+    const profileBtn = document.getElementById('profileBtn');
+    const dropdown = document.getElementById('myDropdown');
+
+    profileBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      const isOpen = dropdown.classList.toggle('show');
+      profileBtn.setAttribute('aria-expanded', isOpen);
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.profile-dropdown')) {
+        dropdown.classList.remove('show');
+        profileBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && dropdown.classList.contains('show')) {
+        dropdown.classList.remove('show');
+        profileBtn.setAttribute('aria-expanded', 'false');
+        profileBtn.focus();
+      }
+    });
+  </script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

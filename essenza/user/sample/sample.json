@@ -1,0 +1,57 @@
+[
+  {
+    "model": "user.usuario",
+    "pk": 1,
+    "fields": {
+      "email": "user1@example.com",
+      "username": "user1@example.com",
+      "first_name": "first",
+      "last_name": "user",
+      "photo": "profile_pics/user1.jpg",
+      "role": "user",
+      "password": "pbkdf2_sha256$1000000$qHIC4EeRho2OC2FLmNPo9t$atSjNjIY9vOi1GPqbotF19e8tcd1PBFTNkcYBpZyKmU="
+    }
+  },
+  {
+    "model": "user.usuario",
+    "pk": 2,
+    "fields": {
+      "email": "user2@example.com",
+      "username": "user2@example.com",
+      "first_name": "second",
+      "last_name": "user",
+      "photo": "profile_pics/user2.jpg",
+      "role": "user",
+      "password": "pbkdf2_sha256$1000000$qHIC4EeRho2OC2FLmNPo9t$atSjNjIY9vOi1GPqbotF19e8tcd1PBFTNkcYBpZyKmU="
+    }
+  },
+  {
+    "model": "user.usuario",
+    "pk": 3,
+    "fields": {
+      "email": "user3@example.com",
+      "username": "user3@example.com",
+      "first_name": "third",
+      "last_name": "user",
+      "photo": "profile_pics/user3.jpg",
+      "role": "user",
+      "password": "pbkdf2_sha256$1000000$qHIC4EeRho2OC2FLmNPo9t$atSjNjIY9vOi1GPqbotF19e8tcd1PBFTNkcYBpZyKmU="
+    }
+  },
+  {
+    "model": "user.usuario",
+    "pk": 4,
+    "fields": {
+      "email": "admin@example.com",
+      "username": "admin@example.com",
+      "first_name": "admin",
+      "last_name": "admin",
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true,
+      "photo": "profile_pics/admin.jpg",
+      "role": "admin",
+      "password": "pbkdf2_sha256$1000000$sazfnRvfJ4niYZE6ixBVKR$pboaUb8AWvEXwuJZkWoh3xwfYq++7nik9p2e0TxNPws="
+    }
+  }
+]

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil · Essenza{% endblock %}
+
+{% block content %}
+
+  <style>
+    /* Scoped styles for the profile page to avoid overriding base styles */
+    :root { --color-principal: #c06b3e; --color-principal-hover: #a35a34; --color-error: #b00020; }
+    .profile-page { min-height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 2rem; padding: 40px 0; }
+    .profile-brand { color: var(--color-principal); font-size: 48px; margin-bottom: 10px; text-align: center; }
+    .form-card { width: min(420px, 88vw); background: #fff; border: 2px solid var(--color-principal); border-radius: 16px; box-shadow: 0 12px 28px rgba(0,0,0,0.06); padding: 22px 24px; box-sizing: border-box; }
+    .btn-primary { display: block; width: 100%; max-width: 260px; margin: 14px auto 0; padding: 10px 12px; border-radius: 10px; background: var(--color-principal); color: #fff; border: none; cursor: pointer; transition: background-color .3s; text-decoration: none; text-align: center; }
+    .btn-primary:hover { background-color: var(--color-principal-hover); }
+    .login-link { margin-top: 15px; text-align: center; font-size: 13px; }
+    .login-link a { color: var(--color-principal); text-decoration: underline; }
+    .profile-pic { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; display: block; margin: 10px auto; border: 2px solid var(--color-principal); }
+    .profile-data p { font-size: 16px; color: #333; border-bottom: 1px solid #eee; padding: 10px 0; }
+    .profile-data strong { color: var(--color-principal); }
+    @media (max-width:600px) { .profile-brand { font-size: 34px; } .form-card { padding: 18px; } }
+  </style>
+
+  <div class="profile-page">
+    <h1 class="profile-brand">ESSENZA</h1>
+
+    <div class="form-card">
+      {% if user.photo %}
+        <img src="{{ user.photo.url }}" alt="Foto de perfil" class="profile-pic" />
+      {% else %}
+        <img src="{% static 'images/default_user.png' %}" alt="Foto de perfil por defecto" class="profile-pic" />
+      {% endif %}
+
+      <div class="profile-data">
+        <p><strong>Nombre:</strong> {{ user.first_name }}</p>
+        <p><strong>Apellidos:</strong> {{ user.last_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+      </div>
+
+      <a href="{% url 'profile_edit' %}" class="btn-primary">Editar mis datos</a>
+      <p class="login-link"><a href="{% url 'profile_delete' %}" style="color: var(--color-error)">Eliminar mi cuenta</a></p>
+    </div>
+  </div>
+
+{% endblock %}
