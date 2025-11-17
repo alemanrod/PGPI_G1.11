@@ -2,8 +2,8 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <meta charset="utf-8" />
-    <title>Editar Perfil · Essenza</title>
+    <meta charset="UTF-8" />
+    <title>Crear Producto · Essenza</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       /* --- Variables de Color --- */
@@ -29,6 +29,7 @@
         justify-content: center;
         align-items: center;
         gap: 2rem;
+        margin-bottom: 40px;
       }
 
       .brand {
@@ -57,8 +58,9 @@
       }
 
       input[type="text"],
-      input[type="email"],
-      input[type="password"] {
+      input[type="number"],
+      textarea,
+      select {
         width: 100%;
         padding: 10px 12px;
         border: 1px solid var(--color-borde-claro);
@@ -66,13 +68,7 @@
         background: #fafafa;
         outline: none;
         box-sizing: border-box;
-      }
-
-      /* Estilo para el email deshabilitado */
-      input[type="email"]:disabled {
-        background: #eee;
-        color: #777;
-        cursor: not-allowed;
+        font-family: "Segoe UI", Arial, sans-serif;
       }
 
       /* Estilo para el input de archivo */
@@ -92,6 +88,14 @@
       label[for="id_remove_photo"] {
         display: inline;
         color: var(--color-error);
+        font-weight: 500;
+        margin-left: 5px;
+      }
+
+      /* Estilo simple para el label del checkbox */
+      label[for="id_is_active"] {
+        display: inline;
+        color: var(--color-texto-base);
         font-weight: 500;
         margin-left: 5px;
       }
@@ -131,12 +135,12 @@
         background-color: var(--color-principal-hover);
       }
 
-      .login-link {
+      .create-link {
         margin-top: 15px;
         text-align: center;
         font-size: 13px;
       }
-      .login-link a {
+      .create-link a {
         color: var(--color-principal);
         text-decoration: underline;
       }
@@ -149,31 +153,49 @@
       }
     </style>
   </head>
-  <body class="login-bg">
+  <body class="create-bg">
     <div class="page">
       <h1 class="brand">ESSENZA</h1>
       <div class="form-card">
         <form method="post" enctype="multipart/form-data" novalidate>
           {% csrf_token %}
 
-          <label for="{{ form.first_name.id_for_label }}">Nombre</label>
-          {{ form.first_name }}
+          <label for="{{ form.name.id_for_label }}">Nombre</label>
+          {{ form.name }}
 
-          <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
-          {{ form.last_name }}
+          <label for="{{ form.description.id_for_label }}">Descripción</label>
+          {{ form.description }}
 
-          <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
-          {{ form.email }}
+          <label for="{{ form.category.id_for_label }}">Categoría</label>
+          {{ form.category }}
+
+          <label for="{{ form.brand.id_for_label }}">Marca</label>
+          {{ form.brand }}
+
+          <label for="{{ form.price.id_for_label }}">Precio</label>
+          {{ form.price }}
 
           <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
-          {{ form.photo }} {% if not form.remove_photo.is_hidden %}
-          <div style="margin-bottom: 15px">
-            {{ form.remove_photo }}
-            <label for="{{ form.remove_photo.id_for_label }}"
-              >{{ form.remove_photo.label }}</label
-            >
+          {{ form.photo }}
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 15px;
+              margin-top: 10px;
+            "
+          >
+            <div>
+              {{ form.is_active }}
+              <label for="{{ form.is_active.id_for_label }}"
+                >{{ form.is_active.label }}</label
+              >
+            </div>
           </div>
-          {% endif %} {% if form.errors %}
+
+          {% if form.errors %}
           <div
             style="
               background: #fff0f0;
@@ -209,10 +231,10 @@
           </div>
           {% endif %}
 
-          <button type="submit" class="btn-primary">Guardar Cambios</button>
+          <button type="submit" class="btn-primary">Crear Producto</button>
 
-          <p class="login-link">
-            <a href="{% url 'profile' %}">Cancelar y volver al perfil</a>
+          <p class="create-link">
+            <a href="{% url 'product_list' %}">Cancelar</a>
           </p>
         </form>
       </div>
