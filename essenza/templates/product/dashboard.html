@@ -174,15 +174,17 @@
 
   <body>
 
+    {% if products|length > 1 %}
     <div class="showcase-title">
-      <h2>Top 10 Bestsellers</h2>
+      <h2>Top Bestsellers</h2>
       <p>Una cuidada selección de los productos estrella de la temporada.</p>
     </div>
+    {% endif %}
 
     <main>
       {% if products %} {% for p in products %}
       <div class="product-card">
-        <a href="#" class="card-link-overlay"></a>
+        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
 
         {% if p.photo %}
         <img src="{{ p.photo.url }}" />

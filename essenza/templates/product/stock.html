@@ -40,7 +40,7 @@
       .product-card img {
         width: 140px;
         height: 140px;
-        object-fit: cover;
+        object-fit: contain;
         border-radius: 10px;
         flex-shrink: 0;
       }
@@ -141,7 +141,7 @@
         {% if p.photo %}
           <img src="{{ p.photo.url }}" alt="{{ p.name }}"/>
         {% else %}
-          <img src="{% static 'images/default_photo.png' %}" alt="Imagen por defecto"/>
+        <img src="{% static 'images/default_product.png' %}" />
         {% endif %}
 
         <div class="product-info">
