@@ -4,15 +4,15 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views import View
-from .forms import ProductForm
-from order.models import OrderProduct
-from .models import Product
+
 from .forms import ProductForm
 from .models import Product
+
 
 class BaseView(View):
     def get(self, request):
         return render(request, "base.html")
+
 
 class DashboardView(UserPassesTestMixin, View):
     template_name = "product/dashboard.html"

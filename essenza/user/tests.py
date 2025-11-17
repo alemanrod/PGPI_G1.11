@@ -19,7 +19,7 @@ class LoginViewTests(TestCase):
             username=self.username, email=self.email, password=self.password
         )
         self.login_url = reverse("login")
-        self.home_url = reverse("home")
+        self.dashboard_url = reverse("dashboard")
 
     # 1. comprueba que la pagina de login carga correctamente
     def test_get_login_page_returns_200(self):
@@ -28,12 +28,12 @@ class LoginViewTests(TestCase):
         self.assertContains(resp, "Iniciar sesión")
         self.assertContains(resp, "ESSENZA")
 
-    # 2. si email y contraseña validas redirige al home
-    def test_login_with_valid_email_redirects_home(self):
+    # 2. si email y contraseña validas redirige al dashboard
+    def test_login_with_valid_email_redirects_dashboard(self):
         data = {"email": self.email, "password": self.password}
         resp = self.client.post(self.login_url, data, follow=False)
         self.assertEqual(resp.status_code, 302, resp.content)
-        self.assertEqual(resp["Location"], self.home_url)
+        self.assertEqual(resp["Location"], self.dashboard_url)
 
     # 3. si email y contraseña no validas muestra error
     def test_login_with_invalid_passwordAndEmail_shows_error(self):
@@ -60,7 +60,7 @@ class LoginViewTests(TestCase):
 class RegisterViewTests(TestCase):
     def setUp(self):
         self.register_url = reverse("register")
-        self.home_url = reverse("home")
+        self.dashboard_url = reverse("dashboard")
         self.initial_user_count = User.objects.count()
 
         # Datos para un nuevo usuario de prueba
@@ -80,13 +80,13 @@ class RegisterViewTests(TestCase):
         self.assertContains(resp, "Crear cuenta")
         self.assertContains(resp, "ESSENZA")
 
-    # 2. Registro con datos válidos y redirige al home (302)
+    # 2. Registro con datos válidos y redirige al dashboard (302)
     def test_successful_registration_redirects_and_creates_user(self):
         data = self.valid_data.copy()
         resp = self.client.post(self.register_url, data, follow=False)
 
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["Location"], self.home_url)
+        self.assertEqual(resp["Location"], self.dashboard_url)
         self.assertEqual(User.objects.count(), self.initial_user_count + 1)
 
         new_user = User.objects.get(email=data["email"])
@@ -178,10 +178,10 @@ class LogoutViewTests(TestCase):
         )
         self.login_url = reverse("login")
         self.logout_url = reverse("logout")
-        self.home_url = reverse("home")
+        self.dashboard_url = reverse("dashboard")
 
     # 1. Comprobar que un usuario logueado se desloguea y redirige correctamente
-    def test_logout_redirects_to_home_and_clears_session(self):
+    def test_logout_redirects_to_dashboard_and_clears_session(self):
         # Iniciar sesión
         self.client.login(username="logout@example.com", password="testlogout123")
 
@@ -191,8 +191,8 @@ class LogoutViewTests(TestCase):
         # Hacer logout
         response = self.client.get(self.logout_url)
 
-        # Verificar redirección al home
-        self.assertRedirects(response, self.home_url)
+        # Verificar redirección al dashboard
+        self.assertRedirects(response, self.dashboard_url)
 
         # Verificar que se ha cerrado la sesión
         self.assertNotIn("_auth_user_id", self.client.session)
@@ -209,9 +209,9 @@ class LogoutViewTests(TestCase):
         self.assertTrue(
             cookie.value == "" or cookie["max-age"] == 0 or cookie["expires"]
         )
-        self.assertRedirects(response, self.home_url)
+        self.assertRedirects(response, self.dashboard_url)
 
     # 3. Comprobar que un usuario no autenticado también redirige correctamente
     def test_logout_redirects_even_if_not_authenticated(self):
         response = self.client.get(self.logout_url)
-        self.assertRedirects(response, self.home_url)
+        self.assertRedirects(response, self.dashboard_url)
