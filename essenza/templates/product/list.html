@@ -1,27 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Productos · Essenza{% endblock %}
+
+{% block content %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lista de Productos - Essenza</title>
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
+      /* Styles scoped to .list-page so they don't override base header/navbar */
+      .list-page * { box-sizing: border-box; }
+      .list-page {
         background-color: #faf7f2;
         font-family: "Segoe UI", Arial, sans-serif;
         color: #333;
-        padding: 0;
+        padding: 20px 0;
       }
-      .container {
-        /* Mantenemos el contenedor principal centrado para el contenido */
+      .list-page .container {
+        /* Contenedor principal centrado para el contenido */
         max-width: 1200px;
         margin: 0 auto;
         padding: 20px;
+        background: transparent;
       }
       h1 {
         color: #c06b3e;
@@ -158,177 +155,11 @@
         color: #666;
       }
 
-      /* ====== CABECERA - CORRECCIÓN FINAL PARA PEGAR A EXTREMOS ====== */
-      header {
-        background-color: #fff;
-        border-bottom: 2px solid #c06b3e;
-
-        /* CLAVE: Aplica FLEX al header para separar los grupos */
-        display: flex;
-        justify-content: space-between; 
-        align-items: center;
-
-        padding: 14px 20px;
-      }
-
-      .left-group {
-        display: flex;
-        align-items: center;
-        gap: 15px; 
-      }
-
-      .info-button {
-        width: 30px;
-        height: 30px;
-        background-color: #c06b3e;
-        border-radius: 50%;
-        text-align: center;
-        line-height: 30px;
-        font-size: 18px;
-        font-weight: bold;
-        color: white;
-        text-decoration: none;
-        cursor: pointer;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        transition: background-color 0.3s;
-      }
-      .info-button:hover {
-        background-color: #a35a34;
-      }
-
-      .brand {
-        font-size: 32px;
-        color: #c06b3e;
-        font-weight: bold;
-        letter-spacing: 1px;
-      }
-
-      /* Barra de búsqueda: No debe crecer, solo tener un ancho fijo. */
-      .search-bar {
-        width: 250px;
-        margin-left: 30px; /* Separación estética del logo */
-      }
-
-      .search-bar input {
-        width: 100%;
-        max-width: 100%;
-        padding: 8px 12px;
-        border: 1px solid #ccc;
-        border-radius: 20px;
-        background: #fafafa;
-      }
-
-      /* ====== DESPLEGABLE DE PERFIL ====== */
-      .profile-dropdown {
-        position: relative;
-        display: inline-block;
-      }
-      .profile-icon-btn {
-        width: 34px;
-        height: 34px;
-        background-color: #c06b3e;
-        border-radius: 50%;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        transition: background-color 0.3s;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .profile-icon-btn:hover {
-        background-color: #a35a34;
-      }
-      .profile-icon-btn img {
-        display: block;
-      }
-      .dropdown-content {
-        display: none;
-        position: absolute;
-        right: 0;
-        top: 45px;
-        background-color: #ffffff;
-        min-width: 160px;
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        border-radius: 8px;
-        z-index: 10;
-        overflow: hidden;
-      }
-      .dropdown-content a,
-      .dropdown-logout-btn {
-        color: #333;
-        padding: 12px 16px;
-        text-decoration: none;
-        display: block;
-        font-size: 14px;
-      }
-      .dropdown-logout-btn {
-        width: 100%;
-        text-align: left;
-        background: none;
-        border: none;
-        cursor: pointer;
-      }
-      .dropdown-content a:hover,
-      .dropdown-logout-btn:hover {
-        background-color: #f1f1f1;
-      }
-      .dropdown-content.show {
-        display: block;
-      }
+      /* Header/profile/dropdown styles intentionally omitted here so
+         the global header in base.html keeps its styles unchanged. */
     </style>
-  </head>
-  <body>
-    <header>
-      <div class="left-group">
-        <a
-          href="/info/"
-          class="info-button"
-          title="Información Legal y Contacto"
-          >i</a
-        >
-        <div class="brand">ESSENZA</div>
-
-        <div class="search-bar">
-          <input type="text" placeholder="Buscar..." />
-        </div>
-      </div>
-
-      <div class="profile-dropdown">
-        <button onclick="toggleDropdown()" class="profile-icon-btn">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="none"
-            stroke="#fff"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-            <circle cx="12" cy="7" r="4"></circle>
-          </svg>
-        </button>
-
-        <div id="myDropdown" class="dropdown-content">
-          {% if user.is_authenticated %}
-          <a href="{% url 'profile' %}">Mi perfil</a>
-          {% if user.role == 'admin' %}
-          <a href="{% url 'stock' %}">Gestión de Stock</a>
-          <a href="{% url 'product_list' %}">Gestión de Productos</a>
-          {% endif %}
-          <a href="{% url 'logout' %}">Cerrar sesión</a>
-          {% else %}
-          <a href="{% url 'register' %}">Registrarse</a>
-          <a href="{% url 'login' %}">Iniciar sesión</a>
-          {% endif %}
-        </div>
-      </div>
-    </header>
-
-    <div class="container">
+    <div class="list-page">
+      <div class="container">
       <h1>🌸 Productos Essenza</h1>
       <div class="header-actions">
         <a href="{% url 'product_create' %}" class="btn-create">
@@ -381,43 +212,16 @@
         </p>
       </div>
       {% endif %}
-
-      <div class="footer">
-        <p>
-          <a
-            href="#"
-            onclick="history.back(); return false;"
-            style="color: #c06b3e; text-decoration: none"
-            >← Volver</a
-          >
-        </p>
+        <div class="footer">
+          <p>
+            <a
+              href="#"
+              onclick="history.back(); return false;"
+              style="color: #c06b3e; text-decoration: none"
+              >← Volver</a
+            >
+          </p>
+        </div>
       </div>
     </div>
-    <script>
-      /*
-       * Función para mostrar/ocultar el desplegable
-       */
-      function toggleDropdown() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
-
-      /*
-       * Cierra el desplegable si el usuario hace clic fuera de él
-       */
-      window.onclick = function (event) {
-        // Comprueba si el clic NO fue en el botón del ícono
-        if (!event.target.closest(".profile-icon-btn")) {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          var i;
-          for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            // Si el menú está abierto (tiene la clase .show), la cierra
-            if (openDropdown.classList.contains("show")) {
-              openDropdown.classList.remove("show");
-            }
-          }
-        }
-      };
-    </script>
-  </body>
-</html>
+{% endblock %}
