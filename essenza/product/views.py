@@ -9,6 +9,11 @@ from .forms import ProductForm
 from .models import Product
 
 
+class BaseView(View):
+    def get(self, request):
+        return render(request, "base.html")
+
+
 class DashboardView(UserPassesTestMixin, View):
     template_name = "product/dashboard.html"
 

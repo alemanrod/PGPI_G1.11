@@ -328,13 +328,13 @@ class ProductCRUDTests(TestCase):
     def test_admin_can_create_product(self):
         """Prueba que un admin puede crear un nuevo producto (POST)."""
         self.client.force_login(self.admin)
-        
+
         initial_count = Product.objects.count()
 
         data = {
             "name": "Nuevo Producto Creado",
             "description": "Creado por el test de admin",
-            "category": "perfume", 
+            "category": "perfume",
             "brand": "NewBrand",
             "price": "99.99",
             "stock": 100,
@@ -355,7 +355,7 @@ class ProductCRUDTests(TestCase):
         data = {
             "name": updated_name,
             "description": "Descripción actualizada",
-            "category": "tratamiento", 
+            "category": "tratamiento",
             "brand": self.product.brand,
             "price": updated_price,
             "stock": 50,
@@ -365,7 +365,7 @@ class ProductCRUDTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
         self.assertRedirects(resp, reverse("product_list"))
-        
+
         self.product.refresh_from_db()
         self.assertEqual(self.product.name, updated_name)
         self.assertEqual(self.product.price, Decimal(updated_price))
