@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% load static %} {% load humanize %}
+
+{% block title %}Dashboard · Essenza{% endblock %}
+
+{% block content %}
+    <style>
+      
+      /* ====== ESCAPARATE ====== */
+      main {
+        max-width: 1100px;
+        margin: 40px auto;
+        display: grid;
+        grid-template-columns: repeat(30, 1fr);
+        grid-template-rows: 200px 200px 350px;
+        grid-auto-rows: 350px;
+        gap: 20px;
+        padding: 0 24px;
+      }
+
+      .product-card {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 16px;
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        height: 350px;
+        box-sizing: border-box;
+        position: relative;
+        /* Si hay más productos, serán en filas de 5 elementos */
+        grid-column: span 6;
+      }
+
+      .product-card:hover {
+        transform: translateY(-4px);
+      }
+
+      .product-card:hover .product-name {
+        color: #c06b3e;
+        text-decoration: underline;
+      }
+
+      .product-card img {
+        width: 150px;
+        height: 150px;
+        object-fit: contain;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+
+      .product-info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        flex-grow: 1;
+        justify-content: center;
+      }
+
+      .product-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-top: 16px;
+        width: 100%;
+      }
+
+      .product-price {
+        font-size: 18px;
+        font-weight: bold;
+        color: #c06b3e;
+        margin-top: 8px;
+      }
+
+      .product-description {
+        font-size: 14px;
+        color: #666;
+        margin-top: 8px;
+        width: 100%;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
+        line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .card-link-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+      }
+
+      /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
+
+      /* --- FILA 1 (Items 1-2) --- */
+      .product-card:nth-child(1),
+      .product-card:nth-child(2) {
+        grid-column: span 15;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 200px;
+      }
+
+      /* --- FILA 2 (Items 3-5) --- */
+      .product-card:nth-child(3),
+      .product-card:nth-child(4),
+      .product-card:nth-child(5) {
+        grid-column: span 10;
+        flex-direction: row;
+        justify-content: flex-start;
+        height: 200px;
+      }
+
+      /* --- FILA 3 (Items 6-10) --- */
+      .product-card:nth-child(6),
+      .product-card:nth-child(7),
+      .product-card:nth-child(8),
+      .product-card:nth-child(9),
+      .product-card:nth-child(10) {
+        grid-column: span 6;
+      }
+
+      /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
+      .product-card:nth-child(1) .product-info,
+      .product-card:nth-child(2) .product-info,
+      .product-card:nth-child(3) .product-info,
+      .product-card:nth-child(4) .product-info,
+      .product-card:nth-child(5) .product-info {
+        margin-left: 20px;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .product-card:nth-child(1) .product-name,
+      .product-card:nth-child(2) .product-name,
+      .product-card:nth-child(3) .product-name,
+      .product-card:nth-child(4) .product-name,
+      .product-card:nth-child(5) .product-name {
+        margin-top: 0;
+      }
+
+      .showcase-title {
+        text-align: center;
+        margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
+      }
+      .showcase-title h2 {
+        font-size: 28px;
+        color: #c06b3e; /* Color de la marca */
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      .showcase-title p {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    {% if products|length > 1 %}
+    <div class="showcase-title">
+      <h2>Top Bestsellers</h2>
+      <p>Una cuidada selección de los productos estrella de la temporada.</p>
+    </div>
+    {% endif %}
+
+    <main>
+      {% if products %} {% for p in products %}
+      <div class="product-card">
+        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
+
+        {% if p.photo %}
+        <img src="{{ p.photo.url }}" />
+        {% else %}
+        <img src="{% static 'images/default_product.png' %}" />
+        {% endif %}
+
+        <div class="product-info">
+          <div class="product-name">{{ p.name }}</div>
+          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+          <div class="product-description">{{ p.description }}</div>
+        </div>
+      </div>
+      {% endfor %} {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555">
+        No hay productos disponibles en este momento.
+      </p>
+      {% endif %}
+    </main>
+
+    <script>
+      /*
+       * Función para mostrar/ocultar el desplegable
+       */
+      function toggleDropdown() {
+        document.getElementById("myDropdown").classList.toggle("show");
+      }
+
+      /*
+       * Cierra el desplegable si el usuario
+       * hace clic fuera de él
+       */
+      window.onclick = function (event) {
+        if (!event.target.closest(".profile-icon-btn")) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains("show")) {
+              openDropdown.classList.remove("show");
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
+{% endblock %}

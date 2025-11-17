@@ -1,0 +1,282 @@
+[
+    {
+        "model": "product.product",
+        "pk": 1,
+        "fields": {
+            "name": "Maquillaje Base",
+            "description": "Base líquida para rostro, de acabado mate, 30ml.",
+            "category": "maquillaje",
+            "brand": "L'Oréal",
+            "price": 19.99,
+            "photo": "products/maquillaje_base.jpg",
+            "stock": 50,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 2,
+        "fields": {
+            "name": "Shampoo Reconstructivo",
+            "description": "Shampoo nutritivo para cabellos dañados, 500ml.",
+            "category": "tratamiento",
+            "brand": "Pantene",
+            "price": 6.99,
+            "photo": "products/shampoo_reconstructivo.jpg",
+            "stock": 100,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 3,
+        "fields": {
+            "name": "Secador de Pelo",
+            "description": "Secador de pelo con 3 niveles de temperatura, 2000W.",
+            "category": "cabello",
+            "brand": "Braun",
+            "price": 45.99,
+            "photo": "products/secador_pelo.jpg",
+            "stock": 30,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 4,
+        "fields": {
+            "name": "Perfume Floral",
+            "description": "Perfume con notas de jazmín y rosa, 100ml.",
+            "category": "perfume",
+            "brand": "Chanel",
+            "price": 79.99,
+            "photo": "products/perfume_floral.jpg",
+            "stock": 20,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 5,
+        "fields": {
+            "name": "Crema Hidratante",
+            "description": "Crema hidratante para piel seca, 50ml.",
+            "category": "tratamiento",
+            "brand": "Nivea",
+            "price": 12.99,
+            "photo": "products/crema_hidratante.jpg",
+            "stock": 150,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 6,
+        "fields": {
+            "name": "Rizador de Pelo",
+            "description": "Rizador de pelo con control de temperatura, 25mm.",
+            "category": "cabello",
+            "brand": "Remington",
+            "price": 29.99,
+            "photo": "products/rizador_pelo.jpg",
+            "stock": 40,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 7,
+        "fields": {
+            "name": "Gel Antibacterial",
+            "description": "Gel antibacterial para manos, 250ml.",
+            "category": "tratamiento",
+            "brand": "Dettol",
+            "price": 4.99,
+            "photo": "products/gel_antibacterial.jpg",
+            "stock": 200,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 8,
+        "fields": {
+            "name": "Shampoo Anticaspa",
+            "description": "Shampoo anticaspa para cuero cabelludo sensible, 400ml.",
+            "category": "tratamiento",
+            "brand": "Head & Shoulders",
+            "price": 7.99,
+            "photo": "products/shampoo_anticaspa.jpg",
+            "stock": 90,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 9,
+        "fields": {
+            "name": "Aceite Capilar",
+            "description": "Aceite nutritivo para el cabello, 150ml.",
+            "category": "tratamiento",
+            "brand": "Argan Oil",
+            "price": 15.99,
+            "photo": "products/aceite_capilar.jpg",
+            "stock": 60,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 10,
+        "fields": {
+            "name": "Tinte de Cabello",
+            "description": "Tinte permanente para cabello, color castaño claro.",
+            "category": "cabello",
+            "brand": "Garnier",
+            "price": 8.99,
+            "photo": "products/tinte_cabello.jpg",
+            "stock": 110,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 11,
+        "fields": {
+            "name": "Mascarilla Facial",
+            "description": "Mascarilla hidratante para todo tipo de piel, 100ml.",
+            "category": "tratamiento",
+            "brand": "L'Oréal",
+            "price": 18.99,
+            "photo": "products/mascarilla_facial.jpg",
+            "stock": 80,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 12,
+        "fields": {
+            "name": "Shampoo Voluminizador",
+            "description": "Shampoo voluminizador para cabellos finos, 300ml.",
+            "category": "tratamiento",
+            "brand": "TRESemmé",
+            "price": 5.99,
+            "photo": "products/shampoo_voluminizador.jpg",
+            "stock": 120,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 13,
+        "fields": {
+            "name": "Laca de Pelo",
+            "description": "Laca fijadora para todo el día, 400ml.",
+            "category": "cabello",
+            "brand": "Schwarzkopf",
+            "price": 10.99,
+            "photo": "products/laca_pelo.jpg",
+            "stock": 70,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 14,
+        "fields": {
+            "name": "Crema Solar",
+            "description": "Protección solar SPF 50+, 200ml.",
+            "category": "tratamiento",
+            "brand": "Hawaiian Tropic",
+            "price": 14.99,
+            "photo": "products/crema_solar.jpg",
+            "stock": 40,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 15,
+        "fields": {
+            "name": "Crema Antiedad",
+            "description": "Crema antiarrugas para el rostro, 50ml.",
+            "category": "tratamiento",
+            "brand": "Olay",
+            "price": 25.99,
+            "photo": "products/crema_antiedad.jpg",
+            "stock": 30,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 16,
+        "fields": {
+            "name": "Desodorante",
+            "description": "Desodorante en barra, 75g.",
+            "category": "tratamiento",
+            "brand": "Dove",
+            "price": 3.99,
+            "photo": "products/desodorante.jpg",
+            "stock": 150,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 17,
+        "fields": {
+            "name": "Toallitas Desmaquillantes",
+            "description": "Toallitas para desmaquillar, 25 unidades.",
+            "category": "tratamiento",
+            "brand": "Neutrogena",
+            "price": 4.49,
+            "photo": "products/toallitas_desmaquillantes.jpg",
+            "stock": 90,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 18,
+        "fields": {
+            "name": "Pincel de Maquillaje",
+            "description": "Pincel para base líquida, cerdas suaves.",
+            "category": "maquillaje",
+            "brand": "Real Techniques",
+            "price": 12.99,
+            "photo": "products/pincel_maquillaje.jpg",
+            "stock": 110,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 19,
+        "fields": {
+            "name": "Crema para Pies",
+            "description": "Crema reparadora para pies agrietados, 100ml.",
+            "category": "tratamiento",
+            "brand": "Eucerin",
+            "price": 9.99,
+            "photo": "products/crema_pies.jpg",
+            "stock": 80,
+            "is_active": true
+        }
+    },
+    {
+        "model": "product.product",
+        "pk": 20,
+        "fields": {
+            "name": "Limpieza Facial",
+            "description": "Gel limpiador facial suave, 200ml.",
+            "category": "tratamiento",
+            "brand": "Neutrogena",
+            "price": 7.49,
+            "photo": "products/limpieza_facial.jpg",
+            "stock": 130,
+            "is_active": true
+        }
+    }
+]

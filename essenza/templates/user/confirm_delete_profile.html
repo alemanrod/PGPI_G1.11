@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Eliminar Cuenta · Essenza</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <style>
+      body {
+        /* --- Variables de Color --- */
+        --color-principal: #c06b3e;
+        --color-principal-hover: #a35a34;
+        --color-fondo: #faf7f2;
+        --color-fondo-tarjeta: #fff;
+        --color-texto-base: #333;
+        --color-borde-claro: #eee;
+        --color-error: #b00020;
+        --color-error-hover: #8e0019;
+        --color-foco-sombra: rgba(192, 107, 62, 0.2);
+
+        background-color: var(--color-fondo);
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+      }
+      .page {
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2rem;
+      }
+      .brand {
+        color: var(--color-principal);
+        font-size: 48px;
+        margin-bottom: 10px;
+        text-align: center;
+      }
+      .form-card {
+        width: min(420px, 88vw);
+        background: var(--color-fondo-tarjeta);
+        border: 2px solid var(--color-error); /* Borde rojo de advertencia */
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+        padding: 22px 24px;
+        box-sizing: border-box;
+        text-align: center; /* Centramos el contenido */
+      }
+
+      /* Botón de peligro (copiado de .btn-primary) */
+      .btn-danger {
+        width: 100%;
+        margin-top: 14px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        background: var(--color-error); /* Color rojo */
+        color: var(--color-fondo-tarjeta);
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .btn-danger:hover {
+        background-color: var(--color-error-hover); /* Rojo más oscuro */
+      }
+      .login-link {
+        margin-top: 15px;
+        text-align: center;
+        font-size: 13px;
+      }
+      .login-link a {
+        color: var(--color-principal);
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <h1 class="brand">ESSENZA</h1>
+      <div class="form-card">
+        <h2 style="color: var(--color-error); margin-top: 0">
+          Eliminar Cuenta
+        </h2>
+        <p style="color: var(--color-texto-base); font-size: 16px">
+          ¿Estás seguro de que quieres eliminar tu cuenta permanentemente?
+        </p>
+        <p
+          style="
+            color: var(--color-texto-base);
+            font-size: 14px;
+            font-weight: bold;
+          "
+        >
+          Toda tu información será borrada y esta acción no se puede deshacer.
+        </p>
+
+        <form method="post">
+          {% csrf_token %}
+
+          <button type="submit" class="btn-danger">
+            Sí, eliminar mi cuenta ahora
+          </button>
+        </form>
+
+        <p class="login-link">
+          <a href="{% url 'profile' %}">No, cancelar y volver a mi perfil</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
