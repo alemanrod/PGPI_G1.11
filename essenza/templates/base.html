@@ -240,7 +240,7 @@
       <nav class="nav-links" aria-label="Navegación principal">
         {% if not user.is_staff and not user.is_superuser %}
         <a href="/">Escaparate</a>
-        <a href="/catalogo">Catalogo</a>
+        <a href="/catalog">Catalogo</a>
         {% endif %}
         {% if user.is_staff or user.is_superuser %}
           <a href="/product/stock/">Stock</a>
@@ -251,7 +251,9 @@
 
     <div class="nav-center">
       <div class="search-bar">
-        <input type="text" placeholder="Buscar..." aria-label="Buscar productos">
+        <form method="get" action="{% url 'product_search' %}">
+          <input name="q" type="search" placeholder="Buscar..." aria-label="Buscar productos" value="{{ request.GET.q|default:'' }}">
+        </form>
       </div>
     </div>
 

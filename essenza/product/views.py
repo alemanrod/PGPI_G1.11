@@ -187,3 +187,29 @@ class CatalogDetailView(View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
         return render(request, self.template_name, {"product": product})
+
+
+class SearchView(View):
+    """Search products by name. Uses GET parameter `q`.
+
+    - For anonymous or regular users, only searches active products.
+    - For staff/admin, searches all products.
+    Renders `product/catalog.html` with `products` and `query` in context.
+    """
+    template_name = "product/catalog.html"
+
+    def get(self, request):
+        q = request.GET.get("q", "").strip()
+        if request.user.is_authenticated and (
+            request.user.is_staff or request.user.role == "admin"
+        ):
+            qs = Product.objects.all()
+        else:
+            qs = Product.objects.filter(is_active=True)
+
+        if q:
+            products = qs.filter(name__icontains=q)
+        else:
+            products = qs
+
+        return render(request, self.template_name, {"products": products, "query": q})
