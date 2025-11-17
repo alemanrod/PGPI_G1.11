@@ -1,4 +1,6 @@
 pip install -r requirements.txt && \
+mkdir -p media && \
+rsync -av --ignore-errors _sample_assets/ media/ && \
 python manage.py makemigrations && \
 python manage.py flush --noinput && \
 python manage.py migrate --noinput && \
