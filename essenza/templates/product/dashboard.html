@@ -2,7 +2,7 @@
 
 {% load static %} {% load humanize %}
 
-{% block title %}Dashboard · Essenza{% endblock %}
+{% block title %}Escaparate · Essenza{% endblock %}
 
 {% block content %}
     <style>
@@ -163,6 +163,15 @@
         color: #666;
         margin: 0;
       }
+      .category-tag {
+        display: inline-block;
+        margin-top: 8px;
+        background: #f2e5df;
+        color: #c06b3e;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+      }
     </style>
   </head>
 
@@ -188,8 +197,9 @@
 
         <div class="product-info">
           <div class="product-name">{{ p.name }}</div>
-          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
           <div class="product-description">{{ p.description }}</div>
+          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+          <span class="category-tag">{{ p.get_category_display }}</span>
         </div>
       </div>
       {% endfor %} {% else %}

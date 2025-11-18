@@ -1,227 +1,229 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Lista de Productos · Essenza
+{%endblock %} {% block content %} {% load static %}
+<style>
+  /* Styles scoped to .list-page so they don't override base header/navbar */
+  .list-page * {
+    box-sizing: border-box;
+  }
+  .list-page {
+    background-color: #faf7f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+    padding: 20px 0;
+  }
+  .list-page .container {
+    /* Contenedor principal centrado para el contenido */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+  }
+  h1 {
+    color: #c06b3e;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+  }
+  .header-actions {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  .btn-create {
+    display: inline-block;
+    padding: 12px 30px;
+    background-color: #c06b3e;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  .btn-create:hover {
+    background-color: #a35a34;
+  }
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  .product-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  .product-image {
+    width: 100%;
+    height: 200px;
+    object-fit: contain;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+  }
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .product-info {
+    padding: 15px;
+  }
+  .product-name {
+    font-size: 18px;
+    font-weight: bold;
+    color: #c06b3e;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .product-brand {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 8px;
+  }
+  .product-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+  }
+  .product-stock {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 12px;
+  }
+  .product-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-small {
+    flex: 1;
+    padding: 8px 0px;
+    text-decoration: none;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    transition: opacity 0.3s;
+  }
 
-{% block title %}Lista de Productos · Essenza{% endblock %}
+  /* === ESTILO DE BOTÓN === */
+  .btn-detail {
+    background-color: #c06b3e;
+    color: white;
+  }
+  .btn-detail:hover {
+    opacity: 0.8;
+  }
+  .btn-edit {
+    background-color: #b7b099;
+    color: white;
+  }
+  .btn-edit:hover {
+    opacity: 0.8;
+  }
+  .btn-delete {
+    background-color: #c85a54;
+    color: white;
+  }
+  .btn-delete:hover {
+    opacity: 0.8;
+  }
+  /* ======================== */
 
-{% block content %}
-{% load static %}
-    <style>
-      /* Styles scoped to .list-page so they don't override base header/navbar */
-      .list-page * { box-sizing: border-box; }
-      .list-page {
-        background-color: #faf7f2;
-        font-family: "Segoe UI", Arial, sans-serif;
-        color: #333;
-        padding: 20px 0;
-      }
-      .list-page .container {
-        /* Contenedor principal centrado para el contenido */
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        background: transparent;
-      }
-      h1 {
-        color: #c06b3e;
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 32px;
-      }
-      .header-actions {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      .btn-create {
-        display: inline-block;
-        padding: 12px 30px;
-        background-color: #c06b3e;
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        transition: background-color 0.3s;
-      }
-      .btn-create:hover {
-        background-color: #a35a34;
-      }
-      .products-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 20px;
-      }
-      .product-card {
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-      }
-      .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      }
-      .product-image {
-        width: 100%;
-        height: 200px;
-        object-fit: contain;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-        font-size: 14px;
-      }
-      .product-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-      .product-info {
-        padding: 15px;
-      }
-      .product-name {
-        font-size: 18px;
-        font-weight: bold;
-        color: #c06b3e;
-        margin-bottom: 8px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .product-brand {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 8px;
-      }
-      .product-price {
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        margin-bottom: 8px;
-      }
-      .product-stock {
-        font-size: 13px;
-        color: #999;
-        margin-bottom: 12px;
-      }
-      .product-actions {
-        display: flex;
-        gap: 8px;
-      }
-      .btn-small {
-        flex: 1;
-        padding: 8px 0px;
-        text-decoration: none;
-        border-radius: 4px;
-        text-align: center;
-        font-size: 16px;
-        font-weight: bold;
-        transition: opacity 0.3s;
-      }
+  .empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #999;
+    font-size: 16px;
+  }
+  .footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+    color: #666;
+  }
 
-      /* === ESTILO DE BOTÓN === */
-      .btn-detail {
-        background-color: #c06b3e;
-        color: white;
-      }
-      .btn-detail:hover {
-        opacity: 0.8;
-      }
-      .btn-edit {
-        background-color: #b7b099;
-        color: white;
-      }
-      .btn-edit:hover {
-        opacity: 0.8;
-      }
-      .btn-delete {
-        background-color: #c85a54;
-        color: white;
-      }
-      .btn-delete:hover {
-        opacity: 0.8;
-      }
-      /* ======================== */
-
-      .empty-message {
-        text-align: center;
-        padding: 40px 20px;
-        color: #999;
-        font-size: 16px;
-      }
-      .footer {
-        text-align: center;
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #ddd;
-        color: #666;
-      }
-
-      /* Header/profile/dropdown styles intentionally omitted here so
+  /* Header/profile/dropdown styles intentionally omitted here so
          the global header in base.html keeps its styles unchanged. */
-    </style>
-    <div class="list-page">
-      <div class="container">
-      <h1>🌸 Productos Essenza</h1>
-      <div class="header-actions">
-        <a href="{% url 'product_create' %}" class="btn-create">
-          Crear producto</a
-        >
-      </div>
-
-      {% if products %}
-      <div class="products-grid">
-        {% for product in products %}
-        <div class="product-card">
-          <div class="product-image">
-            {% if product.photo %}
-            <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
-            {% else %}
-            <span>Sin imagen</span>
-            {% endif %}
-          </div>
-          <div class="product-info">
-            <div class="product-name">{{ product.name }}</div>
-            <div class="product-brand">{{ product.brand }}</div>
-            <div class="product-price">€ {{ product.price }}</div>
-            <div class="product-stock">Stock: {{ product.stock }}</div>
-            <div class="product-actions">
-              <a
-                href="{% url 'product_detail' product.pk %}"
-                class="btn-small btn-detail"
-                >Ver</a
-              >
-              <a
-                href="{% url 'product_update' product.pk %}"
-                class="btn-small btn-edit"
-                >Editar</a
-              >
-              <a
-                href="{% url 'product_delete' product.pk %}"
-                class="btn-small btn-delete"
-                >Borrar</a
-              >
-            </div>
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-      {% else %}
-      <div class="empty-message">
-        <p>
-          No hay productos disponibles.
-          <a href="{% url 'product_create' %}">¡Crea uno!</a>
-        </p>
-      </div>
-      {% endif %}
-        <div class="footer">
-          <p>
-            <a
-              href="#"
-              onclick="history.back(); return false;"
-              style="color: #c06b3e; text-decoration: none"
-              >← Volver</a
-            >
-          </p>
-        </div>
-      </div>
+</style>
+<div class="list-page">
+  <div class="container">
+    <h1>Productos Essenza</h1>
+    <div class="header-actions">
+      <a href="{% url 'product_create' %}" class="btn-create">
+        Crear producto</a
+      >
     </div>
+
+    {% if products %}
+    <div class="products-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-image">
+          {% if product.photo %}
+          <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
+          {% else %}
+          <span>Sin imagen</span>
+          {% endif %}
+        </div>
+        <div class="product-info">
+          <div class="product-name">{{ product.name }}</div>
+          <div class="product-brand">{{ product.brand }}</div>
+          <div class="product-price">€ {{ product.price }}</div>
+          <div class="product-actions">
+            <a
+              href="{% url 'product_detail' product.pk %}"
+              class="btn-small btn-detail"
+              >Ver</a
+            >
+            <a
+              href="{% url 'product_update' product.pk %}"
+              class="btn-small btn-edit"
+              >Editar</a
+            >
+            <a
+              href="{% url 'product_delete' product.pk %}"
+              class="btn-small btn-delete"
+              >Borrar</a
+            >
+          </div>
+        </div>
+        {% if product.stock == 0 %}
+        <strong>¡Producto agotado!</strong>
+        {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+        <strong>¡Últimas unidades!</strong>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-message">
+      <p>
+        No hay productos disponibles.
+        <a href="{% url 'product_create' %}">¡Crea uno!</a>
+      </p>
+    </div>
+    {% endif %}
+    <div class="footer">
+      <p>
+        <a
+          href="#"
+          onclick="history.back(); return false;"
+          style="color: #c06b3e; text-decoration: none"
+          >← Volver</a
+        >
+      </p>
+    </div>
+  </div>
+</div>
 {% endblock %}
