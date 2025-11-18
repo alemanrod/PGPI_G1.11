@@ -1,19 +1,17 @@
 from django.db import models
 from django.utils import timezone
 
-
 # Create your models here.
 class Status(models.TextChoices):
     PENDING = "pending", "Pending"
     PAID = "paid", "Paid"
     SHIPPED = "shipped", "Shipped"
 
-
 class Order(models.Model):
     user = models.ForeignKey(
         "user.Usuario", on_delete=models.CASCADE, related_name="orders"
     )
-    address = models.CharField(max_length=255)
+    address = models.CharField(max_length=255, null=True, blank=True)
     placed_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(
         max_length=10, choices=Status.choices, default=Status.PENDING
