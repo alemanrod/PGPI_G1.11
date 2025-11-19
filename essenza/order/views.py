@@ -3,7 +3,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import F # Importado para operaciones atómicas
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 # Importaciones de tus modelos
 from .models import Order, OrderProduct, Status
@@ -17,10 +17,11 @@ def get_or_create_cart(request):
     Obtiene la Order más reciente con status='PENDING' (asumida como carrito)
     o crea una nueva Order en estado 'PENDING'. Solo para usuarios logueados.
     """
-    if request.user.role == 'admin':
-        return redirect("dashboard")
-    
-    if request.user.is_authenticated and request.user.role != "admin":
+    # Deny access to admin/staff users explicitly
+    if request.user.is_authenticated and (getattr(request.user, 'role', None) == 'admin' or getattr(request.user, 'is_staff', False)):
+        raise PermissionDenied("Acceso denegado: administradores no pueden usar el carrito.")
+
+    if request.user.is_authenticated:
         # Lógica para usuarios logueados
         try:
             cart = Order.objects.filter(
@@ -35,12 +36,12 @@ def get_or_create_cart(request):
             cart = Order.objects.create(
                 user=request.user, 
                 status=Status.PENDING,
-                address=None
+                address="",  # Provide an empty string to avoid IntegrityError
             )
             
         return cart
     else:
-        # Los anónimos usan la sesión (o se les niega el acceso POST)
+        # Los anónimos usan la sesión
         return None
 
 # --------------------------------------------------------------------
@@ -55,15 +56,11 @@ class CartDetailView(View):
     
     def get(self, request):
         cart = None
-        if request.user.is_authenticated and request.user.role == "admin":
-            return redirect("dashboard")
-        
         if request.user.is_authenticated:
             # LÓGICA 1: Usuario logueado (lee de la DB)
-            cart = get_or_create_cart(request) 
+            cart = get_or_create_cart(request)
             cart_items = cart.order_products.all()
-            print(cart_items)
-            cart_total = sum(item.quantity * item.product.price for item in cart_items)
+            cart_total = sum(item.product.price * item.quantity for item in cart_items) if cart_items else 0
         else:
             # LÓGICA 2: Usuario anónimo (lee de la Sesión)
             cart_session = request.session.get('cart_session', {})
@@ -89,7 +86,7 @@ class CartDetailView(View):
                         'subtotal': quantity * product.price, 
                         'pk': product.pk,
                     })
-                    cart_total = sum(item.product.price * item.quantity for item in cart_items)
+                    cart_total = sum(item['product'].price * item['quantity'] for item in cart_items)
 
         context = {
             'cart': cart, # Será None para anónimos
