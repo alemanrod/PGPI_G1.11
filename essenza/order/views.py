@@ -17,7 +17,10 @@ def get_or_create_cart(request):
     Obtiene la Order más reciente con status='PENDING' (asumida como carrito)
     o crea una nueva Order en estado 'PENDING'. Solo para usuarios logueados.
     """
-    if request.user.is_authenticated:
+    if request.user.role == 'admin':
+        return redirect("dashboard")
+    
+    if request.user.is_authenticated and request.user.role != "admin":
         # Lógica para usuarios logueados
         try:
             cart = Order.objects.filter(
@@ -52,16 +55,20 @@ class CartDetailView(View):
     
     def get(self, request):
         cart = None
+        if request.user.is_authenticated and request.user.role == "admin":
+            return redirect("dashboard")
         
         if request.user.is_authenticated:
             # LÓGICA 1: Usuario logueado (lee de la DB)
             cart = get_or_create_cart(request) 
             cart_items = cart.order_products.all()
-            
+            print(cart_items)
+            cart_total = sum(item.quantity * item.product.price for item in cart_items)
         else:
             # LÓGICA 2: Usuario anónimo (lee de la Sesión)
             cart_session = request.session.get('cart_session', {})
             cart_items = []
+            cart_total = 0
             
             # Si hay ítems en la sesión, construimos una lista para la plantilla
             if cart_session:
@@ -82,10 +89,12 @@ class CartDetailView(View):
                         'subtotal': quantity * product.price, 
                         'pk': product.pk,
                     })
+                    cart_total = sum(item.product.price * item.quantity for item in cart_items)
 
         context = {
             'cart': cart, # Será None para anónimos
             'cart_items': cart_items, # Lista de DB objects o dicts/temp objects
+            'cart_total': cart_total, # Total calculado
         }
         return render(request, self.template_name, context)
 # =======================================================
@@ -175,7 +184,7 @@ class UpdateCartSessionView(View):
         product = get_object_or_404(Product, pk=product_pk)
 
         # 2. Lógica de Actualización/Eliminación
-        if product_pk_str in cart_session:
+        if product_pk_str in cart_session:  
             if new_quantity <= 0:
                 # ELIMINAR
                 del cart_session[product_pk_str]
@@ -183,16 +192,16 @@ class UpdateCartSessionView(View):
             else:
                 # ACTUALIZAR
                 # Opcional: limitar al stock disponible
-                if new_quantity > product.stock:
+                if new_quantity >   product.stock:
                     new_quantity = product.stock
                     messages.warning(request, f"Solo quedan {product.stock} unidades de '{product.name}'. Cantidad limitada.")
-
-                cart_session[product_pk_str]['quantity'] = new_quantity
-                messages.success(request, f"Cantidad de '{product.name}' actualizada a {new_quantity}.")
+                else:
+                    cart_session[product_pk_str]['quantity'] = new_quantity
+                    messages.success(request, f"Cantidad de '{product.name}' actualizada a {new_quantity}.")
         
             # 3. Guardar sesión
             request.session['cart_session'] = cart_session
-            request.session.modified = True
+            request.session.modified = True 
             
         return redirect('cart_detail')
     

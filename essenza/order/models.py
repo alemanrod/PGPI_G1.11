@@ -21,7 +21,7 @@ class Order(models.Model):
     def total_price(self):
         total = 0
         for product in self.order_products.all():
-            total += product.quantity * product.product.price
+            total += product.quantity * product.price
         return total
 
     def __str__(self):
@@ -36,6 +36,10 @@ class OrderProduct(models.Model):
         "product.Product", on_delete=models.CASCADE, related_name="product_orders"
     )
     quantity = models.IntegerField()
+
+    @property
+    def subtotal(self):
+        return self.quantity * self.product.price
 
     def __str__(self):
         return f"{self.quantity} of {self.product.name} in order {self.order.id}"
