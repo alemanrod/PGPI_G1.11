@@ -2,6 +2,23 @@
 - Essenza{% endblock %} {% block extra_head %}
 <style>
   /* Scoped styles for detail_user page; avoid modifying the global body */
+  .quantity-container {
+        display: flex; 
+        align-items: center; 
+        margin-right: 12px; 
+        gap: 5px;
+    }
+    .quantity_input {
+        width: 60px; 
+        padding: 8px; 
+        border: 1px solid #ddd; 
+        border-radius: 4px;
+        text-align: center;
+    }
+    .actions > form {
+        flex: 1; 
+        display: flex;
+    }
   .detail-body {
     background-color: #faf7f2;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -236,24 +253,27 @@
 
       <!-- -------- BOTONES -------- -->
       <div class="actions">
-        <button class="btn btn-add" id="addToCartBtn">
-          <span class="add-text" id="normalText">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="21"
-              height="21"
-              fill="none"
-              stroke="white"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="9" cy="19" r="2"></circle>
-              <circle cx="17" cy="19" r="2"></circle>
-              <path d="M5 6h16l-1.5 9h-13z"></path>
-              <path d="M5 6L4 3H1"></path>
-            </svg>
-            Añadir al carrito
+        <form method="POST" action="{% url 'add_to_cart' product_pk=product.pk %}">
+            {% csrf_token %}
+            
+            <button class="btn btn-add" id="addToCartBtn" type="submit">
+                <span class="add-text" id="normalText">
+                    <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="21"
+                    height="21"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    >
+                        <circle cx="9" cy="19" r="2"></circle>
+                        <circle cx="17" cy="19" r="2"></circle>
+                        <path d="M5 6h16l-1.5 9h-13z"></path>
+                        <path d="M5 6L4 3H1"></path>
+                    </svg>
+                    Añadir al carrito
           </span>
           <span class="added-message" id="addedMessage"> ✓ Añadido </span>
         </button>

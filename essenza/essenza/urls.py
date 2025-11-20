@@ -14,6 +14,7 @@ urlpatterns = [
     path("", DashboardView.as_view(), name="dashboard"),
     path("catalog/", CatalogView.as_view(), name="catalog"),
     path("catalog/<int:pk>/", CatalogDetailView.as_view(), name="catalog_detail"),
+    path("order/", include("order.urls")),
 ]
 
 if settings.DEBUG:
