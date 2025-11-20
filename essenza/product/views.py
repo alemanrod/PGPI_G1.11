@@ -24,7 +24,7 @@ class DashboardView(UserPassesTestMixin, View):
         )
 
     def get(self, request, *args, **kwargs):
-        q = request.GET.get('q', '').strip()
+        q = request.GET.get("q", "").strip()
 
         month_ago = timezone.now() - timezone.timedelta(days=30)
         year_ago = timezone.now() - timezone.timedelta(days=365)
@@ -48,7 +48,9 @@ class DashboardView(UserPassesTestMixin, View):
         # If a search query is provided, show matching products instead of top sellers
         if q:
             products = Product.objects.filter(is_active=True, name__icontains=q)
-            return render(request, self.template_name, {"products": products, "query": q})
+            return render(
+                request, self.template_name, {"products": products, "query": q}
+            )
 
         products = get_top_selling_products(since=month_ago)
         if not products.exists():
@@ -70,7 +72,7 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         # Carga y muestra todos los productos ordenados por nombre
-        q = request.GET.get('q', '').strip()
+        q = request.GET.get("q", "").strip()
         if q:
             products = Product.objects.filter(name__icontains=q).order_by("name")
         else:
@@ -113,7 +115,7 @@ class ProductListView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def get(self, request):
-        q = request.GET.get('q', '').strip()
+        q = request.GET.get("q", "").strip()
         if q:
             products = Product.objects.filter(name__icontains=q)
         else:
@@ -192,7 +194,7 @@ class CatalogView(View):
     template_name = "product/catalog.html"
 
     def get(self, request):
-        q = request.GET.get('q', '').strip()
+        q = request.GET.get("q", "").strip()
         if q:
             products = Product.objects.filter(is_active=True, name__icontains=q)
         else:
@@ -206,6 +208,3 @@ class CatalogDetailView(View):
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
         return render(request, self.template_name, {"product": product})
-
-
-

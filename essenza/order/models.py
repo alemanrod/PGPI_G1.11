@@ -1,11 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+
 # Create your models here.
 class Status(models.TextChoices):
-    PENDING = "pending", "Pending"
-    PAID = "paid", "Paid"
-    SHIPPED = "shipped", "Shipped"
+    EN_PREPARACION = "en_preparacion", "En Preparación"
+    ENVIADO = "enviado", "Enviado"
+    ENTREGADO = "entregado", "Entregado"
+
 
 class Order(models.Model):
     user = models.ForeignKey(
@@ -13,15 +15,13 @@ class Order(models.Model):
     )
     address = models.CharField(max_length=255, null=True, blank=True)
     placed_at = models.DateTimeField(default=timezone.now)
-    status = models.CharField(
-        max_length=10, choices=Status.choices, default=Status.PENDING
-    )
+    status = models.CharField(choices=Status.choices, default=Status.EN_PREPARACION)
 
     @property
     def total_price(self):
         total = 0
         for product in self.order_products.all():
-            total += product.quantity * product.price
+            total += product.subtotal
         return total
 
     def __str__(self):

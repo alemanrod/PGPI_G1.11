@@ -97,6 +97,11 @@
         border-radius: 6px;
         font-size: 12px;
       }
+      .product-stock {
+        margin-top: 12px;
+        font-weight: 600;
+        font-size: 14px;
+      }
     </style>
   </head>
 
@@ -121,7 +126,7 @@
 
     <!-- GRID PRODUCTOS -->
     <div class="grid" id="productGrid">
-      {% for product in products %}
+      {% if products %} {% for product in products %}
       <div
         class="card"
         data-name="{{ product.name|lower }}"
@@ -129,19 +134,27 @@
         onclick="location.href='{% url 'catalog_detail' product.pk %}'"
       >
         {% if product.photo %}
-        <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
+        <img src="{{ product.photo.url }}" />
         {% else %}
-        <img
-          src="{% static 'images/default_product.png' %}"
-          alt="{{ product.name }}"
-        />
+        <img src="{% static 'images/default_product.png' %}" />
         {% endif %}
 
         <h3>{{ product.name }}</h3>
         <p class="price">{{ product.price }} €</p>
         <span class="category-tag">{{ product.get_category_display }}</span>
+        <div class="product-stock">
+          {% if product.stock == 0 %}
+          <span style="color: #dc3545">¡Producto agotado!</span>
+          {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+          <span style="color: #fd7e14">¡Últimas unidades!</span>
+          {% endif %}
+        </div>
       </div>
-      {% endfor %}
+      {% endfor %} {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555">
+        No hay productos disponibles en este momento.
+      </p>
+      {% endif %}
     </div>
 
     <script>
