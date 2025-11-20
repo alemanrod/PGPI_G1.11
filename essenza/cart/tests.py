@@ -94,14 +94,14 @@ class CartTests(TestCase):
         self.client.force_login(self.user)
 
         response = self.client.post(self.url_add, {"quantity": 1})
-        response = self.client.post(self.url_add, {"quantity": 2})
+        response = self.client.post(self.url_add, {"quantity": 3})
 
         self.assertRedirects(response, self.url_detail)
 
         # Verificar DB
         cart = Cart.objects.get(user=self.user)
         cp = CartProduct.objects.get(cart=cart, product=self.product)
-        self.assertEqual(cp.quantity, 2)
+        self.assertEqual(cp.quantity, 4)
 
     def test_add_item_anonymous(self):
         """Añadir ítem guarda en Sesión."""
