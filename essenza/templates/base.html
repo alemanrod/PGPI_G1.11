@@ -278,33 +278,34 @@
       }
     </style>
 
-    {% block extra_head %}{% endblock %}
-  </head>
-  <body>
-    <header>
-      <div class="nav-left">
-        <a href="/info/" class="info-button" title="Información">i</a>
-        <a href="/" class="brand">ESSENZA</a>
-        <nav class="nav-links" aria-label="Navegación principal">
-          {% if not user.is_staff and not user.is_superuser %}
-          <a href="/">Escaparate</a>
-          <a href="/catalogo">Catalogo</a>
-          {% endif %} {% if user.is_staff or user.is_superuser %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  <header>
+    
+    <div class="nav-left">
+      <a href="/info/" class="info-button" title="Información">i</a>
+      <a href="/" class="brand">ESSENZA</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        {% if not user.is_staff and not user.is_superuser %}
+        <a href="/">Escaparate</a>
+        <a href="/catalog">Catalogo</a>
+        {% endif %}
+        {% if user.is_staff or user.is_superuser %}
           <a href="/product/stock/">Stock</a>
           <a href="/product/">Productos</a>
           {% endif %}
         </nav>
       </div>
 
-      <div class="nav-center">
-        <div class="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar..."
-            aria-label="Buscar productos"
-          />
-        </div>
+    <div class="nav-center">
+      <div class="search-bar">
+        <form method="get" action="{% url 'product_search' %}">
+          <input name="q" type="search" placeholder="Buscar..." aria-label="Buscar productos" value="{{ request.GET.q|default:'' }}">
+        </form>
       </div>
+    </div>
       {% if not user.role == "admin" %}
       <a href="{% url 'cart_detail' %}" class="cart-icon" title="Mi Carrito de Compra">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
