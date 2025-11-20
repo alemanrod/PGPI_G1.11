@@ -1,11 +1,13 @@
 from django.db import models
 from django.utils import timezone
 
+
 # Create your models here.
 class Status(models.TextChoices):
     PENDING = "pending", "Pending"
     PAID = "paid", "Paid"
     SHIPPED = "shipped", "Shipped"
+
 
 class Order(models.Model):
     user = models.ForeignKey(

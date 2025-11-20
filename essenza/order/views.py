@@ -235,9 +235,7 @@ def create_checkout(request):
 
         if not cart_items:
             messages.error(request, "Tu carrito está vacío.")
-            return redirect(
-                "order:cart_detail"
-            )  # Ajusta el nombre de la url si es necesario
+            return redirect("cart_detail")
 
         for item in cart_items:
             total_amount += item.product.price * item.quantity
@@ -248,7 +246,7 @@ def create_checkout(request):
 
         if not cart_session:
             messages.error(request, "Tu carrito está vacío.")
-            return redirect("order:cart_detail")
+            return redirect("cart_detail")
 
         # Recuperamos precios reales de la DB para evitar fraudes
         product_pks = [int(pk) for pk in cart_session.keys()]
@@ -272,8 +270,8 @@ def create_checkout(request):
                         "currency": "eur",
                         "unit_amount": amount_in_cents,
                         "product_data": {
-                            "name": "Pedido Essenza",  # Puedes personalizar esto
-                            "description": "Compra de productos cosméticos",
+                            "name": "Pedido Essenza",
+                            "description": "Compra",
                         },
                     },
                     "quantity": 1,
@@ -323,7 +321,6 @@ def successful_payment(request):
                 print("✅ Pago anónimo verificado. Sesión limpiada.")
 
             # Renderizar página de gracias
-            # Asegúrate de tener este template creado en templates/order/success.html
             return render(request, "order/success.html")
 
         else:
@@ -334,5 +331,4 @@ def successful_payment(request):
 
 
 def cancelled_payment(request):
-    # Asegúrate de tener este template creado en templates/order/cancel.html
     return render(request, "order/cancel.html")

@@ -9,10 +9,10 @@ REM ---------------------------------------------------------
 
 IF "%VIRTUAL_ENV%"=="" (
     echo.
-    echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     echo ERROR: No se detecta un entorno virtual activo. 
     echo Por favor, activa tu '.venv' antes de ejecutar este script. 
-    echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     pause
     exit /b 1
 )
@@ -58,15 +58,16 @@ IF %ERRORLEVEL% NEQ 0 GOTO :ERROR
 
 echo.
 echo ========================================================
-echo !PROCESO COMPLETADO! Los datos de sampleo se han cargado en la base de datos. 
+echo !PROCESO COMPLETADO CON EXITO! 
+echo Los datos de sampleo se han cargado en la base de datos. 
 echo ========================================================
 GOTO :END
 
 :ERROR
 echo.
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-echo ERROR: El script se detuvo porque un comando ha fallado. 
-echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+echo ERROR -> El script se detuvo porque un comando ha fallado. 
+echo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 pause
 exit /b 1
 
