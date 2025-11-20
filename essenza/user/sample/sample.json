@@ -48,7 +48,6 @@
       "last_name": "admin",
       "is_superuser": true,
       "is_staff": true,
-      "is_active": true,
       "photo": "profile_pics/admin.jpg",
       "role": "admin",
       "password": "pbkdf2_sha256$1000000$sazfnRvfJ4niYZE6ixBVKR$pboaUb8AWvEXwuJZkWoh3xwfYq++7nik9p2e0TxNPws="

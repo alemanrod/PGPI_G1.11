@@ -118,7 +118,7 @@ class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = "product/form.html"
+    template_name = "product/create_product.html"
     form_class = ProductForm
 
     def test_func(self):
@@ -137,7 +137,7 @@ class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
 
 
 class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
-    template_name = "product/form.html"
+    template_name = "product/update_product.html"
     form_class = ProductForm
 
     def test_func(self):

@@ -1,118 +1,285 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}{{ product.name }} - Essenza{% endblock %}
-
-{% block extra_head %}
-  <style>
-    /* Scoped styles for detail_user page; avoid modifying the global body */
-    .detail-body { background-color: #faf7f2; font-family: "Segoe UI", Arial, sans-serif; color: #333; padding: 20px; }
-    .container { max-width: 900px; margin: 0 auto; }
-    .product-container { background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 30px; }
-    .product-header { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px; }
-    .product-image { width: 100%; height: 400px; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .product-image img { width: 100%; height: 100%; object-fit: contain; }
-    .product-details h1 { color: #c06b3e; font-size: 28px; margin-bottom: 10px; }
-    .product-brand { color: #666; font-size: 16px; margin-bottom: 15px; font-weight: 500; }
-    .product-price { font-size: 32px; color: #333; font-weight: bold; margin-bottom: 15px; }
-    .product-category { display: inline-block; background-color: #e8dcd8; color: #c06b3e; padding: 6px 12px; border-radius: 4px; margin-bottom: 20px; font-size: 14px; }
-    .product-stock { font-size: 16px; margin-bottom: 15px; }
-    .product-stock strong { color: #c06b3e; }
-    .product-description { background-color: #f9f5f2; padding: 20px; border-left: 4px solid #c06b3e; margin: 30px 0; border-radius: 4px; line-height: 1.6; }
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-    .info-item { background-color: #f9f5f2; padding: 12px; border-radius: 4px; }
-    .info-label { color: #c06b3e; font-weight: bold; font-size: 12px; }
-    .info-value { margin-top: 6px; font-size: 14px; }
-    .actions { display: flex; gap: 12px; margin-top: 30px; padding-top: 25px; border-top: 1px solid #ddd; }
-    .btn { padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 15px; border: none; cursor: pointer; transition: .25s ease; flex: 1; text-align: center; }
-    .btn-back { background: #ddd; color: #333; }
-    .btn-back:hover { background: #c4c4c4; }
-    .btn-add { background: #c06b3e; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; position: relative; overflow: hidden; }
-    .btn-add:hover { background: #a54f2b; }
-    .add-text { display: flex; align-items: center; gap: 10px; }
-    .shake { animation: shake 0.3s ease; }
-    @keyframes shake { 0%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-4px)}100%{transform:translateX(0)} }
-    .added-message { display: none; position: absolute; inset: 0; background: #4caf50; color: white; font-weight: bold; align-items: center; justify-content: center; border-radius: 8px; }
-    .added-message.show { display:flex; animation: fade 1.8s ease; }
-    @keyframes fade { 0%{opacity:0}10%{opacity:1}80%{opacity:1}100%{opacity:0} }
-    @media (max-width:768px) { .product-header{grid-template-columns:1fr} .actions{flex-direction:column} }
-  </style>
-{% endblock %}
-
-{% block content %}
-  <div class="detail-body">
-    <div class="container">
-      <div class="product-container">
-        <!-- -------- CABECERA DEL PRODUCTO -------- -->
-        <div class="product-header">
-          <div class="product-image">
-            {% if product.photo %}
-              <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
-            {% else %}
-              <img src="{% static 'images/default_product.png' %}" alt="{{ product.name }}" />
-            {% endif %}
-          </div>
-
-          <div class="product-details">
-            <h1>{{ product.name }}</h1>
-            <div class="product-brand">{{ product.brand }}</div>
-            <div class="product-price">€ {{ product.price }}</div>
-
-            {% if product.get_categoria_display %}
-              <span class="product-category">{{ product.get_categoria_display }}</span>
-            {% endif %}
-
-            <div class="product-stock">Stock: <strong>{{ product.stock }} unidades</strong></div>
-          </div>
+{% extends "base.html" %} {% load static %} {% block title %}{{ product.name }}
+- Essenza{% endblock %} {% block extra_head %}
+<style>
+  /* Scoped styles for detail_user page; avoid modifying the global body */
+  .detail-body {
+    background-color: #faf7f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+    padding: 20px;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .product-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+  }
+  .product-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+  }
+  .product-image {
+    width: 100%;
+    height: 400px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .product-details h1 {
+    color: #c06b3e;
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .product-brand {
+    color: #666;
+    font-size: 16px;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+  .product-price {
+    font-size: 32px;
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 15px;
+  }
+  .product-category {
+    display: inline-block;
+    background-color: #e8dcd8;
+    color: #c06b3e;
+    padding: 6px 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  .product-stock {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+  .product-stock strong {
+    color: #c06b3e;
+  }
+  .product-description {
+    background-color: #f9f5f2;
+    padding: 20px;
+    border-left: 4px solid #c06b3e;
+    margin: 30px 0;
+    border-radius: 4px;
+    line-height: 1.6;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+  }
+  .info-item {
+    background-color: #f9f5f2;
+    padding: 12px;
+    border-radius: 4px;
+  }
+  .info-label {
+    color: #c06b3e;
+    font-weight: bold;
+    font-size: 12px;
+  }
+  .info-value {
+    margin-top: 6px;
+    font-size: 14px;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid #ddd;
+  }
+  .btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    border: none;
+    cursor: pointer;
+    transition: 0.25s ease;
+    flex: 1;
+    text-align: center;
+  }
+  .btn-back {
+    background: #ddd;
+    color: #333;
+  }
+  .btn-back:hover {
+    background: #c4c4c4;
+  }
+  .btn-add {
+    background: #c06b3e;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-add:hover {
+    background: #a54f2b;
+  }
+  .add-text {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .shake {
+    animation: shake 0.3s ease;
+  }
+  @keyframes shake {
+    0% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+    75% {
+      transform: translateX(-4px);
+    }
+    100% {
+      transform: translateX(0);
+    }
+  }
+  .added-message {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: #4caf50;
+    color: white;
+    font-weight: bold;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .added-message.show {
+    display: flex;
+    animation: fade 1.8s ease;
+  }
+  @keyframes fade {
+    0% {
+      opacity: 0;
+    }
+    10% {
+      opacity: 1;
+    }
+    80% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 768px) {
+    .product-header {
+      grid-template-columns: 1fr;
+    }
+    .actions {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="detail-body">
+  <div class="container">
+    <div class="product-container">
+      <!-- -------- CABECERA DEL PRODUCTO -------- -->
+      <div class="product-header">
+        <div class="product-image">
+          {% if product.photo %}
+          <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
+          {% else %}
+          <img
+            src="{% static 'images/default_product.png' %}"
+            alt="{{ product.name }}"
+          />
+          {% endif %}
         </div>
 
-        <!-- -------- DESCRIPCIÓN -------- -->
-        <div class="product-description">
-          <strong>Descripción:</strong>
-          <p style="margin-top: 10px">{{ product.description }}</p>
-        </div>
-
-        <!-- -------- INFO EXTRA -------- -->
-        <div class="info-grid">
-          <div class="info-item">
-            <div class="info-label">Estado</div>
-            <div class="info-value">
-              {% if product.is_active %}
-                <span style="color:#4caf50">✓ Activo</span>
-              {% else %}
-                <span style="color:#f44336">✗ Inactivo</span>
-              {% endif %}
-            </div>
-          </div>
-          <div class="info-item">
-            <div class="info-label">ID Producto</div>
-            <div class="info-value">#{{ product.id }}</div>
+        <div class="product-details">
+          <h1>{{ product.name }}</h1>
+          <div class="product-brand">{{ product.brand }}</div>
+          <div class="product-category">{{ product.get_category_display }}</div>
+          <div class="product-price">€ {{ product.price }}</div>
+          <div class="product-description">
+            <strong>Descripción:</strong>
+            <p style="margin-top: 10px">{{ product.description }}</p>
           </div>
         </div>
+        {% if product.stock == 0 %}
+        <span>¡Producto agotado!</span>
+        {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+        <span>¡Últimas unidades!</span>
+        {% endif %}
+      </div>
 
-        <!-- -------- BOTONES -------- -->
-        <div class="actions">
-          <button class="btn btn-add" id="addToCartBtn">
-            <span class="add-text" id="normalText">
-              <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="19" r="2"></circle><circle cx="17" cy="19" r="2"></circle><path d="M5 6h16l-1.5 9h-13z"></path><path d="M5 6L4 3H1"></path></svg>
-              Añadir al carrito
-            </span>
-            <span class="added-message" id="addedMessage"> ✓ Añadido </span>
-          </button>
+      <!-- -------- BOTONES -------- -->
+      <div class="actions">
+        <button class="btn btn-add" id="addToCartBtn">
+          <span class="add-text" id="normalText">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="21"
+              height="21"
+              fill="none"
+              stroke="white"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="9" cy="19" r="2"></circle>
+              <circle cx="17" cy="19" r="2"></circle>
+              <path d="M5 6h16l-1.5 9h-13z"></path>
+              <path d="M5 6L4 3H1"></path>
+            </svg>
+            Añadir al carrito
+          </span>
+          <span class="added-message" id="addedMessage"> ✓ Añadido </span>
+        </button>
 
-          <a href="#" onclick="history.back(); return false;" class="btn btn-back" title="Volver">← Volver</a>
-        </div>
+        <a
+          href="#"
+          onclick="history.back(); return false;"
+          class="btn btn-back"
+          title="Volver"
+          >← Volver</a
+        >
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const btn = document.getElementById("addToCartBtn");
-    const addedMsg = document.getElementById("addedMessage");
-    btn.addEventListener("click", () => {
-      btn.classList.add("shake");
-      addedMsg.classList.add("show");
-      setTimeout(() => { addedMsg.classList.remove("show"); btn.classList.remove("shake"); }, 1800);
-    });
-  </script>
+<script>
+  const btn = document.getElementById("addToCartBtn");
+  const addedMsg = document.getElementById("addedMessage");
+  btn.addEventListener("click", () => {
+    btn.classList.add("shake");
+    addedMsg.classList.add("show");
+    setTimeout(() => {
+      addedMsg.classList.remove("show");
+      btn.classList.remove("shake");
+    }, 1800);
+  });
+</script>
 {% endblock %}
