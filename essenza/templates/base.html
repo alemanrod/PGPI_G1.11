@@ -301,7 +301,7 @@
 
     <div class="nav-center">
       <div class="search-bar">
-        <form method="get" action="{% url 'product_search' %}">
+        <form method="get" action="{{ request.path }}">
           <input name="q" type="search" placeholder="Buscar..." aria-label="Buscar productos" value="{{ request.GET.q|default:'' }}">
         </form>
       </div>

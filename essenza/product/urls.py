@@ -6,7 +6,6 @@ import product.views as views
 
 urlpatterns = [
     path("stock/", views.StockView.as_view(), name="stock"),
-    path('search/', views.SearchView.as_view(), name='product_search'),
     path('', views.ProductListView.as_view(), name='product_list'),
     path('create/', views.ProductCreateView.as_view(), name='product_create'),
     path('<int:pk>/', views.ProductDetailView.as_view(), name='product_detail'),
