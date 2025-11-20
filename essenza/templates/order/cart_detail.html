@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %} 
 
-{% block title %}Mi Carrito - Essenza{% endblock %}
+{% block title %}Mi Carrito · Essenza{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -183,65 +183,67 @@
             <h1>Tu Carrito de Compra</h1>
             <p>Productos seleccionados por ti.</p>
         </div>
-
         {% if cart_items %}
-            <div class="cart-items-list">
-                {% for item in cart_items %}
-                    <div class="cart-item-card">
-                        
-                        <div class="item-info">
-                            <div class="item-image">
-                                {% if item.product.photo %}
-                                    <img src="{{ item.product.photo.url }}" alt="{{ item.product.name }}" />
-                                {% else %}
-                                    <img src="{% static 'images/default_product.png' %}" alt="{{ item.product.name }}" />
-                                {% endif %}
-                            </div>
-                            <div class="item-details">
-                                <h2>{{ item.product.name }}</h2>
-                                <p>{{ item.product.brand }}</p>
-                            </div>
-                        </div>
-
-                        <div class="item-controls">
-                            {% if request.user.is_authenticated %}
-                                <form method="POST" action="{% url 'update_cart_item' item_pk=item.pk %}" class="quantity-form">
+        <div class="cart-items-list">
+            {% for item in cart_items %}
+                <div class="cart-item-card">
+                    
+                    <div class="item-info">
+                        <div class="item-image">
+                            {% if item.product.photo %}
+                                <img src="{{ item.product.photo.url }}" alt="{{ item.product.name }}" />
                             {% else %}
-                                <form method="POST" action="{% url 'update_cart_session' product_pk=item.pk %}" class="quantity-form">
+                                <img src="{% static 'images/default_product.png' %}" alt="{{ item.product.name }}" />
                             {% endif %}
-                                {% csrf_token %}
-                                
-                                <input 
-                                    type="number" 
-                                    name="quantity" 
-                                    value="{{ item.quantity }}" 
-                                    min="0" 
-                                    max="{{ item.product.stock }}"
-                                    data-item-pk="{{ item.pk }}"
-                                    onchange="this.form.submit()" 
-                                    aria-label="Cantidad"
-                                >
-                                <button type="submit" name="quantity" value="0" class="btn-remove" title="Eliminar ítem">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                                </button>
-                            </form>
-                            <div class="item-price">{{ item.subtotal|floatformat:2|intcomma }} €</div>
+                        </div>
+                        <div class="item-details">
+                            <h2>{{ item.product.name }}</h2>
+                            <p>{{ item.product.brand }}</p>
                         </div>
                     </div>
-                {% endfor %}
-            </div>
 
-            <div class="cart-summary">
-                <div class="total-price-display">
-                    TOTAL: <span>{{ cart_total|floatformat:2|intcomma }} €</span>
+                    <div class="item-controls">
+                        {% if request.user.is_authenticated %}
+                        <form method="POST" action="{% url 'update_cart_item' item_pk=item.pk %}" class="quantity-form">
+                        {% else %}
+                        <form method="POST" action="{% url 'update_cart_session' product_pk=item.pk %}" class="quantity-form">
+                        {% endif %}
+                            {% csrf_token %}
+                            <input 
+                                type="number" 
+                                name="quantity" 
+                                value="{{ item.quantity }}" 
+                                min="0" 
+                                max="{{ item.product.stock }}"
+                                data-item-pk="{{ item.pk }}"
+                                onchange="this.form.submit()" 
+                                aria-label="Cantidad"
+                            >
+                            <button type="submit" name="quantity" value="0" class="btn-remove" title="Eliminar ítem">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </form>
+                        <div class="item-price">{{ item.subtotal|floatformat:2|intcomma }} €</div>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
+        </div>
 
-        {% else %}
-            <div class="empty-cart">
-                <h2>Tu carrito está vacío</h2>
-                <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
+        <div class="cart-summary">
+            <div class="total-price-display">
+                TOTAL: <span>{{ cart_total|floatformat:2|intcomma }} €</span>
             </div>
+            <div>
+                <a href="{% url 'create_checkout' %}" class="btn-checkout">
+                Pagar Ahora
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <h2>Tu carrito está vacío</h2>
+            <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
+        </div>
         {% endif %}
     </div>
 </div>

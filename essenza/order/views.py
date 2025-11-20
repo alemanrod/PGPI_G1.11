@@ -1,229 +1,338 @@
-from django.shortcuts import get_object_or_404, redirect, render 
-from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
+import stripe
+from django.conf import settings
 from django.contrib import messages
-from django.db.models import F # Importado para operaciones atómicas
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import F
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views import View
 
 # Importaciones de tus modelos
+from product.models import Product
+
 from .models import Order, OrderProduct, Status
-from product.models import Product 
+
+# Configuración de Stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 # --------------------------------------------------------------------
-# 1. FUNCIÓN AUXILIAR NECESARIA 
+# 1. FUNCIÓN AUXILIAR NECESARIA
 # --------------------------------------------------------------------
-def get_or_create_cart(request): 
+def get_or_create_cart(request):
     """
     Obtiene la Order más reciente con status='PENDING' (asumida como carrito)
     o crea una nueva Order en estado 'PENDING'. Solo para usuarios logueados.
     """
     # Deny access to admin/staff users explicitly
-    if request.user.is_authenticated and (getattr(request.user, 'role', None) == 'admin' or getattr(request.user, 'is_staff', False)):
-        raise PermissionDenied("Acceso denegado: administradores no pueden usar el carrito.")
+    if request.user.is_authenticated and (
+        getattr(request.user, "role", None) == "admin"
+        or getattr(request.user, "is_staff", False)
+    ):
+        raise PermissionDenied(
+            "Acceso denegado: administradores no pueden usar el carrito."
+        )
 
     if request.user.is_authenticated:
-        # Lógica para usuarios logueados
         try:
-            cart = Order.objects.filter(
-                user=request.user, 
-                status=Status.PENDING 
-            ).order_by('-placed_at').first()
-            
+            cart = (
+                Order.objects.filter(user=request.user, status=Status.PENDING)
+                .order_by("-placed_at")
+                .first()
+            )
+
             if cart is None:
                 raise ObjectDoesNotExist
 
         except ObjectDoesNotExist:
             cart = Order.objects.create(
-                user=request.user, 
+                user=request.user,
                 status=Status.PENDING,
-                address="",  # Provide an empty string to avoid IntegrityError
+                address="",
             )
-            
         return cart
     else:
-        # Los anónimos usan la sesión
         return None
 
+
 # --------------------------------------------------------------------
-# 2. VISTAS
+# 2. VISTAS DEL CARRITO (TUS CLASES EXISTENTES)
 # --------------------------------------------------------------------
 
-# order/views.py (Fragmento de CartDetailView)
 
 class CartDetailView(View):
-    """Muestra el contenido del carrito activo del usuario (DB) o de la sesión (Anónimo)."""
-    template_name = 'order/cart_detail.html'
-    
+    template_name = "order/cart_detail.html"
+
     def get(self, request):
         cart = None
         if request.user.is_authenticated:
-            # LÓGICA 1: Usuario logueado (lee de la DB)
             cart = get_or_create_cart(request)
             cart_items = cart.order_products.all()
-            cart_total = sum(item.product.price * item.quantity for item in cart_items) if cart_items else 0
+            cart_total = (
+                sum(item.product.price * item.quantity for item in cart_items)
+                if cart_items
+                else 0
+            )
         else:
-            # LÓGICA 2: Usuario anónimo (lee de la Sesión)
-            cart_session = request.session.get('cart_session', {})
+            cart_session = request.session.get("cart_session", {})
             cart_items = []
             cart_total = 0
-            
-            # Si hay ítems en la sesión, construimos una lista para la plantilla
+
             if cart_session:
                 product_pks = [int(pk) for pk in cart_session.keys()]
-                
-                # Buscamos todos los objetos Product de la DB de una vez
                 products = Product.objects.filter(pk__in=product_pks)
-                
-                # Iteramos sobre los productos para crear la lista de ítems del carrito
+
                 for product in products:
                     pk_str = str(product.pk)
-                    quantity = cart_session[pk_str]['quantity']
-                    
-                    # Creamos un objeto temporal para pasarlo al template
-                    cart_items.append({
-                        'product': product,
-                        'quantity': quantity,
-                        'subtotal': quantity * product.price, 
-                        'pk': product.pk,
-                    })
-                    cart_total = sum(item['product'].price * item['quantity'] for item in cart_items)
+                    quantity = cart_session[pk_str]["quantity"]
+                    cart_items.append(
+                        {
+                            "product": product,
+                            "quantity": quantity,
+                            "subtotal": quantity * product.price,
+                            "pk": product.pk,
+                        }
+                    )
+                    cart_total = sum(
+                        item["product"].price * item["quantity"] for item in cart_items
+                    )
 
         context = {
-            'cart': cart, # Será None para anónimos
-            'cart_items': cart_items, # Lista de DB objects o dicts/temp objects
-            'cart_total': cart_total, # Total calculado
+            "cart": cart,
+            "cart_items": cart_items,
+            "cart_total": cart_total,
         }
         return render(request, self.template_name, context)
-# =======================================================
-# AÑADIR AL CARRITO (Añadido/Corregido)
-# =======================================================
-class AddToCartView(View): # LoginRequiredMixin eliminado
-    """
-    Añade un producto al carrito, usando DB (Logueado) o Session (Anónimo).
-    """
+
+
+class AddToCartView(View):
     def post(self, request, product_pk):
         product = get_object_or_404(Product, pk=product_pk)
-        
+
         try:
-            quantity = int(request.POST.get('quantity', 1))
+            quantity = int(request.POST.get("quantity", 1))
             if quantity < 1:
                 quantity = 1
         except ValueError:
             quantity = 1
-            
-        cart = get_or_create_cart(request) # Devuelve Order (logueado) o None (anónimo)
-        
-        # --- LÓGICA DE MANEJO DEL CARRITO ---
-        if cart:
-            # 1. USUARIO LOGUEADO (cart es un objeto Order)
-            
-            # Línea 88: Ya no falla porque 'cart' es un objeto Order.
-            cart_item = cart.order_products.filter(product=product).first() 
 
+        cart = get_or_create_cart(request)
+
+        if cart:
+            # LOGUEADO
+            cart_item = cart.order_products.filter(product=product).first()
             if cart_item:
-                # UPDATE (DB)
-                cart_item.quantity = F('quantity') + quantity 
-                cart_item.save(update_fields=['quantity'])
-                cart_item.refresh_from_db() 
-                messages.success(request, f"Se ha añadido {quantity} unidad(es) de '{product.name}'. Cantidad total: {cart_item.quantity}")
+                cart_item.quantity = F("quantity") + quantity
+                cart_item.save(update_fields=["quantity"])
+                cart_item.refresh_from_db()
+                messages.success(
+                    request,
+                    f"Se ha añadido {quantity} unidad(es) de '{product.name}'.",
+                )
             else:
-                # CREATE (DB)
                 OrderProduct.objects.create(
-                    order=cart,
-                    product=product,
-                    quantity=quantity
+                    order=cart, product=product, quantity=quantity
                 )
                 messages.success(request, f"'{product.name}' se ha añadido al carrito.")
-                
         else:
-            # 2. USUARIO ANÓNIMO (cart es None, usamos la sesión)
-            
-            cart_session = request.session.get('cart_session', {})
-            product_pk_str = str(product_pk) 
+            # ANÓNIMO (SESIÓN)
+            cart_session = request.session.get("cart_session", {})
+            product_pk_str = str(product_pk)
 
             if product_pk_str in cart_session:
-                # UPDATE (SESSION)
-                cart_session[product_pk_str]['quantity'] += quantity
-                messages.success(request, f"Se ha añadido {quantity} unidad(es) de '{product.name}'. Cantidad total en carrito: {cart_session[product_pk_str]['quantity']}")
+                cart_session[product_pk_str]["quantity"] += quantity
+                messages.success(
+                    request,
+                    f"Se ha añadido {quantity} unidad(es) de '{product.name}'.",
+                )
             else:
-                # CREATE (SESSION)
                 cart_session[product_pk_str] = {
-                    'quantity': quantity,
-                    'price': str(product.price) 
+                    "quantity": quantity,
+                    "price": str(product.price),
                 }
                 messages.success(request, f"'{product.name}' se ha añadido al carrito.")
-            
-            # Guardar y marcar la sesión
-            request.session['cart_session'] = cart_session
-            request.session.modified = True 
-            
-        return redirect('cart_detail')
-# =======================================================
-# ACTUALIZAR CANTIDAD EN EL CARRITO
-# =======================================================
+
+            request.session["cart_session"] = cart_session
+            request.session.modified = True
+
+        return redirect("cart_detail")
+
+
 class UpdateCartSessionView(View):
-    """Actualiza la cantidad de un ítem existente en el carrito de la sesión (Anónimo)."""
     def post(self, request, product_pk):
         if request.user.is_authenticated:
-            # Protección: si un usuario logueado intenta usar esta URL, redirigir a la vista DB
-            return redirect('cart_detail')
+            return redirect("cart_detail")
 
-        cart_session = request.session.get('cart_session', {})
+        cart_session = request.session.get("cart_session", {})
         product_pk_str = str(product_pk)
-
-        # 1. Obtener la nueva cantidad
-        try:
-            new_quantity = int(request.POST.get('quantity', 0))
-        except ValueError:
-            new_quantity = -1
-        
-        # Necesitamos el objeto Product para el nombre y el stock
         product = get_object_or_404(Product, pk=product_pk)
 
-        # 2. Lógica de Actualización/Eliminación
-        if product_pk_str in cart_session:  
+        try:
+            new_quantity = int(request.POST.get("quantity", 0))
+        except ValueError:
+            new_quantity = -1
+
+        if product_pk_str in cart_session:
             if new_quantity <= 0:
-                # ELIMINAR
                 del cart_session[product_pk_str]
-                messages.info(request, f"'{product.name}' ha sido eliminado del carrito.")
+                messages.info(request, f"'{product.name}' eliminado.")
             else:
-                # ACTUALIZAR
-                # Opcional: limitar al stock disponible
-                if new_quantity >   product.stock:
+                if new_quantity > product.stock:
                     new_quantity = product.stock
-                    messages.warning(request, f"Solo quedan {product.stock} unidades de '{product.name}'. Cantidad limitada.")
-                else:
-                    cart_session[product_pk_str]['quantity'] = new_quantity
-                    messages.success(request, f"Cantidad de '{product.name}' actualizada a {new_quantity}.")
-        
-            # 3. Guardar sesión
-            request.session['cart_session'] = cart_session
-            request.session.modified = True 
-            
-        return redirect('cart_detail')
-    
+                    messages.warning(request, f"Stock limitado a {product.stock}.")
+
+                cart_session[product_pk_str]["quantity"] = new_quantity
+                messages.success(request, "Cantidad actualizada.")
+
+            request.session["cart_session"] = cart_session
+            request.session.modified = True
+
+        return redirect("cart_detail")
+
+
 class UpdateCartItemView(View):
-    """Actualiza la cantidad de un ítem existente en el carrito."""
     def post(self, request, item_pk):
         cart_item = get_object_or_404(OrderProduct, pk=item_pk)
-        cart = get_or_create_cart(request) 
-        
+        cart = get_or_create_cart(request)
+
         if cart_item.order.pk != cart.pk:
-            messages.error(request, "El ítem no pertenece a tu carrito activo.")
-            return redirect('cart_detail')
-            
+            return redirect("cart_detail")
+
         try:
-            new_quantity = int(request.POST.get('quantity', 0))
+            new_quantity = int(request.POST.get("quantity", 0))
         except ValueError:
             new_quantity = -1
 
         if new_quantity <= 0:
-            item_name = cart_item.product.name
             cart_item.delete()
-            messages.info(request, f"'{item_name}' ha sido eliminado del carrito.")
+            messages.info(request, "Producto eliminado.")
         else:
             cart_item.quantity = new_quantity
-            cart_item.save(update_fields=['quantity'])
-            messages.success(request, f"Cantidad de '{cart_item.product.name}' actualizada a {new_quantity}.")
+            cart_item.save(update_fields=["quantity"])
+            messages.success(request, "Cantidad actualizada.")
 
-        return redirect('cart_detail')
+        return redirect("cart_detail")
+
+
+# --------------------------------------------------------------------
+# 3. VISTAS DE STRIPE (Integración Final con tus Modelos)
+# --------------------------------------------------------------------
+
+
+def create_checkout(request):
+    """
+    Crea la sesión de pago. Calcula el precio total real basándose en
+    si el usuario es logueado (DB) o anónimo (Session).
+    """
+    domain_url = settings.DOMAIN_URL
+    total_amount = 0
+
+    # --- 1. Calcular el total REAL ---
+    if request.user.is_authenticated:
+        # A. Usuario Logueado: Usamos la Order de la DB
+        cart = get_or_create_cart(request)
+        cart_items = cart.order_products.all()
+
+        if not cart_items:
+            messages.error(request, "Tu carrito está vacío.")
+            return redirect(
+                "order:cart_detail"
+            )  # Ajusta el nombre de la url si es necesario
+
+        for item in cart_items:
+            total_amount += item.product.price * item.quantity
+
+    else:
+        # B. Usuario Anónimo: Usamos la Sesión
+        cart_session = request.session.get("cart_session", {})
+
+        if not cart_session:
+            messages.error(request, "Tu carrito está vacío.")
+            return redirect("order:cart_detail")
+
+        # Recuperamos precios reales de la DB para evitar fraudes
+        product_pks = [int(pk) for pk in cart_session.keys()]
+        products = Product.objects.filter(pk__in=product_pks)
+
+        for product in products:
+            pk_str = str(product.pk)
+            qty = cart_session[pk_str]["quantity"]
+            total_amount += product.price * qty
+
+    # --- 2. Crear Sesión de Stripe ---
+    try:
+        # Convertir a céntimos (Stripe trabaja con enteros: 10.00€ -> 1000)
+        amount_in_cents = int(total_amount * 100)
+
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "eur",
+                        "unit_amount": amount_in_cents,
+                        "product_data": {
+                            "name": "Pedido Essenza",  # Puedes personalizar esto
+                            "description": "Compra de productos cosméticos",
+                        },
+                    },
+                    "quantity": 1,
+                },
+            ],
+            mode="payment",
+            success_url=domain_url + "/order/success/?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=domain_url + "/order/cancelled/",
+        )
+        return redirect(checkout_session.url, code=303)
+
+    except Exception as e:
+        return HttpResponse(f"Error al conectar con Stripe: {e}")
+
+
+def successful_payment(request):
+    """
+    Verifica con Stripe que el pago sea real.
+    Si es correcto, actualiza el estado a PAID (Logueado) o limpia sesión (Anónimo).
+    """
+    session_id = request.GET.get("session_id")
+
+    if not session_id:
+        return HttpResponse("Error: No se ha recibido confirmación de pago.")
+
+    try:
+        # Preguntar a Stripe directamente
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        if session.payment_status == "paid":
+            # --- PAGO CONFIRMADO ---
+
+            if request.user.is_authenticated:
+                # 1. Usuario Logueado: Actualizar DB
+                cart = get_or_create_cart(request)
+
+                # ACTUALIZACIÓN CORRECTA SEGÚN TUS MODELOS:
+                cart.status = Status.PAID
+                cart.save()
+
+                print(f"✅ Orden {cart.id} pagada y actualizada a PAID.")
+
+            else:
+                # 2. Usuario Anónimo: Limpiar Sesión
+                request.session["cart_session"] = {}
+                request.session.modified = True
+                print("✅ Pago anónimo verificado. Sesión limpiada.")
+
+            # Renderizar página de gracias
+            # Asegúrate de tener este template creado en templates/order/success.html
+            return render(request, "order/success.html")
+
+        else:
+            return HttpResponse("El pago no se ha completado.")
+
+    except Exception as e:
+        return HttpResponse(f"Error verificando el pago: {e}")
+
+
+def cancelled_payment(request):
+    # Asegúrate de tener este template creado en templates/order/cancel.html
+    return render(request, "order/cancel.html")

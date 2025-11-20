@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="text-align: center; padding: 50px 20px;">
+    
+    <div style="color: #dc3545; font-size: 80px; margin-bottom: 20px;">
+        &#10008;
+    </div>
+
+    <h1 style="font-family: sans-serif; color: #333;">Pago cancelado</h1>
+    
+    <p style="font-family: sans-serif; color: #666; font-size: 18px; margin: 20px 0;">
+        Has cancelado el proceso de pago o ha ocurrido un error. 
+        <br />No se ha realizado ningún cargo en tu tarjeta. 
+    </p>
+
+    <div style="margin-top: 40px;">
+        <a href="{% url 'cart_detail' %}" style="background-color: #6c757d; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-family: sans-serif; font-weight: bold;">
+            Volver al Carrito
+        </a>
+    </div>
+</div>
+{% endblock %}
