@@ -24,6 +24,8 @@ class DashboardView(UserPassesTestMixin, View):
         )
 
     def get(self, request, *args, **kwargs):
+        q = request.GET.get('q', '').strip()
+
         month_ago = timezone.now() - timezone.timedelta(days=30)
         year_ago = timezone.now() - timezone.timedelta(days=365)
 
@@ -42,6 +44,11 @@ class DashboardView(UserPassesTestMixin, View):
             ordered_query = filtered_query.order_by("-total_quantity")
             top_products = ordered_query[:10]
             return top_products
+
+        # If a search query is provided, show matching products instead of top sellers
+        if q:
+            products = Product.objects.filter(is_active=True, name__icontains=q)
+            return render(request, self.template_name, {"products": products, "query": q})
 
         products = get_top_selling_products(since=month_ago)
         if not products.exists():
@@ -63,8 +70,12 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         # Carga y muestra todos los productos ordenados por nombre
-        products = Product.objects.all().order_by("name")
-        return render(request, "product/stock.html", {"products": products})
+        q = request.GET.get('q', '').strip()
+        if q:
+            products = Product.objects.filter(name__icontains=q).order_by("name")
+        else:
+            products = Product.objects.all().order_by("name")
+        return render(request, "product/stock.html", {"products": products, "query": q})
 
     def post(self, request):
         # Coge datos del formulario para actualizar stock
@@ -102,8 +113,12 @@ class ProductListView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def get(self, request):
-        products = Product.objects.all()
-        return render(request, self.template_name, {"products": products})
+        q = request.GET.get('q', '').strip()
+        if q:
+            products = Product.objects.filter(name__icontains=q)
+        else:
+            products = Product.objects.all()
+        return render(request, self.template_name, {"products": products, "query": q})
 
 
 class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -177,8 +192,12 @@ class CatalogView(View):
     template_name = "product/catalog.html"
 
     def get(self, request):
-        products = Product.objects.filter(is_active=True)
-        return render(request, self.template_name, {"products": products})
+        q = request.GET.get('q', '').strip()
+        if q:
+            products = Product.objects.filter(is_active=True, name__icontains=q)
+        else:
+            products = Product.objects.filter(is_active=True)
+        return render(request, self.template_name, {"products": products, "query": q})
 
 
 class CatalogDetailView(View):
@@ -189,26 +208,4 @@ class CatalogDetailView(View):
         return render(request, self.template_name, {"product": product})
 
 
-class SearchView(View):
-    """Search products by name. Uses GET parameter `q`.
 
-    - For anonymous or regular users, only searches active products.
-    - For staff/admin, searches all products.
-    Renders `product/catalog.html` with `products` and `query` in context.
-    """
-    template_name = "product/catalog.html"
-
-    def get(self, request):
-        q = request.GET.get("q", "").strip()
-
-        # If admin/staff, show the admin list template; otherwise show catalog for users
-        if request.user.is_authenticated and (request.user.is_staff or getattr(request.user, 'role', None) == 'admin'):
-            template_name = "product/list.html"
-            qs = Product.objects.all()
-        else:
-            template_name = "product/catalog.html"
-            qs = Product.objects.filter(is_active=True)
-
-        products = qs.filter(name__icontains=q) if q else qs
-
-        return render(request, template_name, {"products": products, "query": q})
