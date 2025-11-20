@@ -42,6 +42,32 @@
     "model": "user.usuario",
     "pk": 4,
     "fields": {
+      "email": "user4@example.com",
+      "username": "user4@example.com",
+      "first_name": "fourth",
+      "last_name": "user",
+      "photo": "profile_pics/user4.jpg",
+      "role": "user",
+      "password": "pbkdf2_sha256$1000000$qHIC4EeRho2OC2FLmNPo9t$atSjNjIY9vOi1GPqbotF19e8tcd1PBFTNkcYBpZyKmU="
+    }
+  },
+  {
+    "model": "user.usuario",
+    "pk": 5,
+    "fields": {
+      "email": "user5@example.com",
+      "username": "user5@example.com",
+      "first_name": "fifth",
+      "last_name": "user",
+      "photo": "profile_pics/user5.jpg",
+      "role": "user",
+      "password": "pbkdf2_sha256$1000000$qHIC4EeRho2OC2FLmNPo9t$atSjNjIY9vOi1GPqbotF19e8tcd1PBFTNkcYBpZyKmU="
+    }
+  },
+  {
+    "model": "user.usuario",
+    "pk": 6,
+    "fields": {
       "email": "admin@example.com",
       "username": "admin@example.com",
       "first_name": "admin",
