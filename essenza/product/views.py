@@ -200,16 +200,15 @@ class SearchView(View):
 
     def get(self, request):
         q = request.GET.get("q", "").strip()
-        if request.user.is_authenticated and (
-            request.user.is_staff or request.user.role == "admin"
-        ):
+
+        # If admin/staff, show the admin list template; otherwise show catalog for users
+        if request.user.is_authenticated and (request.user.is_staff or getattr(request.user, 'role', None) == 'admin'):
+            template_name = "product/list.html"
             qs = Product.objects.all()
         else:
+            template_name = "product/catalog.html"
             qs = Product.objects.filter(is_active=True)
 
-        if q:
-            products = qs.filter(name__icontains=q)
-        else:
-            products = qs
+        products = qs.filter(name__icontains=q) if q else qs
 
-        return render(request, self.template_name, {"products": products, "query": q})
+        return render(request, template_name, {"products": products, "query": q})
