@@ -10,6 +10,7 @@ from django.db import transaction  # Para la integridad de datos
 from django.db.models import (
     F,  # Para restar el stock de forma segura
     Prefetch,
+    Q,
 )
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -55,9 +56,12 @@ class OrderListUserView(LoginRequiredMixin, View):
     template_name = "order/order_list_user.html"
 
     def get(self, request):
+        # CORRECCIÓN 1: Usamos Q para buscar por Usuario O por Email
+        # Esto permite ver pedidos hechos como invitado si el email coincide
         orders = (
-            Order.objects.filter(user=request.user)
-            .exclude(status=Status.EN_PREPARACION)  # carrito / en preparación NO
+            Order.objects.filter(Q(user=request.user) | Q(email=request.user.email))
+            # CORRECCIÓN 2: Eliminado .exclude(status=Status.EN_PREPARACION)
+            # Ahora los pedidos 'en preparación' (recién pagados) SÍ se muestran.
             .prefetch_related(
                 Prefetch(
                     "order_products",
@@ -65,6 +69,7 @@ class OrderListUserView(LoginRequiredMixin, View):
                 )
             )
             .order_by("-placed_at")
+            .distinct()  # Evita duplicados si user y email coinciden en el mismo pedido
         )
         return render(request, self.template_name, {"orders": orders})
 

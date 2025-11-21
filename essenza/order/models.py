@@ -21,8 +21,8 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-    email = models.EmailField(max_length=254, null=True)
-    address = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=254)
+    address = models.CharField(max_length=255)
     placed_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(choices=Status.choices, default=Status.EN_PREPARACION)
 
@@ -51,7 +51,6 @@ class Order(models.Model):
 
         if not self.user and self.email:
             User = get_user_model()
-            # Buscamos si existe algún usuario registrado con ese correo
             existing_user = User.objects.filter(email=self.email).first()
 
             if existing_user:
