@@ -49,6 +49,16 @@ class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
             .order_by("-placed_at")
         )
+        # 2. Lógica de Filtrado
+        status_filter = request.GET.get("status")
+
+        # Validamos que el estado sea real para evitar errores
+        valid_statuses = [
+            s[0] for s in Status.choices
+        ]  # ['en_preparacion', 'enviado', 'entregado']
+
+        if status_filter in valid_statuses:
+            orders = orders.filter(status=status_filter)
         return render(request, self.template_name, {"orders": orders})
 
 
@@ -127,6 +137,43 @@ class OrderTrackingView(View):
         # Buscamos el pedido por su código único
         order = get_object_or_404(Order, tracking_code=tracking_code)
         return render(request, "order/tracking.html", {"order": order})
+
+
+# =======================================================
+# ACTUALIZAR ESTADO (SOLO ADMIN)
+# =======================================================
+class OrderUpdateStatusView(LoginRequiredMixin, View):
+    """
+    Permite a un administrador cambiar el estado de un pedido
+    haciendo clic en la barra de progreso.
+    """
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
+    def post(self, request, tracking_code):
+        order = get_object_or_404(Order, tracking_code=tracking_code)
+        new_status = request.POST.get("status")
+
+        # Validamos que el estado sea uno de los permitidos
+        valid_statuses = [choice[0] for choice in Status.choices]
+
+        if new_status in valid_statuses:
+            order.status = new_status
+            order.save()
+            messages.success(
+                request, f"Estado actualizado a: {order.get_status_display()}"
+            )
+        else:
+            messages.error(request, "Estado no válido.")
+
+        # Redirigimos a la misma página de tracking para ver el cambio
+        return redirect("order_tracking", tracking_code=order.tracking_code)
 
 
 def create_checkout(request):

@@ -56,7 +56,7 @@
         content: '';
         position: absolute;
         top: 15px;
-        left: 40px;
+        left: 30px;
         right: 40px;
         height: 4px;
         background: #eee;
@@ -109,13 +109,38 @@
         content: '';
         position: absolute;
         top: 15px;
-        left: -50%;
-        width: 100%;
+        left: -42%;
+        width: 98%;
         height: 4px;
         background: #c06b3e;
         z-index: -1;
     }
     .step:first-child.active::after { display: none; }
+
+    /* ESTILOS BOTONES ADMIN */
+    .admin-step-form {
+        display: inline;
+        width: 100%;
+    }
+    .admin-step-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        width: 100%;
+        cursor: pointer; /* Manita al pasar por encima */
+    }
+    .admin-step-btn:hover .step-circle {
+        transform: scale(1.1); /* Pequeño efecto zoom para admins */
+        border-color: #c06b3e;
+    }
+    .admin-hint {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.7rem;
+        color: #c06b3e;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
 
 
     /* --- DETALLES DEL PEDIDO (GENERAL) --- */
@@ -164,9 +189,6 @@
     }
 
     /* --- NUEVO ESTILO DE LISTA DE PRODUCTOS --- */
-    .product-list {
-        /* Ya no necesita borde superior porque el título lo separa */
-    }
 
     .product-item {
         display: flex;
@@ -259,28 +281,90 @@
     
     <!-- TARJETA DE ESTADO -->
     <div class="tracking-header">
-        <div class="tracking-title">Estado del Pedido</div>
+        <div class="tracking-title">Estado de tu Pedido</div>
         <div class="tracking-code">LOCALIZADOR: {{ order.tracking_code }}</div>
+        
+        <!-- Mensajes de éxito al cambiar estado -->
+        {% if messages %}
+            {% for message in messages %}
+                <div style="color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         <div class="progress-track">
-            <!-- Paso 1: Preparación -->
-            <div class="step active">
-                <div class="step-circle"><i class="fas fa-box-open"></i></div>
-                <div class="step-label">En Preparación</div>
-            </div>
+            
+            {% if user.is_authenticated and user.role == 'admin' %}
+                <!-- ============================== -->
+                <!-- MODO ADMIN -->
+                <!-- ============================== -->
+                
+                <!-- Paso 1: Preparación -->
+                <div class="step active"> <!-- Siempre activo visualmente el primero -->
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="en_preparacion">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a En Preparación">
+                            <div class="step-circle"><i class="fas fa-box-open"></i></div>
+                            <div class="step-label">En Preparación</div>
+                        </button>
+                    </form>
+                </div>
 
-            <!-- Paso 2: Enviado -->
-            <div class="step {% if order.status == 'enviado' or order.status == 'entregado' %}active{% endif %}">
-                <div class="step-circle"><i class="fas fa-shipping-fast"></i></div>
-                <div class="step-label">Enviado</div>
-            </div>
+                <!-- Paso 2: Enviado -->
+                <div class="step {% if order.status == 'enviado' or order.status == 'entregado' %}active{% endif %}">
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="enviado">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a Enviado">
+                            <div class="step-circle"><i class="fas fa-shipping-fast"></i></div>
+                            <div class="step-label">Enviado</div>
+                        </button>
+                    </form>
+                </div>
 
-            <!-- Paso 3: Entregado -->
-            <div class="step {% if order.status == 'entregado' %}active{% endif %}">
-                <div class="step-circle"><i class="fas fa-check"></i></div>
-                <div class="step-label">Entregado</div>
-            </div>
+                <!-- Paso 3: Entregado -->
+                <div class="step {% if order.status == 'entregado' %}active{% endif %}">
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="entregado">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a Entregado">
+                            <div class="step-circle"><i class="fas fa-check"></i></div>
+                            <div class="step-label">Entregado</div>
+                        </button>
+                    </form>
+                </div>
+
+            {% else %}
+                <!-- ============================== -->
+                <!-- MODO USUARIO (VISUALIZACIÓN) -->
+                <!-- ============================== -->
+
+                <!-- Paso 1: Preparación -->
+                <div class="step active">
+                    <div class="step-circle"><i class="fas fa-box-open"></i></div>
+                    <div class="step-label">En Preparación</div>
+                </div>
+
+                <!-- Paso 2: Enviado -->
+                <div class="step {% if order.status == 'enviado' or order.status == 'entregado' %}active{% endif %}">
+                    <div class="step-circle"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="step-label">Enviado</div>
+                </div>
+
+                <!-- Paso 3: Entregado -->
+                <div class="step {% if order.status == 'entregado' %}active{% endif %}">
+                    <div class="step-circle"><i class="fas fa-check"></i></div>
+                    <div class="step-label">Entregado</div>
+                </div>
+            {% endif %}
+
         </div>
+        
+        {% if user.is_authenticated and user.role == 'admin' %}
+            <div class="admin-hint">Modo Admin: Haz clic en un icono para cambiar el estado</div>
+        {% endif %}
     </div>
 
     <!-- TARJETA DE DETALLES -->
@@ -343,7 +427,7 @@
     </div>
 
     <div style="text-align: center;">
-        <a href="{% url 'dashboard' %}" class="btn-back">← Volver a la tienda</a>
+        <a href="#" onclick="history.back(); return false;" class="btn-back">← Volver</a>
     </div>
 
 </div>

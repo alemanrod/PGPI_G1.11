@@ -1,309 +1,274 @@
 {% extends "base.html" %}
 
-
-
 {% load static %} {% load humanize %}
 
 {% block title %}Catálogo · Essenza{% endblock %}
 
 {% block content %}
-    <style>
-      body {
-        margin: 0;
-        background-color: #faf7f2;
-        font-family: "Segoe UI", Arial, sans-serif;
-      }
+<style>
+  .list-page * {
+    box-sizing: border-box;
+  }
+  .list-page {
+    background-color: #faf7f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+    padding: 20px 0;
+  }
+  .list-page .container {
+    /* Contenedor principal centrado para el contenido */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+  }
 
-      
-      /* ===== HERO ===== */
-      .hero {
-        text-align: center;
-        padding: 40px 20px 10px;
-      }
-      .hero h1 {
-        font-size: 36px;
-        font-weight: 700;
-        color: #c06b3e;
-      }
-      .hero p {
-        color: #666;
-        margin-top: 5px;
-      }
+  h1 {
+    color: #c06b3e;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+  }
 
-      /* ===== FILTROS ===== */
-      .filters {
-        max-width: 1100px;
-        margin: 25px auto 0 auto;
-        display: flex;
-        justify-content: center;
-        gap: 80px;
-        flex-wrap: wrap;
-        align-items: flex-start;
-      }
+  p {
+    color: #666;
+    text-align: center;
+    margin-top: 5px;
+  }
 
-      /* Custom Dropdown Container */
-      .custom-dropdown {
-        position: relative;
-        min-width: 220px;
-        max-width: 280px;
-        user-select: none;
-        flex-shrink: 0;
+  /* ===== FILTROS ===== */
+  .filters {
+    max-width: 1100px;
+    margin: 25px auto 0 auto;
+    display: flex;
+    margin-bottom: 30px;
+  }
 
-      }
+  /* Dropdown Button */
+  .dropdown-button {
+    padding: 12px 40px 12px 20px;
+    border-radius: 25px;
+    background: linear-gradient(145deg, #ffffff 0%, #fef9f5 100%);
+    border: 2.5px solid #c06b3e;
+    color: #8b5a3c;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+  }
 
-      /* Dropdown Button */
-      .dropdown-button {
-        padding: 12px 40px 12px 20px;
-        border-radius: 25px;
-        background: linear-gradient(145deg, #ffffff 0%, #fef9f5 100%);
-        border: 2.5px solid #c06b3e;
-        color: #8b5a3c;
-        font-weight: 700;
-        font-size: 14px;
-        letter-spacing: 0.5px;
-        cursor: pointer;
-        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2), 
-                    inset 0 1px 2px rgba(255, 255, 255, 0.8);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        position: relative;
-      }
+  .dropdown-button:hover {
+    border-color: #d77b46;
+    box-shadow: 0 6px 20px rgba(192, 107, 62, 0.35),
+                inset 0 1px 3px rgba(255, 255, 255, 0.9);
+    transform: translateY(-3px) scale(1.02);
+    background: linear-gradient(145deg, #ffffff 0%, #fff5ed 100%);
+  }
 
-      .dropdown-button:hover {
-        border-color: #d77b46;
-        box-shadow: 0 6px 20px rgba(192, 107, 62, 0.35),
-                    inset 0 1px 3px rgba(255, 255, 255, 0.9);
-        transform: translateY(-3px) scale(1.02);
-        background: linear-gradient(145deg, #ffffff 0%, #fff5ed 100%);
-      }
+  .dropdown-button.active {
+    border-color: #c06b3e;
+    box-shadow: 0 8px 24px rgba(192, 107, 62, 0.4),
+                0 0 0 4px rgba(192, 107, 62, 0.15);
+    background: #fff;
+    transform: translateY(-3px) scale(1.02);
+  }
 
-      .dropdown-button.active {
-        border-color: #c06b3e;
-        box-shadow: 0 8px 24px rgba(192, 107, 62, 0.4),
-                    0 0 0 4px rgba(192, 107, 62, 0.15);
-        background: #fff;
-        transform: translateY(-3px) scale(1.02);
-      }
+  /* Dropdown Arrow */
+  .dropdown-arrow {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    right: 16px;
+    transition: transform 0.3s ease;
+    stroke: #c06b3e;
+    stroke-width: 3.5;
+  }
 
-      /* Dropdown Arrow */
-      .dropdown-arrow {
-        width: 16px;
-        height: 16px;
-        position: absolute;
-        right: 16px;
-        transition: transform 0.3s ease;
-        stroke: #c06b3e;
-        stroke-width: 3.5;
-      }
+  .dropdown-button.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
 
-      .dropdown-button.active .dropdown-arrow {
-        transform: rotate(180deg);
-      }
+  /* Dropdown Menu */
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    transform: translateY(-10px);
+    background: white;
+    border-radius: 20px;
+    border: 3px solid #c06b3e;
+    box-shadow: 0 12px 32px rgba(192, 107, 62, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow: hidden;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: nowrap;
+  }
 
-      /* Dropdown Menu */
-      .dropdown-menu {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 0;
-        right: 0;
-        transform: translateY(-10px);
-        background: white;
-        border-radius: 20px;
-        border: 3px solid #c06b3e;
-        box-shadow: 0 12px 32px rgba(192, 107, 62, 0.25);
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-        overflow: hidden;
-        max-height: 300px;
-        overflow-y: auto;
-        white-space: nowrap;
-      }
+  .dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 
-      .dropdown-menu.show {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-      }
+  /* Dropdown Items */
+  .dropdown-item {
+    padding: 12px 28px;
+    color: #8b5a3c;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f5e6dc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
-      /* Dropdown Items */
-      .dropdown-item {
-        padding: 12px 28px;
-        color: #8b5a3c;
-        font-weight: 600;
-        font-size: 15px;
-        letter-spacing: 0.3px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        border-bottom: 1px solid #f5e6dc;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
+  .dropdown-item:last-child {
+    border-bottom: none;
+  }
 
-      .dropdown-item:last-child {
-        border-bottom: none;
-      }
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, #fff5ed 0%, #ffeee0 100%);
+    color: #c06b3e;
+    padding-left: 32px;
+  }
 
-      .dropdown-item:hover {
-        background: linear-gradient(135deg, #fff5ed 0%, #ffeee0 100%);
-        color: #c06b3e;
-        padding-left: 32px;
-      }
+  .dropdown-item.selected {
+    background: linear-gradient(135deg, #c06b3e 0%, #d77b46 100%);
+    color: #fff;
+    font-weight: 800;
+  }
 
-      .dropdown-item.selected {
-        background: linear-gradient(135deg, #c06b3e 0%, #d77b46 100%);
-        color: #fff;
-        font-weight: 800;
-      }
+  .dropdown-item.selected:hover {
+    background: linear-gradient(135deg, #d77b46 0%, #e88a55 100%);
+    padding-left: 28px;
+  }
 
-      .dropdown-item.selected:hover {
-        background: linear-gradient(135deg, #d77b46 0%, #e88a55 100%);
-        padding-left: 28px;
-      }
+  /* Check Icon for Selected Item */
+  .dropdown-item .check-icon {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 3;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
 
-      /* Check Icon for Selected Item */
-      .dropdown-item .check-icon {
-        width: 18px;
-        height: 18px;
-        stroke: white;
-        stroke-width: 3;
-        opacity: 0;
-        transition: opacity 0.2s;
-      }
+  .dropdown-item.selected .check-icon {
+    opacity: 1;
+  }
 
-      .dropdown-item.selected .check-icon {
-        opacity: 1;
-      }
+  /* Scrollbar styling */
+  .dropdown-menu::-webkit-scrollbar {
+    width: 8px;
+  }
 
-      /* Scrollbar styling */
-      .dropdown-menu::-webkit-scrollbar {
-        width: 8px;
-      }
+  .dropdown-menu::-webkit-scrollbar-track {
+    background: #fef9f5;
+    border-radius: 10px;
+  }
 
-      .dropdown-menu::-webkit-scrollbar-track {
-        background: #fef9f5;
-        border-radius: 10px;
-      }
+  .dropdown-menu::-webkit-scrollbar-thumb {
+    background: #c06b3e;
+    border-radius: 10px;
+  }
 
-      .dropdown-menu::-webkit-scrollbar-thumb {
-        background: #c06b3e;
-        border-radius: 10px;
-      }
+  .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #d77b46;
+  }
 
-      .dropdown-menu::-webkit-scrollbar-thumb:hover {
-        background: #d77b46;
-      }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
 
-      .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border-width: 0;
-      }
+  /* ===== GRID ===== */
+  .grid {
+    max-width: 1100px;
+    margin: 30px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: 0.25s;
+    cursor: pointer;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  .price {
+    margin-top: 8px;
+    color: #c06b3e;
+    font-weight: bold;
+  }
+  .category-tag {
+    display: inline-block;
+    margin-top: 8px;
+    background: #f2e5df;
+    color: #c06b3e;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .product-stock {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+</style>
 
-      /* ===== GRID ===== */
-      .grid {
-        max-width: 1100px;
-        margin: 30px auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-        gap: 22px;
-      }
-      .card {
-        background: white;
-        border-radius: 14px;
-        padding: 16px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: 0.25s;
-        cursor: pointer;
-      }
-      .card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-      }
-      .card img {
-        width: 100%;
-        height: 180px;
-        object-fit: contain;
-        border-radius: 10px;
-      }
-      .price {
-        margin-top: 8px;
-        color: #c06b3e;
-        font-weight: bold;
-      }
-      .category-tag {
-        display: inline-block;
-        margin-top: 8px;
-        background: #f2e5df;
-        color: #c06b3e;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-      }
-      .product-stock {
-        margin-top: 12px;
-        font-weight: 600;
-        font-size: 14px;
-      }
-    </style>
-  </head>
+<div class="list-page">
+  <div class="container">
+    <h1>Catálogo Essenza</h1>
+    <p>Explora nuestra selección de productos mejor valorados</p>
 
-  <body>
-
-    <!-- TÍTULO -->
-    <div class="hero">
-      <h1>Catálogo Essenza</h1>
-      <p>Explora nuestra selección de productos mejor valorados</p>
-    </div>
-
-    <!-- FILTROS (Dropdowns) -->
+    <!-- FILTROS: categoría + marca -->
     <div class="filters">
-      <div class="custom-dropdown" id="customDropdown">
-        <div class="dropdown-button" id="dropdownButton">
-          <span id="selectedValue">Todas las categorías</span>
+      <div class="custom-dropdown" id="categoryDropdownList">
+        <div class="dropdown-button" id="categoryButtonList">
+          <span id="categorySelectedList">Todas las categorías</span>
           <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
-        <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-menu" id="categoryMenuList">
           <div class="dropdown-item selected" data-value="all">
             <span>Todas las categorías</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="maquillaje">
-            <span>Maquillaje</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="tratamiento">
-            <span>Tratamiento</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="cabello">
-            <span>Cabello</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="perfume">
-            <span>Perfume</span>
             <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
@@ -311,16 +276,14 @@
         </div>
       </div>
 
-      <!-- Brand Dropdown (populated dynamically) -->
-      <div class="custom-dropdown" id="brandDropdownWrapper">
-        <div class="dropdown-button" id="brandDropdownButton">
-          <span id="brandSelected">Todas las marcas</span>
+      <div class="custom-dropdown" id="brandDropdownList">
+        <div class="dropdown-button" id="brandButtonList">
+          <span id="brandSelectedList">Todas las marcas</span>
           <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
         </div>
-        <div class="dropdown-menu" id="brandDropdownMenu">
-          <!-- items will be injected here by JS -->
+        <div class="dropdown-menu" id="brandMenuList">
           <div class="dropdown-item selected" data-value="all">
             <span>Todas las marcas</span>
             <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -366,159 +329,121 @@
     </div>
 
     <script>
-      /* ========== DROPDOWN PERFIL ========== */
-      function toggleDropdown() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
-      window.onclick = function (e) {
-        if (!e.target.closest(".profile-icon-btn")) {
-          document.getElementById("myDropdown")?.classList.remove("show");
-        }
-      };
+      // Custom dropdown para catalog.html
+      (function(){
+        const categoryButton = document.getElementById('categoryButtonList');
+        const categoryMenu = document.getElementById('categoryMenuList');
+        const categorySelected = document.getElementById('categorySelectedList');
+        const brandButton = document.getElementById('brandButtonList');
+        const brandMenu = document.getElementById('brandMenuList');
+        const brandSelected = document.getElementById('brandSelectedList');
+        const cards = Array.from(document.querySelectorAll('.card'));
 
-      /* ========== FILTROS (Custom Dropdowns + Brands dinámicas) ========== */
-      const dropdownButton = document.getElementById("dropdownButton");
-      const dropdownMenu = document.getElementById("dropdownMenu");
-      const categoryItems = document.querySelectorAll("#dropdownMenu .dropdown-item");
-      const selectedValue = document.getElementById("selectedValue");
-
-      const brandButton = document.getElementById("brandDropdownButton");
-      const brandMenu = document.getElementById("brandDropdownMenu");
-      const brandSelected = document.getElementById("brandSelected");
-
-      const cards = document.querySelectorAll(".card");
-
-      // State
-      let selectedCategory = 'all';
-      let selectedBrand = 'all';
-
-      // Utility: apply all filters (category + brand + search)
-      function applyFilters() {
-        const searchInput = document.getElementById("searchInput");
-        const searchText = (searchInput?.value || '').toLowerCase();
-
-        // Read selected category & brand from DOM to avoid stale state
-        const selectedCategoryItem = document.querySelector('#dropdownMenu .dropdown-item.selected');
-        const selectedBrandItem = document.querySelector('#brandDropdownMenu .dropdown-item.selected');
-        const currentCategory = (selectedCategoryItem?.dataset.value || 'all').toLowerCase();
-        const currentBrand = (selectedBrandItem?.dataset.value || 'all').toLowerCase();
-
-        cards.forEach((card) => {
-          const name = (card.dataset.name || '').toLowerCase();
-          const category = (card.dataset.category || '').toLowerCase();
-          const brand = (card.dataset.brand || '').toLowerCase();
-
-          const matchCategory = currentCategory === 'all' || category === currentCategory;
-          const matchBrand = currentBrand === 'all' || brand === currentBrand || currentBrand === '';
-          const matchSearch = !searchText || name.includes(searchText);
-
-          card.style.display = (matchCategory && matchBrand && matchSearch) ? 'block' : 'none';
-        });
-      }
-
-      // Category dropdown toggle
-      dropdownButton.addEventListener("click", (e) => {
-        e.stopPropagation();
-        dropdownButton.classList.toggle("active");
-        dropdownMenu.classList.toggle("show");
-      });
-
-      // Category selection
-      categoryItems.forEach((item) => {
-        item.addEventListener('click', (e) => {
+        // Toggle dropdowns
+        categoryButton.addEventListener('click', (e) => {
           e.stopPropagation();
-          categoryItems.forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          selectedCategory = item.dataset.value;
-          selectedValue.textContent = item.querySelector('span').textContent;
-          dropdownButton.classList.remove('active');
-          dropdownMenu.classList.remove('show');
-          applyFilters();
-        });
-      });
-
-      // Brand dropdown: build unique brands from cards
-      function populateBrandMenu() {
-        const brandSet = new Set();
-        cards.forEach(c => {
-          const b = (c.dataset.brand || '').trim();
-          if (b) brandSet.add(b.toLowerCase());
-        });
-
-        // Remove existing brand items except the first (Todas las marcas)
-        const existing = Array.from(brandMenu.querySelectorAll('.dropdown-item'));
-        existing.slice(1).forEach(n => n.remove());
-
-        // Sort and add
-        Array.from(brandSet).sort().forEach((b) => {
-          const el = document.createElement('div');
-          el.className = 'dropdown-item';
-          el.dataset.value = b;
-          const span = document.createElement('span');
-          // capitalize first letter for display
-          span.textContent = b.charAt(0).toUpperCase() + b.slice(1);
-          const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-          svg.setAttribute('class', 'check-icon');
-          svg.setAttribute('viewBox', '0 0 24 24');
-          svg.setAttribute('fill', 'none');
-          svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
-          el.appendChild(span);
-          el.appendChild(svg);
-          brandMenu.appendChild(el);
-        });
-
-        // Attach listeners to the new items
-        const brandItems = brandMenu.querySelectorAll('.dropdown-item');
-        brandItems.forEach((item) => {
-          item.addEventListener('click', (e) => {
-            e.stopPropagation();
-            brandItems.forEach(i => i.classList.remove('selected'));
-            item.classList.add('selected');
-            selectedBrand = item.dataset.value;
-            brandSelected.textContent = item.querySelector('span').textContent;
-            brandButton.classList.remove('active');
-            brandMenu.classList.remove('show');
-            applyFilters();
-          });
-        });
-      }
-
-      // Brand dropdown toggle
-      brandButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        brandButton.classList.toggle('active');
-        brandMenu.classList.toggle('show');
-      });
-
-      // Close dropdowns when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('.custom-dropdown')) {
-          dropdownButton.classList.remove('active');
-          dropdownMenu.classList.remove('show');
-          brandButton.classList.remove('active');
+          categoryMenu.classList.toggle('show');
           brandMenu.classList.remove('show');
-        }
-      });
-
-      // Populate brands now
-      populateBrandMenu();
-
-      // Navigation: use data-url on cards
-      cards.forEach(card => {
-        card.addEventListener('click', (e) => {
-          const url = card.dataset.url;
-          if (url) window.location.href = url;
         });
-      });
 
-      /* ========== BUSCADOR ========== */
-      const searchInput = document.getElementById("searchInput");
-      if (searchInput) {
-        searchInput.addEventListener("input", function () {
+        brandButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          brandMenu.classList.toggle('show');
+          categoryMenu.classList.remove('show');
+        });
+
+        document.addEventListener('click', () => {
+          categoryMenu.classList.remove('show');
+          brandMenu.classList.remove('show');
+        });
+
+        // Poblar categorías dinámicamente
+        function populateCategories() {
+          const categories = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.category || '').trim();
+            if (b) categories.add(b);
+          });
+
+          const sortedCategories = Array.from(categories).sort();
+          sortedCategories.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            categoryMenu.appendChild(item);
+          });
+        }
+        populateCategories();
+
+        // Poblar marcas dinámicamente
+        function populateBrands() {
+          const brands = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.brand || '').trim();
+            if (b) brands.add(b);
+          });
+
+          const sortedBrands = Array.from(brands).sort();
+          sortedBrands.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            brandMenu.appendChild(item);
+          });
+        }
+        populateBrands();
+
+        // Manejar selección de categoría
+        categoryMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          categorySelected.textContent = item.querySelector('span').textContent;
+          categoryMenu.classList.remove('show');
           applyFilters();
         });
-      }
+
+        // Manejar selección de marca
+        brandMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          brandSelected.textContent = item.querySelector('span').textContent;
+          brandMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Aplicar filtros
+        function applyFilters() {
+          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
+          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const cat = catSelected ? catSelected.dataset.value : 'all';
+          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+          cards.forEach(c => {
+            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+            c.style.display = (matchCat && matchBrand) ? 'flex' : 'none';
+          });
+        }
+      })();
     </script>
-  </body>
-</html>
+  </div>
+</div>
 {% endblock %}

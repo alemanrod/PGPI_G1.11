@@ -13,6 +13,37 @@ Essenza{%endblock %} {% block content %}
     padding: 0 24px;
   }
 
+  .list-page * {
+    box-sizing: border-box;
+  }
+  .list-page {
+    background-color: #faf7f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+    padding: 20px 0;
+  }
+  .list-page .container {
+    /* Contenedor principal centrado para el contenido */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+  }
+
+  h1 {
+    color: #c06b3e;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+  }
+
+  .filters {
+    max-width: 1100px;
+    margin: 25px auto 0 auto;
+    display: flex;
+    margin-bottom: 30px;
+  }
+
   /* ====== TARJETA DE PRODUCTO ====== */
 
   .product-card {
@@ -123,67 +154,46 @@ Essenza{%endblock %} {% block content %}
   }
 </style>
 
-<body>
-  <!-- FILTROS: categoría + marca -->
-  <div class="filters">
-    <div class="custom-dropdown" id="categoryDropdownStock">
-      <div class="dropdown-button" id="categoryButtonStock">
-        <span id="categorySelectedStock">Todas las categorías</span>
-        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </div>
-      <div class="dropdown-menu" id="categoryMenuStock">
-        <div class="dropdown-item selected" data-value="all">
-          <span>Todas las categorías</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="dropdown-item" data-value="maquillaje">
-          <span>Maquillaje</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="dropdown-item" data-value="tratamiento">
-          <span>Tratamiento</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="dropdown-item" data-value="cabello">
-          <span>Cabello</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-        <div class="dropdown-item" data-value="perfume">
-          <span>Perfume</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-        </div>
-      </div>
-    </div>
+<div class="list-page">
+  <div class="container">
+    <h1>Stock Essenza</h1>
 
-    <div class="custom-dropdown" id="brandDropdownStock">
-      <div class="dropdown-button" id="brandButtonStock">
-        <span id="brandSelectedStock">Todas las marcas</span>
-        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </div>
-      <div class="dropdown-menu" id="brandMenuStock">
-        <div class="dropdown-item selected" data-value="all">
-          <span>Todas las marcas</span>
-          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"></polyline>
+    <!-- FILTROS: categoría + marca -->
+    <div class="filters">
+      <div class="custom-dropdown" id="categoryDropdownList">
+        <div class="dropdown-button" id="categoryButtonList">
+          <span id="categorySelectedList">Todas las categorías</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
+        </div>
+        <div class="dropdown-menu" id="categoryMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las categorías</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-dropdown" id="brandDropdownList">
+        <div class="dropdown-button" id="brandButtonList">
+          <span id="brandSelectedList">Todas las marcas</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-menu" id="brandMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las marcas</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
   <main>
     {% for p in products %}
@@ -234,17 +244,16 @@ Essenza{%endblock %} {% block content %}
       </div>
     </div>
     {% endfor %}
-  </main>
 
     <script>
       // Custom dropdown para stock.html
       (function(){
-        const categoryButton = document.getElementById('categoryButtonStock');
-        const categoryMenu = document.getElementById('categoryMenuStock');
-        const categorySelected = document.getElementById('categorySelectedStock');
-        const brandButton = document.getElementById('brandButtonStock');
-        const brandMenu = document.getElementById('brandMenuStock');
-        const brandSelected = document.getElementById('brandSelectedStock');
+        const categoryButton = document.getElementById('categoryButtonList');
+        const categoryMenu = document.getElementById('categoryMenuList');
+        const categorySelected = document.getElementById('categorySelectedList');
+        const brandButton = document.getElementById('brandButtonList');
+        const brandMenu = document.getElementById('brandMenuList');
+        const brandSelected = document.getElementById('brandSelectedList');
         const cards = Array.from(document.querySelectorAll('.product-card'));
 
         // Toggle dropdowns
@@ -264,6 +273,30 @@ Essenza{%endblock %} {% block content %}
           categoryMenu.classList.remove('show');
           brandMenu.classList.remove('show');
         });
+
+        // Poblar categorías dinámicamente
+        function populateCategories() {
+          const categories = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.category || '').trim();
+            if (b) categories.add(b);
+          });
+
+          const sortedCategories = Array.from(categories).sort();
+          sortedCategories.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            categoryMenu.appendChild(item);
+          });
+        }
+        populateCategories();
 
         // Poblar marcas dinámicamente
         function populateBrands() {
@@ -328,6 +361,6 @@ Essenza{%endblock %} {% block content %}
         }
       })();
     </script>
-
-  {% endblock %}
-</body>
+  </div>
+</div>
+{% endblock %}
