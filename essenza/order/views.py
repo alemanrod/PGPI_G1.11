@@ -3,17 +3,116 @@ from cart.models import Cart
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction  # Para la integridad de datos
-from django.db.models import F  # Para restar el stock de forma segura
+from django.db.models import (
+    F,  # Para restar el stock de forma segura
+    Prefetch,
+)
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
 from product.models import Product
 
-from order.models import Order, OrderProduct, Status
+from .models import Order, OrderProduct, Status
+
+
+# =======================================================
+# LISTADO DE PEDIDOS - ADMIN
+# =======================================================
+class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "order/order_list_admin.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
+    def get(self, request):
+        orders = (
+            Order.objects.select_related("user")
+            .prefetch_related(
+                Prefetch(
+                    "order_products",
+                    queryset=OrderProduct.objects.select_related("product"),
+                )
+            )
+            .order_by("-placed_at")
+        )
+        return render(request, self.template_name, {"orders": orders})
+
+
+# =======================================================
+# LISTADO DE PEDIDOS - USER
+# =======================================================
+class OrderListUserView(LoginRequiredMixin, View):
+    template_name = "order/order_list_user.html"
+
+    def get(self, request):
+        orders = (
+            Order.objects.filter(user=request.user)
+            .exclude(status=Status.EN_PREPARACION)  # carrito / en preparación NO
+            .prefetch_related(
+                Prefetch(
+                    "order_products",
+                    queryset=OrderProduct.objects.select_related("product"),
+                )
+            )
+            .order_by("-placed_at")
+        )
+        return render(request, self.template_name, {"orders": orders})
+
+
+# =======================================================
+# SEGUIMIENTO SIN LOGIN
+# =======================================================
+class OrderTrackView(View):
+    template_name = "order/order_search.html"
+
+    def get(self, request):
+        # Solo formulario
+        return render(request, self.template_name, {"order": None, "searched": False})
+
+    def post(self, request):
+        order_tracking_code = request.POST.get(
+            "tracking_code", ""
+        ).strip()  # Nombre del input corregido a 'tracking_code'
+        email = request.POST.get("email", "").strip().lower()
+
+        order = None
+        error = None
+
+        if not order_tracking_code or not email:
+            error = "Debes introducir el número de pedido y el email."
+        else:
+            try:
+                order = (
+                    Order.objects.select_related("user")
+                    .prefetch_related(
+                        Prefetch(
+                            "order_products",
+                            queryset=OrderProduct.objects.select_related("product"),
+                        )
+                    )
+                    .get(tracking_code=order_tracking_code, email__iexact=email)
+                )
+            except Order.DoesNotExist:
+                error = "No se ha encontrado ningún pedido con esos datos."
+
+        # Si encontramos el pedido, podemos redirigir a la vista de detalle bonita que ya tienes
+        if order:
+            return redirect("order_tracking", tracking_code=order.tracking_code)
+
+        # Si hubo error, volvemos a mostrar el formulario con el mensaje
+        messages.error(request, error)
+        return render(request, self.template_name, {"order": None, "searched": True})
+
 
 # Configuración de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -185,9 +284,7 @@ def successful_payment(request):
             # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
             try:
                 # 1. Generar la URL absoluta de seguimiento
-                tracking_url = request.build_absolute_uri(
-                    reverse("order_tracking", args=[new_order.tracking_code])
-                )
+                tracking_url = request.build_absolute_uri(reverse("order_search"))
 
                 # 2. Definir asunto y mensaje
                 subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
@@ -200,7 +297,7 @@ def successful_payment(request):
                 Tu pedido ha sido confirmado y se está preparando.
 
                 Detalles del pedido:
-                Referencia: {new_order.tracking_code}
+                Nº de localizador: {new_order.tracking_code}
                 Total: {new_order.total_price} €
                 Dirección de envío: {new_order.address}
 

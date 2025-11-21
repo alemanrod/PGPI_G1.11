@@ -84,4 +84,4 @@ class OrderProduct(models.Model):
         return self.quantity * self.product.price
 
     def __str__(self):
-        return f"{self.quantity} of {self.product.name} in order {self.order.id}"
+        return f"{self.quantity} of {self.product.name} in order {self.order.tracking_code}"

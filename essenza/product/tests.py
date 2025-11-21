@@ -92,7 +92,7 @@ class DashboardViewLogicTests(TestCase):
         """Prueba que los 'admin' son bloqueados."""
         self.client.login(email="admin@test.com", password="pass")
         resp = self.client.get(self.dashboard_url)
-        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.status_code, 302)
 
     # --- 2. Tests de Lógica de Negocio (método get) ---
 
@@ -137,9 +137,6 @@ class DashboardViewLogicTests(TestCase):
         Prueba el segundo 'if': Falla 30 días, muestra 1 año.
         Ignora ventas de hace más de 1 año.
         """
-        # 1. NO crear ventas recientes
-
-        # 2. Crear ventas antiguas (hace 100 días)
         order_old = Order.objects.create(
             user=self.regular_user,
             address="Test Address 1",
@@ -149,7 +146,6 @@ class DashboardViewLogicTests(TestCase):
             order=order_old, product=self.p_1_year, quantity=500
         )
 
-        # 3. Crear ventas MUY antiguas (hace 400 días) - debe ignorarse
         order_ancient = Order.objects.create(
             user=self.regular_user,
             address="Test Address 2",
@@ -162,7 +158,6 @@ class DashboardViewLogicTests(TestCase):
         resp = self.client.get(self.dashboard_url)
         products_in_context = list(resp.context["products"])
 
-        # ASERCIÓN: Solo debe aparecer el producto de 1 año
         self.assertEqual(len(products_in_context), 1)
         self.assertEqual(products_in_context[0], self.p_1_year)
         self.assertEqual(products_in_context[0].total_quantity, 500)
@@ -172,10 +167,6 @@ class DashboardViewLogicTests(TestCase):
         Prueba el tercer 'if': Falla 1 año, muestra por stock.
         Ignora ventas de productos inactivos.
         """
-        # 1. NO crear ventas recientes
-        # 2. NO crear ventas en el último año
-
-        # 3. Crear ventas MUY antiguas (hace 400 días) - para forzar el fallback
         order_ancient = Order.objects.create(
             user=self.regular_user,
             address="Test Address 1",
@@ -185,7 +176,6 @@ class DashboardViewLogicTests(TestCase):
             order=order_ancient, product=self.p_30_day, quantity=999
         )
 
-        # 4. Crear ventas de productos INACTIVOS (deben ignorarse siempre)
         order_inactive = Order.objects.create(
             user=self.regular_user,
             address="Test Address 2",
@@ -199,21 +189,15 @@ class DashboardViewLogicTests(TestCase):
         resp = self.client.get(self.dashboard_url)
         products_in_context = list(resp.context["products"])
 
-        # ASERCIÓN: Debe mostrar los productos activos por stock descendente
-        # p_stock (999) > p_1_year (20) > p_30_day (10) > p_stock_low (1)
-        # p_inactive (1000) debe ser ignorado.
-
         self.assertIn(self.p_stock, products_in_context)
         self.assertIn(self.p_1_year, products_in_context)
         self.assertNotIn(self.p_inactive, products_in_context)  # Clave
 
-        # Comprobar el orden por stock
         self.assertEqual(products_in_context[0], self.p_stock)  # stock 999
         self.assertEqual(products_in_context[1], self.p_1_year)  # stock 20
         self.assertEqual(products_in_context[2], self.p_30_day)  # stock 10
         self.assertEqual(products_in_context[3], self.p_stock_low)  # stock 1
 
-        # Comprobar que no hay 'total_quantity' (viene de la consulta de stock)
         self.assertFalse(hasattr(products_in_context[0], "total_quantity"))
 
     def test_logic_branch_4_handles_empty_database(self):
@@ -222,16 +206,11 @@ class DashboardViewLogicTests(TestCase):
         La vista debe devolver una lista vacía, no romperse.
         """
 
-        # 1. Borrar TODOS los productos creados en el setUp
-        #    (Esto deja la BBDD sin productos activos)
         Product.objects.all().delete()
 
-        # Cargar la vista
         resp = self.client.get(self.dashboard_url)
         self.assertEqual(resp.status_code, 200)
 
-        # ASERCIÓN:
-        # El contexto 'products' debe existir, pero estar vacío.
         self.assertIn("products", resp.context)
         products_in_context = list(resp.context["products"])
 

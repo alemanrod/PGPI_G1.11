@@ -102,11 +102,6 @@ class AddToCartView(View):
                 else:
                     cart_product.quantity += quantity
                 cart_product.save()
-                msg = f"Se ha añadido otra unidad de {product.name}."
-            else:
-                msg = f"{product.name} añadido al carrito."
-
-            messages.success(request, msg)
 
         # Si el usuario no está logueado, guardamos en sesión
         else:
@@ -127,7 +122,6 @@ class AddToCartView(View):
 
             request.session["cart_session"] = cart_session
             request.session.modified = True
-            messages.success(request, msg)
 
         return redirect("cart_detail")
 
