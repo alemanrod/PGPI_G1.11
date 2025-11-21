@@ -6,7 +6,7 @@
             "user": 1,
             "address": "Calle Gran Vía, 23, Madrid, 28013",
             "placed_at": "2025-11-12T10:30:00Z",
-            "status": "pending"
+            "status": "en_preparacion"
         }
     },
     {
@@ -16,7 +16,7 @@
             "user": 2,
             "address": "Avenida de la Constitución, 8, Sevilla, 41001",
             "placed_at": "2025-11-11T15:10:00Z",
-            "status": "paid"
+            "status": "enviado"
         }
     },
     {
@@ -26,7 +26,7 @@
             "user": 3,
             "address": "Carrer de Pau Claris, 60, Barcelona, 08010",
             "placed_at": "2025-11-10T19:25:00Z",
-            "status": "shipped"
+            "status": "entregado"
         }
     },
     {
@@ -36,7 +36,7 @@
             "user": 1,
             "address": "Calle Alcalá, 120, Madrid, 28009",
             "placed_at": "2025-11-09T09:00:00Z",
-            "status": "pending"
+            "status": "en_preparacion"
         }
     },
     {
@@ -46,7 +46,7 @@
             "user": 2,
             "address": "Plaza Nueva, 10, Bilbao, 48001",
             "placed_at": "2025-11-08T12:15:00Z",
-            "status": "shipped"
+            "status": "entregado"
         }
     },
     {
@@ -56,7 +56,7 @@
             "user": 3,
             "address": "Calle Larios, 5, Málaga, 29001",
             "placed_at": "2025-11-07T14:00:00Z",
-            "status": "paid"
+            "status": "enviado"
         }
     },
     {
@@ -66,7 +66,7 @@
             "user": 1,
             "address": "Paseo de Gracia, 92, Barcelona, 08008",
             "placed_at": "2025-11-06T18:45:00Z",
-            "status": "pending"
+            "status": "en_preparacion"
         }
     },
     {
@@ -76,7 +76,7 @@
             "user": 2,
             "address": "Calle de la Paz, 1, Valencia, 46003",
             "placed_at": "2025-11-06T10:00:00Z",
-            "status": "shipped"
+            "status": "entregado"
         }
     },
     {
@@ -86,7 +86,7 @@
             "user": 3,
             "address": "Calle Mayor, 30, Zaragoza, 50001",
             "placed_at": "2025-10-15T11:00:00Z",
-            "status": "shipped"
+            "status": "entregado"
         }
     },
     {
@@ -96,7 +96,7 @@
             "user": 1,
             "address": "Rúa do Vilar, 50, Santiago de Compostela, 15705",
             "placed_at": "2025-10-28T08:30:00Z",
-            "status": "paid"
+            "status": "enviado"
         }
     },
     {
@@ -240,7 +240,7 @@
         "fields": {
             "order": 10,
             "product": 7,
-            "quantity": 5
+            "quantity": 1
         }
     },
     {
@@ -366,6 +366,15 @@
         "fields": {
             "order": 2,
             "product": 3,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "order.orderproduct",
+        "pk": 31,
+        "fields": {
+            "order": 4,
+            "product": 21,
             "quantity": 1
         }
     }

@@ -1,24 +1,25 @@
-{% extends "base.html" %} {% load static %} {% block title %}{{ product.name }}
-- Essenza{% endblock %} {% block extra_head %}
+{% extends "base.html" %} {% load static %} 
+{% block title %}
+{{ product.name }} · Essenza
+{% endblock %} {% block extra_head %}
 <style>
-  /* Scoped styles for detail_user page; avoid modifying the global body */
   .quantity-container {
-        display: flex; 
-        align-items: center; 
-        margin-right: 12px; 
-        gap: 5px;
-    }
-    .quantity_input {
-        width: 60px; 
-        padding: 8px; 
-        border: 1px solid #ddd; 
-        border-radius: 4px;
-        text-align: center;
-    }
-    .actions > form {
-        flex: 1; 
-        display: flex;
-    }
+    display: flex; 
+    align-items: center; 
+    margin-right: 12px; 
+    gap: 5px;
+  }
+  .quantity_input {
+    width: 60px; 
+    padding: 8px; 
+    border: 1px solid #ddd; 
+    border-radius: 4px;
+    text-align: center;
+  }
+  .actions > form {
+    flex: 1; 
+    display: flex;
+  }
   .detail-body {
     background-color: #faf7f2;
     font-family: "Segoe UI", Arial, sans-serif;
@@ -80,13 +81,6 @@
     border-radius: 4px;
     margin-bottom: 20px;
     font-size: 14px;
-  }
-  .product-stock {
-    font-size: 16px;
-    margin-bottom: 15px;
-  }
-  .product-stock strong {
-    color: #c06b3e;
   }
   .product-description {
     background-color: #f9f5f2;
@@ -154,59 +148,14 @@
   .btn-add:hover {
     background: #a54f2b;
   }
+  .product-stock {
+    font-weight: 600;
+    font-size: 16px;
+  }
   .add-text {
     display: flex;
     align-items: center;
     gap: 10px;
-  }
-  .shake {
-    animation: shake 0.3s ease;
-  }
-  @keyframes shake {
-    0% {
-      transform: translateX(0);
-    }
-    25% {
-      transform: translateX(-4px);
-    }
-    50% {
-      transform: translateX(4px);
-    }
-    75% {
-      transform: translateX(-4px);
-    }
-    100% {
-      transform: translateX(0);
-    }
-  }
-  .added-message {
-    display: none;
-    position: absolute;
-    inset: 0;
-    background: #4caf50;
-    color: white;
-    font-weight: bold;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-  }
-  .added-message.show {
-    display: flex;
-    animation: fade 1.8s ease;
-  }
-  @keyframes fade {
-    0% {
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-    }
-    80% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
   }
   @media (max-width: 768px) {
     .product-header {
@@ -243,40 +192,47 @@
             <strong>Descripción:</strong>
             <p style="margin-top: 10px">{{ product.description }}</p>
           </div>
+          <div class="product-stock">
+            {% if product.stock == 0 %}
+            <span style="color: #dc3545">¡Producto agotado!</span>
+            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+            <span style="color: #fd7e14">¡Últimas unidades!</span>
+            {% endif %}
+          </div>
         </div>
-        {% if product.stock == 0 %}
-        <span>¡Producto agotado!</span>
-        {% endif %} {% if product.stock < 10 and product.stock > 0 %}
-        <span>¡Últimas unidades!</span>
-        {% endif %}
       </div>
 
       <!-- -------- BOTONES -------- -->
       <div class="actions">
-        <form method="POST" action="{% url 'add_to_cart' product_pk=product.pk %}">
-            {% csrf_token %}
-            
-            <button class="btn btn-add" id="addToCartBtn" type="submit">
-                <span class="add-text" id="normalText">
-                    <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="21"
-                    height="21"
-                    fill="none"
-                    stroke="white"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    >
-                        <circle cx="9" cy="19" r="2"></circle>
-                        <circle cx="17" cy="19" r="2"></circle>
-                        <path d="M5 6h16l-1.5 9h-13z"></path>
-                        <path d="M5 6L4 3H1"></path>
-                    </svg>
-                    Añadir al carrito
-          </span>
-          <span class="added-message" id="addedMessage"> ✓ Añadido </span>
-        </button>
+        <form method="POST" action="{% url 'add_to_cart' product_id=product.pk %}">
+          {% csrf_token %}
+          <button 
+            class="btn btn-add" 
+            type="submit"
+            {% if product.stock <= 0 %} 
+              disabled 
+              style="opacity: 0.5; cursor: not-allowed; background-color: #999;" 
+            {% endif %}
+          >
+            <span class="add-text">
+              {% if product.stock > 0 %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="9" cy="19" r="2"></circle>
+                  <circle cx="17" cy="19" r="2"></circle>
+                  <path d="M5 6h16l-1.5 9h-13z"></path>
+                  <path d="M5 6L4 3H1"></path>
+                </svg>
+                Añadir al carrito
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                </svg>
+                Agotado
+              {% endif %}
+            </span>
+          </button>
+        </form>
 
         <a
           href="#"
@@ -289,17 +245,4 @@
     </div>
   </div>
 </div>
-
-<script>
-  const btn = document.getElementById("addToCartBtn");
-  const addedMsg = document.getElementById("addedMessage");
-  btn.addEventListener("click", () => {
-    btn.classList.add("shake");
-    addedMsg.classList.add("show");
-    setTimeout(() => {
-      addedMsg.classList.remove("show");
-      btn.classList.remove("shake");
-    }, 1800);
-  });
-</script>
 {% endblock %}

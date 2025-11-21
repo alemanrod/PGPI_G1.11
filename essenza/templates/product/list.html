@@ -74,6 +74,7 @@
   }
   .product-info {
     padding: 15px;
+    padding-bottom: 0;
   }
   .product-name {
     font-size: 18px;
@@ -95,14 +96,14 @@
     color: #333;
     margin-bottom: 8px;
   }
-  .product-stock {
-    font-size: 13px;
-    color: #999;
-    margin-bottom: 12px;
-  }
   .product-actions {
     display: flex;
     gap: 8px;
+    margin-bottom: 12px;
+  }
+  .product-stock {
+    font-weight: 600;
+    font-size: 16px;
   }
   .btn-small {
     flex: 1;
@@ -197,12 +198,14 @@
               >Borrar</a
             >
           </div>
+          <div class="product-stock">
+            {% if product.stock == 0 %}
+            <span style="color: #dc3545">¡Producto agotado!</span>
+            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+            <span style="color: #fd7e14">¡Últimas unidades!</span>
+            {% endif %}
+          </div>
         </div>
-        {% if product.stock == 0 %}
-        <strong>¡Producto agotado!</strong>
-        {% endif %} {% if product.stock < 10 and product.stock > 0 %}
-        <strong>¡Últimas unidades!</strong>
-        {% endif %}
       </div>
       {% endfor %}
     </div>

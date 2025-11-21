@@ -69,12 +69,8 @@
     font-size: 14px;
   }
   .detail-body .product-stock {
+    font-weight: 600;
     font-size: 16px;
-    margin-bottom: 15px;
-    color: #333;
-  }
-  .detail-body .product-stock strong {
-    color: #c06b3e;
   }
   .detail-body .product-description {
     background-color: #f9f5f2;
@@ -186,11 +182,13 @@
           <div class="product-brand">{{ product.brand }}</div>
           <div class="product-category">{{ product.get_category_display }}</div>
           <div class="product-price">€ {{ product.price }}</div>
-          {% if product.stock == 0 %}
-          <span>¡Producto agotado!</span>
-          {% endif %} {% if product.stock < 10 and product.stock > 0%}
-          <span>¡Últimas unidades!</span>
-          {% endif %}
+          <div class="product-stock">
+            {% if product.stock == 0 %}
+            <span style="color: #dc3545">¡Producto agotado!</span>
+            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+            <span style="color: #fd7e14">¡Últimas unidades!</span>
+            {% endif %}
+          </div>
           <div class="product-description">
             <strong>Descripción:</strong>
             <p style="margin-top: 8px">{{ product.description }}</p>
