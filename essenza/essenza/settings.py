@@ -120,8 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "es"
 
-TIME_ZONE = "UTC"
-
+TIME_ZONE = "Europe/Madrid"
 USE_I18N = True
 
 USE_TZ = True
@@ -160,3 +159,15 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 DOMAIN_URL = os.getenv(
     "DOMAIN_URL", "http://127.0.0.1:8000"
 )  # Default a localhost si falla
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Leemos las credenciales del archivo .env (o las pones aquí directamente entre comillas si prefieres)
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+# El remitente que aparecerá en los correos
+DEFAULT_FROM_EMAIL = "Essenza <noreply@essenza.com>"

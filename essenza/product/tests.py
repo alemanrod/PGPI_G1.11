@@ -190,6 +190,7 @@ class DashboardViewLogicTests(TestCase):
             user=self.regular_user,
             address="Test Address 2",
             placed_at=self.now - timezone.timedelta(days=10),  # Reciente, pero inactivo
+            tracking_code="4957",
         )
         OrderProduct.objects.create(
             order=order_inactive, product=self.p_inactive, quantity=5000

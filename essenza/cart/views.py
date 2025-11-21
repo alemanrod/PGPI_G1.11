@@ -119,13 +119,11 @@ class AddToCartView(View):
                     return redirect("cart_detail")
                 else:
                     cart_session[product_id_str]["quantity"] += quantity
-                msg = f"Se ha añadido otra unidad de {product.name}."
             else:
                 cart_session[product_id_str] = {
                     "quantity": quantity,
                     "price": str(product.price),
                 }
-                msg = f"{product.name} añadido al carrito."
 
             request.session["cart_session"] = cart_session
             request.session.modified = True
