@@ -124,9 +124,70 @@ Essenza{%endblock %} {% block content %}
 </style>
 
 <body>
+  <!-- FILTROS: categoría + marca -->
+  <div class="filters">
+    <div class="custom-dropdown" id="categoryDropdownStock">
+      <div class="dropdown-button" id="categoryButtonStock">
+        <span id="categorySelectedStock">Todas las categorías</span>
+        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div class="dropdown-menu" id="categoryMenuStock">
+        <div class="dropdown-item selected" data-value="all">
+          <span>Todas las categorías</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-item" data-value="maquillaje">
+          <span>Maquillaje</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-item" data-value="tratamiento">
+          <span>Tratamiento</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-item" data-value="cabello">
+          <span>Cabello</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-item" data-value="perfume">
+          <span>Perfume</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-dropdown" id="brandDropdownStock">
+      <div class="dropdown-button" id="brandButtonStock">
+        <span id="brandSelectedStock">Todas las marcas</span>
+        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </div>
+      <div class="dropdown-menu" id="brandMenuStock">
+        <div class="dropdown-item selected" data-value="all">
+          <span>Todas las marcas</span>
+          <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <main>
     {% for p in products %}
-    <div class="product-card">
+    <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
       {% if p.photo %}
       <img src="{{ p.photo.url }}" alt="{{ p.name }}" />
       {% else %}
@@ -174,6 +235,99 @@ Essenza{%endblock %} {% block content %}
     </div>
     {% endfor %}
   </main>
+
+    <script>
+      // Custom dropdown para stock.html
+      (function(){
+        const categoryButton = document.getElementById('categoryButtonStock');
+        const categoryMenu = document.getElementById('categoryMenuStock');
+        const categorySelected = document.getElementById('categorySelectedStock');
+        const brandButton = document.getElementById('brandButtonStock');
+        const brandMenu = document.getElementById('brandMenuStock');
+        const brandSelected = document.getElementById('brandSelectedStock');
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+
+        // Toggle dropdowns
+        categoryButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          categoryMenu.classList.toggle('show');
+          brandMenu.classList.remove('show');
+        });
+
+        brandButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          brandMenu.classList.toggle('show');
+          categoryMenu.classList.remove('show');
+        });
+
+        document.addEventListener('click', () => {
+          categoryMenu.classList.remove('show');
+          brandMenu.classList.remove('show');
+        });
+
+        // Poblar marcas dinámicamente
+        function populateBrands() {
+          const brands = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.brand || '').trim();
+            if (b) brands.add(b);
+          });
+
+          const sortedBrands = Array.from(brands).sort();
+          sortedBrands.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            brandMenu.appendChild(item);
+          });
+        }
+        populateBrands();
+
+        // Manejar selección de categoría
+        categoryMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          categorySelected.textContent = item.querySelector('span').textContent;
+          categoryMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Manejar selección de marca
+        brandMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          brandSelected.textContent = item.querySelector('span').textContent;
+          brandMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Aplicar filtros
+        function applyFilters() {
+          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
+          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const cat = catSelected ? catSelected.dataset.value : 'all';
+          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+          cards.forEach(c => {
+            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+            c.style.display = (matchCat && matchBrand) ? 'flex' : 'none';
+          });
+        }
+      })();
+    </script>
 
   {% endblock %}
 </body>
