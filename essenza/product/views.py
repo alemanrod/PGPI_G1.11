@@ -22,6 +22,9 @@ class DashboardView(UserPassesTestMixin, View):
         return (
             not self.request.user.is_authenticated or self.request.user.role != "admin"
         )
+    
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def get(self, request, *args, **kwargs):
         q = request.GET.get("q", "").strip()
