@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Listado de pedidos · Admin · Essenza{% endblock %}
+
+{% block content %}
+<style>
+  .orders-page {
+    background: #faf7f2;
+    padding: 36px 0 60px;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  .orders-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .orders-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .orders-header h1 {
+    margin: 0;
+    color: #c06b3e;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+  }
+  .orders-header p {
+    margin: 0;
+    color: #7c6f66;
+    font-size: 14px;
+  }
+
+  .order-card {
+    background: #fff;
+    border: 1px solid #efe6de;
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 6px 18px rgba(192, 107, 62, 0.08);
+    margin-bottom: 14px;
+  }
+
+  .order-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px 12px;
+    align-items: center;
+    border-bottom: 1px dashed #f0e5dc;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+  }
+  .order-id { font-weight: 800; color: #2d2a27; font-size: 16px; }
+  .order-meta { color:#6a5f57; font-size: 13px; }
+  .customer { font-weight:700; color:#2d2a27; font-size:14px; }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .2px;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+  .st-prep { background: #fff6e8; color: #9a5f1e; border-color: #f2d7b7; }
+  .st-sent { background: #e9f2ff; color: #1a4e8a; border-color: #c9dcf6; }
+  .st-done { background: #eaf7ef; color: #1f6a3b; border-color: #cfead9; }
+
+  .order-body {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px 16px;
+  }
+
+  .products-list {
+    margin: 0;
+    padding-left: 18px;
+    color: #36312d;
+    font-size: 14px;
+  }
+  .products-list li { margin: 4px 0; }
+
+  .order-right {
+    text-align: right;
+    min-width: 180px;
+  }
+  .order-total {
+    font-size: 16px;
+    font-weight: 800;
+    color: #c06b3e;
+  }
+  .order-address {
+    margin-top: 6px;
+    font-size: 13px;
+    color: #6a5f57;
+  }
+
+  .empty-box {
+    background: #fff;
+    border: 1px dashed #e7d9cf;
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    color: #6a5f57;
+  }
+
+  @media (max-width: 840px){
+    .order-top { grid-template-columns: 1fr; }
+    .order-body { grid-template-columns: 1fr; }
+    .order-right { text-align:left; }
+  }
+</style>
+
+<div class="orders-page">
+  <div class="orders-container">
+    <div class="orders-header">
+      <h1>Pedidos (Admin)</h1>
+      <p>Listado completo de pedidos realizados.</p>
+    </div>
+
+    {% if orders %}
+      {% for order in orders %}
+        <article class="order-card">
+          <div class="order-top">
+            <div>
+              <div class="order-id">Pedido #{{ order.id }}</div>
+              <div class="order-meta">{{ order.placed_at|date:"d/m/Y H:i" }}</div>
+            </div>
+
+            <div>
+              <div class="customer">
+                Cliente: {{ order.user.username }} ({{ order.user.email }})
+              </div>
+              <div class="order-meta">ID usuario: {{ order.user.id }}</div>
+            </div>
+
+            <div>
+              {% if order.status == "en_preparacion" %}
+                <span class="status-pill st-prep">{{ order.get_status_display }}</span>
+              {% elif order.status == "enviado" %}
+                <span class="status-pill st-sent">{{ order.get_status_display }}</span>
+              {% elif order.status == "entregado" %}
+                <span class="status-pill st-done">{{ order.get_status_display }}</span>
+              {% else %}
+                <span class="status-pill">{{ order.get_status_display }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="order-body">
+            <div>
+              <strong style="color:#2d2a27;">Productos</strong>
+              <ul class="products-list">
+                {% for op in order.order_products.all %}
+                  <li>{{ op.product.name }} × {{ op.quantity }} — {{ op.subtotal|floatformat:2 }} €</li>
+                {% empty %}
+                  <li>-</li>
+                {% endfor %}
+              </ul>
+            </div>
+
+            <div class="order-right">
+              <div class="order-total">
+                Total: {{ order.total_price|floatformat:2 }} €
+              </div>
+              <div class="order-address">
+                Dirección: {{ order.address|default:"-" }}
+              </div>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <div class="empty-box">
+        <p>No hay pedidos para mostrar.</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
