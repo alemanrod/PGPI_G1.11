@@ -13,6 +13,6 @@ urlpatterns = [
         name="order_tracking",
     ),
     path("list/", views.OrderListAdminView.as_view(), name="order_list_admin"),
-    path("my-orders/", views.OrderListUserView.as_view(), name="order_list_user"),
-    path("search/", views.OrderTrackView.as_view(), name="order_search"),
+    path("history/", views.OrderHistoryView.as_view(), name="order_history"),
+    path("search/", views.OrderSearchView.as_view(), name="order_search"),
 ]

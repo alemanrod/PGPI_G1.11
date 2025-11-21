@@ -20,6 +20,9 @@ from product.models import Product
 
 from .models import Order, OrderProduct, Status
 
+# Configuración de Stripe
+stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 # =======================================================
 # LISTADO DE PEDIDOS - ADMIN
@@ -52,8 +55,8 @@ class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
 # =======================================================
 # LISTADO DE PEDIDOS - USER
 # =======================================================
-class OrderListUserView(LoginRequiredMixin, View):
-    template_name = "order/order_list_user.html"
+class OrderHistoryView(LoginRequiredMixin, View):
+    template_name = "order/order_history.html"
 
     def get(self, request):
         # CORRECCIÓN 1: Usamos Q para buscar por Usuario O por Email
@@ -77,7 +80,7 @@ class OrderListUserView(LoginRequiredMixin, View):
 # =======================================================
 # SEGUIMIENTO SIN LOGIN
 # =======================================================
-class OrderTrackView(View):
+class OrderSearchView(View):
     template_name = "order/order_search.html"
 
     def get(self, request):
@@ -119,8 +122,11 @@ class OrderTrackView(View):
         return render(request, self.template_name, {"order": None, "searched": True})
 
 
-# Configuración de Stripe
-stripe.api_key = settings.STRIPE_SECRET_KEY
+class OrderTrackingView(View):
+    def get(self, request, tracking_code):
+        # Buscamos el pedido por su código único
+        order = get_object_or_404(Order, tracking_code=tracking_code)
+        return render(request, "order/tracking.html", {"order": order})
 
 
 def create_checkout(request):
@@ -335,10 +341,3 @@ def successful_payment(request):
 
 def cancelled_payment(request):
     return render(request, "order/cancel.html")
-
-
-class OrderTrackingView(View):
-    def get(self, request, tracking_code):
-        # Buscamos el pedido por su código único
-        order = get_object_or_404(Order, tracking_code=tracking_code)
-        return render(request, "order/tracking.html", {"order": order})

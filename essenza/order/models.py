@@ -21,13 +21,13 @@ class Order(models.Model):
         null=True,
         blank=True,
     )
-    email = models.EmailField(max_length=254)
+    email = models.EmailField(max_length=255)
     address = models.CharField(max_length=255)
     placed_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(choices=Status.choices, default=Status.EN_PREPARACION)
 
     tracking_code = models.CharField(
-        max_length=4,
+        max_length=8,
         unique=True,
         editable=False,  # No se puede editar manualmente
         verbose_name="Localizador",
@@ -58,9 +58,10 @@ class Order(models.Model):
         super().save(*args, **kwargs)
 
     def _generate_unique_tracking_code(self):
-        """Genera un código único de 4 dígitos numéricos."""
+        """Genera un código único de 8 caracteres alfanuméricos."""
+        chars = string.ascii_uppercase + string.digits
         while True:
-            code = "".join(random.choices(string.digits, k=4))
+            code = "".join(random.choices(chars, k=8))
             # Verifica que no exista para evitar duplicados
             if not Order.objects.filter(tracking_code=code).exists():
                 return code

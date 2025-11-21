@@ -69,11 +69,11 @@ class OrderListUserViewTests(TestCase):
             order=self.order_other, product=self.product, quantity=1
         )
 
-        # Asumiendo que la URL se llama 'order_list_user' en urls.py
+        # Asumiendo que la URL se llama 'order_history' en urls.py
         try:
-            self.url = reverse("order_list_user")
-        except:
-            self.url = "/order/my-orders/"  # Fallback si no existe el name
+            self.url = reverse("order_history")
+        except Exception:
+            self.url = "/order/history/"  # Fallback si no existe el name
 
     def test_user_must_login(self):
         """Un usuario anónimo debe ser redirigido al login."""
@@ -87,7 +87,7 @@ class OrderListUserViewTests(TestCase):
         resp = self.client.get(self.url)
 
         self.assertEqual(resp.status_code, 200)
-        self.assertTemplateUsed(resp, "order/order_list_user.html")
+        self.assertTemplateUsed(resp, "order/order_history.html")
 
         orders = resp.context["orders"]
 
@@ -143,7 +143,7 @@ class OrderListAdminViewTests(TestCase):
 
         try:
             self.url = reverse("order_list_admin")
-        except:
+        except Exception:
             self.url = "/order/admin/list/"
 
     def test_anonymous_redirects_to_login(self):
@@ -190,7 +190,7 @@ class OrderTrackViewTests(TestCase):
         # Asumiendo que en urls.py se llama 'order_search'
         try:
             self.url_search = reverse("order_search")
-        except:
+        except Exception:
             self.url_search = "/order/search/"
 
     def test_track_get_returns_form(self):
