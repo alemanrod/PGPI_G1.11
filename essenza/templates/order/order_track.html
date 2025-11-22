@@ -50,10 +50,8 @@
     padding: 10px 12px;
     border-radius: 10px;
     border: 1px solid #ddd;
-    box-sizing: border-box;
-    outline: none;
-    transition: all .2s ease;
     background: #fafafa;
+    transition: all .2s ease;
   }
   input[type="text"]:focus, input[type="email"]:focus{
     background:#fff;
@@ -118,6 +116,23 @@
     padding-left:18px;
   }
   .products-list li{ margin:4px 0; }
+
+  .detail-btn {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 18px;
+    background: #c06b3e;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .2s ease;
+  }
+  .detail-btn:hover {
+    background: #a35a34;
+    transform: translateY(-1px);
+  }
 </style>
 
 <div class="track-page">
@@ -146,18 +161,22 @@
           <div class="error-msg">{{ error }}</div>
         {% elif order %}
           <div class="order-summary">
+
             <div class="summary-row">
               <div class="summary-label">Pedido</div>
               <div class="summary-value">#{{ order.id }}</div>
             </div>
+
             <div class="summary-row">
               <div class="summary-label">Fecha</div>
               <div class="summary-value">{{ order.placed_at|date:"d/m/Y H:i" }}</div>
             </div>
+
             <div class="summary-row">
               <div class="summary-label">Dirección</div>
               <div class="summary-value">{{ order.address|default:"-" }}</div>
             </div>
+
             <div class="summary-row">
               <div class="summary-label">Estado</div>
               <div class="summary-value">
@@ -172,6 +191,7 @@
                 {% endif %}
               </div>
             </div>
+
             <div class="summary-row">
               <div class="summary-label">Total</div>
               <div class="summary-value"><strong style="color:#c06b3e;">{{ order.total_price|floatformat:2 }} €</strong></div>
@@ -187,6 +207,11 @@
                 {% endfor %}
               </ul>
             </div>
+
+            <a href="{% url 'order_detail' order.id %}" class="detail-btn">
+              Ver detalle completo del pedido
+            </a>
+
           </div>
         {% endif %}
       {% endif %}

@@ -3,6 +3,11 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.db.models import Prefetch
 from .models import Order, OrderProduct, Status
+from django.core.exceptions import PermissionDenied
+from django.http import Http404
+from django.urls import reverse
+
+
 
 # =======================================================
 # LISTADO DE PEDIDOS - ADMIN
@@ -38,7 +43,6 @@ class OrderListUserView(LoginRequiredMixin, View):
     def get(self, request):
         orders = (
             Order.objects.filter(user=request.user)
-            .exclude(status=Status.EN_PREPARACION)  # carrito / en preparación NO
             .prefetch_related(
                 Prefetch("order_products", queryset=OrderProduct.objects.select_related("product"))
             )
@@ -54,33 +58,72 @@ class OrderTrackView(View):
     template_name = "order/order_track.html"
 
     def get(self, request):
-        # Solo formulario
-        return render(request, self.template_name, {"order": None, "searched": False})
+        # Solo muestra el formulario vacío
+        return render(request, self.template_name, {"searched": False})
 
     def post(self, request):
         order_id = request.POST.get("order_id", "").strip()
         email = request.POST.get("email", "").strip().lower()
 
-        order = None
-        error = None
-
         if not order_id or not email:
-            error = "Debes introducir el número de pedido y el email."
-        else:
-            try:
-                order_pk = int(order_id)
-                order = (
-                    Order.objects.select_related("user")
-                    .prefetch_related(
-                        Prefetch("order_products", queryset=OrderProduct.objects.select_related("product"))
-                    )
-                    .get(pk=order_pk, user__email__iexact=email)
-                )
-            except (ValueError, Order.DoesNotExist):
-                error = "No se ha encontrado ningún pedido con esos datos."
+            return render(
+                request,
+                self.template_name,
+                {
+                    "searched": True,
+                    "error": "Debes introducir el número de pedido y el email.",
+                },
+            )
 
-        return render(
-            request,
-            self.template_name,
-            {"order": order, "searched": True, "error": error},
+        try:
+            order_pk = int(order_id)
+            order = (
+                Order.objects
+                .select_related("user")
+                .prefetch_related(
+                    Prefetch("order_products", queryset=OrderProduct.objects.select_related("product"))
+                )
+                .get(pk=order_pk, user__email__iexact=email)
+            )
+        except (ValueError, Order.DoesNotExist):
+            return render(
+                request,
+                self.template_name,
+                {
+                    "searched": True,
+                    "error": "No se ha encontrado ningún pedido con esos datos.",
+                },
+            )
+
+        return redirect(f"{reverse('order_detail', kwargs={'pk': order.pk})}?from=track")
+
+
+
+class OrderDetailView(View):
+    template_name = "order/order_detail.html"
+
+    def get(self, request, pk):
+        order = (
+            Order.objects
+            .select_related("user")
+            .prefetch_related(
+                Prefetch("order_products", queryset=OrderProduct.objects.select_related("product"))
+            )
+            .filter(pk=pk)
+            .first()
         )
+
+        if not order:
+            raise Http404("Pedido no encontrado")
+
+        # ✅ Permitir anónimos SOLO si vienen del seguimiento
+        if not request.user.is_authenticated:
+            if request.GET.get("from") == "track":
+                return render(request, self.template_name, {"order": order})
+            return redirect("login")
+
+        # 🛡 Permisos normales
+        if request.user.role != "admin" and order.user != request.user:
+            raise PermissionDenied
+
+        return render(request, self.template_name, {"order": order})
