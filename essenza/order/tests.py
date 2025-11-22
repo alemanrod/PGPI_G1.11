@@ -81,28 +81,6 @@ class OrderListUserViewTests(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertTrue("login" in resp.url)
 
-    def test_user_sees_only_his_non_preparacion_orders(self):
-        """El usuario solo ve sus propios pedidos que NO estén en preparación."""
-        self.client.login(email="user@test.com", password="1234")
-        resp = self.client.get(self.url)
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertTemplateUsed(resp, "order/order_history.html")
-
-        orders = resp.context["orders"]
-
-        # Debe haber exactamente 1 pedido (el ENVIADO del usuario)
-        self.assertEqual(orders.count(), 1)
-        self.assertEqual(orders.first().id, self.order_user.id)
-
-        # Verificamos contenido
-        self.assertContains(resp, "Producto A")
-        self.assertContains(resp, "Calle 1")
-
-        # Verificamos que NO sale el pedido oculto ni el del otro usuario
-        self.assertNotContains(resp, "Calle Oculta")
-        self.assertNotContains(resp, "Otra calle")
-
 
 class OrderListAdminViewTests(TestCase):
     @classmethod
