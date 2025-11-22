@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Administrar Usuario · Essenza{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* === ESTILOS DE TU REFERENCIA (Adaptados a bloque) === */
+  
+  /* Definimos las variables en el scope local para asegurar fidelidad */
+  .admin-wrapper {
+    --color-principal: #c06b3e;
+    --color-principal-hover: #a35a34;
+    --color-fondo: #faf7f2;
+    --color-fondo-tarjeta: #fff;
+    --color-texto-base: #333;
+    --color-borde-claro: #eee;
+    --color-error: #b00020;
+    --color-foco-sombra: rgba(192, 107, 62, 0.2);
+    --color-success: #2e7d32; /* Extra para el switch de activo */
+
+    background-color: var(--color-fondo);
+    font-family: "Segoe UI", Arial, sans-serif;
+    /* Ajuste para centrar verticalmente descontando el header */
+    min-height: calc(100vh - 80px); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .brand-admin {
+    color: var(--color-principal);
+    font-size: 48px;
+    margin: 0 0 20px 0;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .form-card {
+    width: min(420px, 88vw);
+    background: var(--color-fondo-tarjeta);
+    border: 2px solid var(--color-principal);
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+    padding: 22px 24px;
+    box-sizing: border-box;
+  }
+
+  /* Inputs y Labels */
+  .admin-wrapper label {
+    display: block;
+    font-size: 13px;
+    color: var(--color-texto-base);
+    margin: 10px 0 6px;
+    font-weight: 600;
+  }
+
+  .admin-wrapper input[type="text"],
+  .admin-wrapper input[type="email"],
+  .admin-wrapper select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-borde-claro);
+    border-radius: 10px;
+    background: #fafafa;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .admin-wrapper input:focus, 
+  .admin-wrapper select:focus {
+    border-color: var(--color-principal);
+    box-shadow: 0 0 0 3px var(--color-foco-sombra);
+    background: #fff;
+  }
+
+  /* Estilos específicos para inputs deshabilitados (como email si se diera el caso) */
+  .admin-wrapper input:disabled {
+    background: #eee;
+    color: #777;
+    cursor: not-allowed;
+  }
+
+  /* --- ZONA ADMIN (Integrada en el diseño) --- */
+  .admin-zone {
+    background-color: #fffcf9; /* Un tono muy sutil */
+    border: 1px dashed var(--color-principal);
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+  }
+  
+  .admin-zone-title {
+    color: var(--color-principal);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  /* Switch para Activo */
+  .switch-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+  }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+  }
+  input:checked + .slider { background-color: var(--color-success); }
+  input:checked + .slider:before { transform: translateX(18px); }
+
+  /* --- Botones --- */
+  .btn-primary {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--color-principal);
+    color: var(--color-fondo-tarjeta);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-principal-hover);
+  }
+
+  .login-link {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 13px;
+  }
+  .login-link a {
+    color: var(--color-principal);
+    text-decoration: underline;
+  }
+
+  /* Foto y Errores */
+  .admin-wrapper input[type="file"] {
+    width: 100%;
+    font-size: 13px;
+    color: #555;
+    margin: 10px 0 15px;
+    padding: 8px;
+    border: 1px solid var(--color-borde-claro);
+    border-radius: 10px;
+    background: #fafafa;
+    box-sizing: border-box;
+  }
+  .admin-wrapper input[type="file"]:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+
+  .form-error { color: var(--color-error); font-size: 13px; margin: 6px 0; }
+  .error-box {
+    background: #fff0f0;
+    border: 2px solid var(--color-error);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-wrapper">
+  
+  <h1 class="brand-admin">ESSENZA ADMIN</h1>
+  
+  <div class="form-card">
+    
+    <h2 style="text-align: center; font-size: 1.1rem; color: #555; margin-top: 0; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+      Gestionando a: <span style="color: #c06b3e; font-weight: 800;">{{ form.instance.username }}</span>
+    </h2>
+
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {% csrf_token %}
+
+      <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+      {{ form.first_name }}
+
+      <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+      {{ form.last_name }}
+
+      <label for="{{ form.email.id_for_label }}">Correo electrónico</label>
+      {{ form.email }}
+
+      <div class="admin-zone">
+        <span class="admin-zone-title">Control de Acceso</span>
+        
+        <label for="{{ form.role.id_for_label }}">Rol</label>
+        {{ form.role }}
+
+        <div class="switch-row">
+            <span style="font-size: 13px; font-weight: 600; color: #444;">Cuenta Activa</span>
+            <label class="switch">
+                {{ form.is_active }}
+                <span class="slider"></span>
+            </label>
+        </div>
+      </div>
+
+      <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
+      {{ form.photo }} 
+      
+      {% if not form.remove_photo.is_hidden and form.instance.photo %}
+        <div style="margin-bottom: 15px">
+          {{ form.remove_photo }}
+          <label for="{{ form.remove_photo.id_for_label }}" style="display: inline; color: #b00020; margin-left: 5px;">
+            {{ form.remove_photo.label }}
+          </label>
+        </div>
+      {% endif %} 
+      
+      {% if form.errors %}
+      <div class="error-box">
+        <p style="color: #b00020; margin-top: 0; font-weight: bold;">
+          ¡El formulario tiene errores!
+        </p>
+        {% for field in form %} {% if field.errors %}
+        <div class="form-error">
+          <strong>{{ field.label }}:</strong>
+          <ul>
+            {% for error in field.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% endif %} {% endfor %} {% for error in form.non_field_errors %}
+        <div class="form-error">
+          <strong>Error general:</strong> {{ error }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <button type="submit" class="btn-primary">Guardar Cambios</button>
+
+      <p class="login-link">
+        <a href="{% url 'user_list' %}">← Volver al listado de usuarios</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const fileInput = document.getElementById("{{ form.photo.id_for_label }}");
+    const removeCheckbox = document.getElementById("{{ form.remove_photo.id_for_label }}");
+
+    if (fileInput && removeCheckbox) {
+      // Lógica inicial
+      if (removeCheckbox.checked) { fileInput.disabled = true; }
+
+      // Listener
+      removeCheckbox.addEventListener("change", function() {
+        fileInput.disabled = this.checked;
+      });
+    }
+  });
+</script>
+{% endblock %}

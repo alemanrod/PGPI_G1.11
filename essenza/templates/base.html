@@ -513,21 +513,20 @@
       <a href="{% url 'info-home' %}" class="info-button" title="Información">i</a>
       <a href="{% url 'dashboard' %}" class="brand">ESSENZA</a>
       <nav class="nav-links" aria-label="Navegación principal">
-        {% if not user.is_staff and not user.is_superuser %}
-          <a href="{% url 'dashboard' %}">Escaparate</a>
-          <a href="{% url 'catalog' %}">Catalogo</a>
-          {% if user.is_authenticated %}
-            <a href="{% url 'order_history' %}">Mis Pedidos</a>
-          {% else %}
-            <a href="{% url 'order_search' %}">Localiza tu envío</a>
-          {% endif  %}
-        {% endif %} {% if user.is_staff or user.is_superuser %}
+        {% if user.is_authenticated and user.role == 'admin'%}
           <a href="{% url 'stock' %}">Stock</a>
           <a href="{% url 'product_list' %}">Productos</a>
           <a href="{% url 'order_list_admin' %}">Pedidos</a>
-          <!-- LA SIGUIENTE LINEA ES PROVISIONAL -->
-          <a href="#">Usuarios</a>
+          <a href="{% url 'user_list' %}">Usuarios</a>
+        {% else %}
+          <a href="{% url 'dashboard' %}">Escaparate</a>
+          <a href="{% url 'catalog' %}">Catalogo</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'order_history' %}">Mis Pedidos</a>
+          {% else %}
+          <a href="{% url 'order_search' %}">Localiza tu envío</a>
         {% endif %}
+        {% endif  %}
       </nav>
     </div>
 
