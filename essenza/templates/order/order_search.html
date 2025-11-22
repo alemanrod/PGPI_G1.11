@@ -144,22 +144,31 @@
       </div>
 
       <form method="post">
-            {% csrf_token %}
-            
-            <div class="form-group">
-                <label for="order_tracking_code">Número de localizador</label>
-                <input type="text" id="order_tracking_code" name="tracking_code" 
-                       placeholder="Ej: H5E7V0SA9" 
-                       value="{{ request.POST.order_tracking_code }}" required>
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label for="tracking_code">Número de localizador</label>
+          <input type="text" id="tracking_code" name="tracking_code" 
+            placeholder="Ej: H5E7V0SA9" 
+            value="{{ tracking_code }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email del pedido</label>
+          <input type="email" id="email" name="email" 
+            placeholder="tucorreo@ejemplo.com" 
+            value="{{ email }}" required>
+        </div>
+        
+        <button type="submit" class="btn-track">Buscar pedido</button>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div style="color: #9e0000; background: #f5e4e4; padding: 10px; border-radius: 8px; margin-top: 20px; font-size: 0.9rem;">
+              {{ message }}
             </div>
-            
-            <div class="form-group">
-                <label for="email">Email del pedido</label>
-                <input type="email" id="email" name="email" 
-                       placeholder="tucorreo@ejemplo.com" 
-                       value="{{ request.POST.email }}" required>
-            </div>
-            
-            <button type="submit" class="btn-track">Buscar pedido</button>
-        </form>
+          {% endfor %}
+        {% endif %}
+
+      </form>
 {% endblock %}

@@ -88,7 +88,7 @@ class OrderHistoryView(LoginRequiredMixin, View):
 
 
 # =======================================================
-# SEGUIMIENTO SIN LOGIN
+# BUSQUEDA DE PEDIDO
 # =======================================================
 class OrderSearchView(View):
     template_name = "order/order_search.html"
@@ -98,10 +98,11 @@ class OrderSearchView(View):
         return render(request, self.template_name, {"searched": False})
 
     def post(self, request):
-        order_tracking_code = request.POST.get(
-            "tracking_code", ""
-        ).strip()  # Nombre del input corregido a 'tracking_code'
+        order_tracking_code = request.POST.get("tracking_code", "").strip()
         email = request.POST.get("email", "").strip().lower()
+
+        order = None
+        error = None
 
         if not order_tracking_code or not email:
             error = "Debes introducir el número de pedido y el email."
@@ -121,14 +122,23 @@ class OrderSearchView(View):
                 error = "No se ha encontrado ningún pedido con esos datos."
 
         # Si encontramos el pedido, podemos redirigir a la vista de detalle bonita que ya tienes
-        if order_tracking_code:
+        if order:
             return redirect("order_tracking", tracking_code=order_tracking_code)
 
         # Si hubo error, volvemos a mostrar el formulario con el mensaje
         messages.error(request, error)
-        return render(request, self.template_name, {"order": None, "searched": True})
+        context = {
+            "order": None,
+            "searched": True,
+            "tracking_code": order_tracking_code,
+            "email": email,
+        }
+        return render(request, self.template_name, context)
 
 
+# =======================================================
+# SEGUIMIENTO ENVÍO
+# =======================================================
 class OrderTrackingView(View):
     def get(self, request, tracking_code):
         # Buscamos el pedido por su código único
@@ -163,11 +173,6 @@ class OrderUpdateStatusView(LoginRequiredMixin, View):
         if new_status in valid_statuses:
             order.status = new_status
             order.save()
-            messages.success(
-                request, f"Estado actualizado a: {order.get_status_display()}"
-            )
-        else:
-            messages.error(request, "Estado no válido.")
 
         # Redirigimos a la misma página de tracking para ver el cambio
         return redirect("order_tracking", tracking_code=order.tracking_code)
@@ -197,7 +202,6 @@ def create_checkout(request):
     else:
         cart_session = request.session.get("cart_session", {})
         if not cart_session:
-            messages.error(request, "Tu carrito está vacío.")
             return redirect("cart_detail")
 
         product_pks = [int(pk) for pk in cart_session.keys()]
@@ -346,7 +350,7 @@ def successful_payment(request):
 
                 # Mensaje simple en texto plano
                 message = f"""
-                Hola,
+                Hola!
 
                 Gracias por tu compra en Essenza.
                 Tu pedido ha sido confirmado y se está preparando.

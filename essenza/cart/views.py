@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from product.models import Product
@@ -72,7 +71,6 @@ class AddToCartView(View):
         product = get_object_or_404(Product, pk=product_id)
 
         if product.stock <= 0:
-            messages.error(request, f"Lo sentimos, '{product.name}' está agotado.")
             return redirect("catalog")
 
         try:

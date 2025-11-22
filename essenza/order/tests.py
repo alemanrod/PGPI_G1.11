@@ -132,7 +132,7 @@ class OrderListAdminViewTests(TestCase):
         try:
             self.url = reverse("order_list_admin")
         except Exception:
-            self.url = "/order/admin/list/"
+            self.url = "/order/list/"
 
     def test_anonymous_redirects_to_login(self):
         resp = self.client.get(self.url)
@@ -205,9 +205,9 @@ class OrderTrackViewTests(TestCase):
     def test_track_post_invalid_shows_error(self):
         """POST con datos incorrectos muestra error en la misma página."""
         data = {
-            "tracking_code": "9999",  # Código falso
+            "tracking_code": "wrong",  # Código falso
             "email": "track@test.com",
         }
         resp = self.client.post(self.url_search, data)
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.context["searched"])  # Indica que se intentó buscar

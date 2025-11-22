@@ -173,7 +173,7 @@
       font-size: 12px;
     }
     .product-stock {
-      margin-top: 8px;
+      margin-top: 12px;
       font-weight: 600;
       font-size: 14px;
     }
@@ -181,42 +181,40 @@
   </head>
 
   <body>
-
-    {% if products|length > 1 %}
-    <div class="showcase-title">
-      <h2>Top Bestsellers</h2>
-      <p>Una cuidada selección de los productos estrella de la temporada.</p>
-    </div>
+    
+    {% if products %}
+      <div class="showcase-title">
+        <h2>Top Bestsellers</h2>
+        <p>Una cuidada selección de los productos estrella de la temporada.</p>
+      </div>
     {% endif %}
 
     <main>
       {% if products %} {% for p in products %}
-      <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
-        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
-
-        {% if p.photo %}
-        <img src="{{ p.photo.url }}" />
-        {% else %}
-        <img src="{% static 'images/default_product.png' %}" />
-        {% endif %}
-
-        <div class="product-info">
-          <div class="product-name">{{ p.name }}</div>
-          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
-          <span class="category-tag">{{ p.get_category_display }}</span>
-          <div class="product-stock">
-            {% if p.stock == 0 %}
-            <span style="color: #dc3545">¡Producto agotado!</span>
-            {% endif %} {% if p.stock < 10 and p.stock > 0 %}
-            <span style="color: #fd7e14">¡Últimas unidades!</span>
-            {% endif %}
+        <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
+          <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
+          {% if p.photo %}
+            <img src="{{ p.photo.url }}" />
+          {% else %}
+            <img src="{% static 'images/default_product.png' %}" />
+          {% endif %}
+          <div class="product-info">
+            <div class="product-name">{{ p.name }}</div>
+            <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+            <span class="category-tag">{{ p.get_category_display }}</span>
+            <div class="product-stock">
+              {% if p.stock == 0 %}
+                <span style="color: #dc3545">Producto agotado</span>
+              {% endif %} {% if p.stock < 10 and p.stock > 0 %}
+                <span style="color: #fd7e14">¡Últimas unidades!</span>
+              {% endif %}
+            </div>
           </div>
         </div>
-      </div>
       {% endfor %} {% else %}
-      <p style="text-align: center; grid-column: 1 / -1; color: #555">
-        No hay productos disponibles en este momento.
-      </p>
+        <p style="text-align: center; grid-column: 1 / -1; color: #555">
+          No hay productos disponibles en este momento.
+        </p>
       {% endif %}
     </main>
 

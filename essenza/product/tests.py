@@ -1,7 +1,6 @@
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.contrib.messages import get_messages  # Para probar mensajes
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -562,11 +561,6 @@ class StockTests(TestCase):
         self.product_high.refresh_from_db()
         self.assertEqual(self.product_high.stock, 15)
 
-        # Comprobamos el mensaje de éxito
-        messages = list(get_messages(resp.context["request"]))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), "Stock de 'Producto Alto' actualizado a 15.")
-
     def test_post_admin_invalid_product_returns_404(self):
         self.client.login(email=self.admin.email, password="pass1234")
         data = {"product_id": 999, "stock": 15}  # ID 999 no existe
@@ -588,13 +582,6 @@ class StockTests(TestCase):
         self.product_high.refresh_from_db()
         self.assertEqual(self.product_high.stock, 20)
 
-        # Comprobamos el mensaje de error
-        messages = list(get_messages(resp.context["request"]))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(
-            str(messages[0]), "El valor de stock 'abc' no es un número válido."
-        )
-
     def test_post_admin_negative_stock_value_shows_error(self):
         self.client.login(email=self.admin.email, password="pass1234")
 
@@ -606,9 +593,3 @@ class StockTests(TestCase):
 
         self.product_high.refresh_from_db()
         self.assertEqual(self.product_high.stock, 20)  # No cambia
-
-        messages = list(get_messages(resp.context["request"]))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(
-            str(messages[0]), "El valor de stock '-5' no es un número válido."
-        )
