@@ -449,7 +449,7 @@
           cards.forEach(c => {
             const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
             const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
-            c.style.display = (matchCat && matchBrand) ? 'flex' : 'none';
+            c.style.display = (matchCat && matchBrand) ? '' : 'none';
           });
         }
       })();
