@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %} 
 
-{% block title %}Mi Carrito - Essenza{% endblock %}
+{% block title %}Mi Carrito · Essenza{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -231,17 +231,21 @@
                 {% endfor %}
             </div>
 
-            <div class="cart-summary">
-                <div class="total-price-display">
-                    TOTAL: <span>{{ total_price|floatformat:2|intcomma }} €</span>
-                </div>
+        <div class="cart-summary">
+            <div class="total-price-display">
+                TOTAL: <span>{{ total_price|floatformat:2|intcomma }} €</span>
             </div>
-
+            <div>
+                <a href="{% url 'create_checkout' %}" class="btn-checkout">
+                    Pagar Ahora
+                </a>
+            </div>
+        </div>
         {% else %}
-            <div class="empty-cart">
-                <h2>Tu carrito está vacío</h2>
-                <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
-            </div>
+        <div class="empty-cart">
+            <h2>Tu carrito está vacío</h2>
+            <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
+        </div>
         {% endif %}
     </div>
 </div>

@@ -154,13 +154,6 @@
     color: #999;
     font-size: 16px;
   }
-  .footer {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
-    color: #666;
-  }
 
   /* Header/profile/dropdown styles intentionally omitted here so
          the global header in base.html keeps its styles unchanged. */
@@ -186,30 +179,6 @@
         <div class="dropdown-menu" id="categoryMenuList">
           <div class="dropdown-item selected" data-value="all">
             <span>Todas las categorías</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="maquillaje">
-            <span>Maquillaje</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="tratamiento">
-            <span>Tratamiento</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="cabello">
-            <span>Cabello</span>
-            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-          </div>
-          <div class="dropdown-item" data-value="perfume">
-            <span>Perfume</span>
             <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
@@ -269,9 +238,9 @@
           </div>
           <div class="product-stock">
             {% if product.stock == 0 %}
-            <span style="color: #dc3545">¡Producto agotado!</span>
+              <span style="color: #dc3545">Producto agotado</span>
             {% endif %} {% if product.stock < 10 and product.stock > 0 %}
-            <span style="color: #fd7e14">¡Últimas unidades!</span>
+            <span style="color: #fd7e14">Últimas unidades</span>
             {% endif %}
           </div>
         </div>
@@ -314,6 +283,30 @@
           categoryMenu.classList.remove('show');
           brandMenu.classList.remove('show');
         });
+
+        // Poblar categorías dinámicamente
+        function populateCategories() {
+          const categories = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.category || '').trim();
+            if (b) categories.add(b);
+          });
+
+          const sortedCategories = Array.from(categories).sort();
+          sortedCategories.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            categoryMenu.appendChild(item);
+          });
+        }
+        populateCategories();
 
         // Poblar marcas dinámicamente
         function populateBrands() {
@@ -378,16 +371,6 @@
         }
       })();
     </script>
-    <div class="footer">
-      <p>
-        <a
-          href="#"
-          onclick="history.back(); return false;"
-          style="color: #c06b3e; text-decoration: none"
-          >← Volver</a
-        >
-      </p>
-    </div>
   </div>
 </div>
 {% endblock %}

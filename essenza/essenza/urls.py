@@ -15,7 +15,6 @@ urlpatterns = [
     path("catalog/<int:pk>/", CatalogDetailView.as_view(), name="catalog_detail"),
     path("cart/", include("cart.urls")),
     path("order/", include("order.urls")),
-
 ]
 
 if settings.DEBUG:

@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from product.models import Product
@@ -10,7 +9,7 @@ class CartDetailView(View):
     """
     Muestra el carrito.
     - Si es usuario logueado: Lee de la base de datos
-    - Si es anónimo: Lee de la sesión.
+    - Si es anónimo: Lee de la sesión
     """
 
     template_name = "cart/cart_detail.html"
@@ -72,7 +71,6 @@ class AddToCartView(View):
         product = get_object_or_404(Product, pk=product_id)
 
         if product.stock <= 0:
-            messages.error(request, f"Lo sentimos, '{product.name}' está agotado.")
             return redirect("catalog")
 
         try:
@@ -102,11 +100,6 @@ class AddToCartView(View):
                 else:
                     cart_product.quantity += quantity
                 cart_product.save()
-                msg = f"Se ha añadido otra unidad de {product.name}."
-            else:
-                msg = f"{product.name} añadido al carrito."
-
-            messages.success(request, msg)
 
         # Si el usuario no está logueado, guardamos en sesión
         else:
@@ -119,17 +112,14 @@ class AddToCartView(View):
                     return redirect("cart_detail")
                 else:
                     cart_session[product_id_str]["quantity"] += quantity
-                msg = f"Se ha añadido otra unidad de {product.name}."
             else:
                 cart_session[product_id_str] = {
                     "quantity": quantity,
                     "price": str(product.price),
                 }
-                msg = f"{product.name} añadido al carrito."
 
             request.session["cart_session"] = cart_session
             request.session.modified = True
-            messages.success(request, msg)
 
         return redirect("cart_detail")
 

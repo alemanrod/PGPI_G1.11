@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
@@ -22,7 +21,7 @@ class DashboardView(UserPassesTestMixin, View):
         return (
             not self.request.user.is_authenticated or self.request.user.role != "admin"
         )
-    
+
     def handle_no_permission(self):
         return redirect("stock")
 
@@ -98,14 +97,9 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
             product.stock = new_stock
             product.save(update_fields=["stock"])
-            messages.success(
-                request, f"Stock de '{product.name}' actualizado a {new_stock}."
-            )
 
         except (ValueError, TypeError):
-            messages.error(
-                request, f"El valor de stock '{stock_value}' no es un número válido."
-            )
+            pass
 
         # Recarga la misma página
         return redirect("stock")

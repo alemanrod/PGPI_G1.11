@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Seguimiento #{{ order.tracking_code }} · Essenza{% endblock %}
+
+{% block extra_head %}
+<style>
+    body {
+        background-color: #faf7f2;
+    }
+    
+    .tracking-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* --- CABECERA Y ESTADO --- */
+    .tracking-header {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .tracking-title {
+        color: #c06b3e;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+        font-weight: 700;
+    }
+
+    .tracking-code {
+        font-size: 1.2rem;
+        color: #666;
+        letter-spacing: 2px;
+        font-weight: 600;
+        margin-bottom: 30px;
+    }
+
+    /* --- BARRA DE PROGRESO --- */
+    .progress-track {
+        display: flex;
+        justify-content: space-between;
+        position: relative;
+        margin: 40px 0 20px;
+        padding: 0 20px;
+    }
+
+    /* Línea de fondo */
+    .progress-track::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 30px;
+        right: 40px;
+        height: 4px;
+        background: #eee;
+        z-index: 0;
+    }
+
+    .step {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        width: 33.33%;
+    }
+
+    .step-circle {
+        width: 34px;
+        height: 34px;
+        background: white;
+        border: 3px solid #eee;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #999;
+        transition: all 0.3s ease;
+    }
+
+    .step-label {
+        font-size: 0.9rem;
+        color: #999;
+        font-weight: 500;
+    }
+
+    /* Estados Activos */
+    .step.active .step-circle {
+        background: #c06b3e;
+        border-color: #c06b3e;
+        color: white;
+        box-shadow: 0 0 0 4px rgba(192, 107, 62, 0.2);
+    }
+
+    .step.active .step-label {
+        color: #c06b3e;
+        font-weight: 700;
+    }
+
+    /* Línea de progreso coloreada */
+    .step.active::after {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: -42%;
+        width: 98%;
+        height: 4px;
+        background: #c06b3e;
+        z-index: -1;
+    }
+    .step:first-child.active::after { display: none; }
+
+    /* ESTILOS BOTONES ADMIN */
+    .admin-step-form {
+        display: inline;
+        width: 100%;
+    }
+    .admin-step-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        width: 100%;
+        cursor: pointer; /* Manita al pasar por encima */
+    }
+    .admin-step-btn:hover .step-circle {
+        transform: scale(1.1); /* Pequeño efecto zoom para admins */
+        border-color: #c06b3e;
+    }
+    .admin-hint {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.7rem;
+        color: #c06b3e;
+        text-transform: uppercase;
+        font-weight: 700;
+    }
+
+
+    /* --- DETALLES DEL PEDIDO (GENERAL) --- */
+    .order-details-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        padding: 30px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 10px;
+        font-weight: 600;
+    }
+
+    /* --- GRID DE INFORMACIÓN (Dirección, etc) --- */
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 40px;
+        background-color: #fafafa; /* Fondo sutil para diferenciarlo */
+        padding: 20px;
+        border-radius: 8px;
+    }
+
+    .info-item strong {
+        display: block;
+        color: #888;
+        font-size: 0.75rem;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .info-item span {
+        color: #333;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: block;
+        line-height: 1.4;
+    }
+
+    /* --- NUEVO ESTILO DE LISTA DE PRODUCTOS --- */
+
+    .product-item {
+        display: flex;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .product-item:last-child {
+        border-bottom: none;
+    }
+
+    /* Imagen del producto */
+    .product-img-wrapper {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #eee;
+        margin-right: 15px;
+        flex-shrink: 0;
+    }
+    .product-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Info del producto */
+    .product-info-wrapper {
+        flex-grow: 1;
+    }
+    .product-name {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+        margin-bottom: 4px;
+    }
+    .product-meta {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    /* Precio del producto */
+    .product-price-wrapper {
+        font-weight: 700;
+        color: #333;
+        font-size: 1.1rem;
+        margin-left: 15px;
+        text-align: right;
+    }
+
+    /* Total final */
+    .order-total-container {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 2px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 20px;
+    }
+    .total-label {
+        font-size: 1.1rem;
+        color: #666;
+    }
+    .order-total-price {
+        font-size: 1.5rem;
+        color: #c06b3e;
+        font-weight: 800;
+    }
+
+    .btn-back {
+        display: inline-block;
+        margin-top: 30px;
+        color: #666;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+    .btn-back:hover { color: #c06b3e; }
+
+    @media (max-width: 600px) {
+        .info-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="tracking-container">
+    
+    <!-- TARJETA DE ESTADO -->
+    <div class="tracking-header">
+        <div class="tracking-title">Estado de tu Pedido</div>
+        <div class="tracking-code">LOCALIZADOR: {{ order.tracking_code }}</div>
+        
+        <!-- Mensajes de éxito al cambiar estado -->
+        {% if messages %}
+            {% for message in messages %}
+                <div style="color: #2e7d32; background: #e8f5e9; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.9rem;">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="progress-track">
+            
+            {% if user.is_authenticated and user.role == 'admin' %}
+                <!-- ============================== -->
+                <!-- MODO ADMIN -->
+                <!-- ============================== -->
+                
+                <!-- Paso 1: Preparación -->
+                <div class="step active"> <!-- Siempre activo visualmente el primero -->
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="en_preparacion">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a En Preparación">
+                            <div class="step-circle"><i class="fas fa-box-open"></i></div>
+                            <div class="step-label">En Preparación</div>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Paso 2: Enviado -->
+                <div class="step {% if order.status == 'enviado' or order.status == 'entregado' %}active{% endif %}">
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="enviado">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a Enviado">
+                            <div class="step-circle"><i class="fas fa-shipping-fast"></i></div>
+                            <div class="step-label">Enviado</div>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Paso 3: Entregado -->
+                <div class="step {% if order.status == 'entregado' %}active{% endif %}">
+                    <form method="POST" action="{% url 'order_update_status' order.tracking_code %}" class="admin-step-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="status" value="entregado">
+                        <button type="submit" class="admin-step-btn" title="Cambiar a Entregado">
+                            <div class="step-circle"><i class="fas fa-check"></i></div>
+                            <div class="step-label">Entregado</div>
+                        </button>
+                    </form>
+                </div>
+
+            {% else %}
+                <!-- ============================== -->
+                <!-- MODO USUARIO (VISUALIZACIÓN) -->
+                <!-- ============================== -->
+
+                <!-- Paso 1: Preparación -->
+                <div class="step active">
+                    <div class="step-circle"><i class="fas fa-box-open"></i></div>
+                    <div class="step-label">En Preparación</div>
+                </div>
+
+                <!-- Paso 2: Enviado -->
+                <div class="step {% if order.status == 'enviado' or order.status == 'entregado' %}active{% endif %}">
+                    <div class="step-circle"><i class="fas fa-shipping-fast"></i></div>
+                    <div class="step-label">Enviado</div>
+                </div>
+
+                <!-- Paso 3: Entregado -->
+                <div class="step {% if order.status == 'entregado' %}active{% endif %}">
+                    <div class="step-circle"><i class="fas fa-check"></i></div>
+                    <div class="step-label">Entregado</div>
+                </div>
+            {% endif %}
+
+        </div>
+        
+        {% if user.is_authenticated and user.role == 'admin' %}
+            <div class="admin-hint">Modo Admin: Haz clic en un icono para cambiar el estado</div>
+        {% endif %}
+    </div>
+
+    <!-- TARJETA DE DETALLES -->
+    <div class="order-details-card">
+        <div class="section-title">Detalles del Envío</div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <strong>Dirección de Entrega</strong>
+                <span>{{ order.address }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Fecha del Pedido</strong>
+                <span>{{ order.placed_at|date:"d F Y, H:i" }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Email de Contacto</strong>
+                <span>{{ order.email }}</span>
+            </div>
+            <div class="info-item">
+                <strong>Estado Actual</strong>
+                <span style="text-transform: uppercase; color: #c06b3e;">{{ order.get_status_display }}</span>
+            </div>
+        </div>
+
+        <div class="section-title">Resumen de Compra</div>
+        
+        <div class="product-list">
+            {% for item in order.order_products.all %}
+            <div class="product-item">
+                <!-- Imagen del Producto -->
+                <div class="product-img-wrapper">
+                    {% if item.product.photo %}
+                        <img src="{{ item.product.photo.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                        <!-- Placeholder por si no hay imagen -->
+                        <img src="{% static 'images/default_photo.png' %}" alt="Sin imagen">
+                    {% endif %}
+                </div>
+
+                <!-- Información (Nombre y Cantidad) -->
+                <div class="product-info-wrapper">
+                    <div class="product-name">{{ item.product.name }}</div>
+                    <div class="product-meta">Cantidad: {{ item.quantity }} unidad(es)</div>
+                </div>
+
+                <!-- Precio Subtotal -->
+                <div class="product-price-wrapper">
+                    {{ item.subtotal|floatformat:2 }} €
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Total Final -->
+        <div class="order-total-container">
+            <span class="total-label">TOTAL PAGADO:</span>
+            <span class="order-total-price">{{ order.total_price|floatformat:2 }} €</span>
+        </div>
+    </div>
+
+    <div style="text-align: center;">
+        <a href="#" onclick="history.back(); return false;" class="btn-back">← Volver</a>
+    </div>
+
+</div>
+
+<!-- FontAwesome para los iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
