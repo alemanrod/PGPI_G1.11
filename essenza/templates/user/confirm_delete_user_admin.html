@@ -1,0 +1,151 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Eliminar Usuario · Essenza Admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      /* === ESTILOS GLOBALES (Porque ya no hay base.html) === */
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background-color: #faf7f2; /* Color de fondo base */
+      }
+
+      /* === ESTILO DE ALERTA ROJA === */
+      .danger-wrapper {
+        --color-principal: #c06b3e;
+        --color-fondo: #faf7f2;
+        --color-fondo-tarjeta: #fff;
+        --color-error: #b00020;
+        --color-error-hover: #8e0019;
+        --color-texto-base: #333;
+
+        background-color: var(--color-fondo);
+        min-height: 100dvh; /* Ocupa toda la pantalla */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+
+      .brand-danger {
+        color: var(--color-error); /* Marca en rojo */
+        font-size: 48px;
+        margin: 0 0 20px 0;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .form-card {
+        width: min(450px, 90vw);
+        background: var(--color-fondo-tarjeta);
+        border: 3px solid var(--color-error); /* Borde Rojo Grueso */
+        border-radius: 16px;
+        box-shadow: 0 12px 28px rgba(176, 0, 32, 0.1);
+        padding: 30px;
+        box-sizing: border-box;
+        text-align: center;
+      }
+
+      h2 {
+        color: var(--color-error);
+        margin-top: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+      }
+
+      .warning-text {
+        color: var(--color-texto-base);
+        font-size: 16px;
+        line-height: 1.5;
+        margin: 20px 0;
+      }
+
+      .user-preview {
+        background: #fff5f5;
+        border: 1px dashed var(--color-error);
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        color: #555;
+        font-weight: 600;
+      }
+      .user-preview span {
+        display: block;
+        color: #000;
+        font-size: 1.1rem;
+        margin-top: 5px;
+      }
+
+      /* Botón de peligro */
+      .btn-danger {
+        width: 100%;
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--color-error);
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-weight: 700;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .btn-danger:hover {
+        background-color: var(--color-error-hover);
+      }
+
+      .cancel-link {
+        margin-top: 20px;
+        display: block;
+        font-size: 14px;
+      }
+      .cancel-link a {
+        color: #666;
+        text-decoration: none;
+        font-weight: 600;
+      }
+      .cancel-link a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="danger-wrapper">
+      
+      <h1 class="brand-danger">ATENCIÓN</h1>
+      
+      <div class="form-card">
+        <h2>Eliminar Usuario</h2>
+        
+        <p class="warning-text">
+          Estás a punto de eliminar permanentemente la siguiente cuenta.
+          <br>
+          <strong>Esta acción borrará todos sus pedidos y datos asociados.</strong>
+        </p>
+
+        <div class="user-preview">
+            Usuario:
+            <span>{{ object.email }}</span>
+            <small style="font-weight: normal; font-size: 0.8rem;">({{ object.first_name }} {{ object.last_name }})</small>
+        </div>
+
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn-danger">
+            CONFIRMAR ELIMINACIÓN
+          </button>
+        </form>
+
+        <p class="cancel-link">
+          <a href="{% url 'user_list' %}">Cancelar y volver (No hacer nada)</a>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
