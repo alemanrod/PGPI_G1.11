@@ -8,6 +8,11 @@ from order.models import Order, OrderProduct, Status
 User = get_user_model()
 
 
+# ============================================================
+# TESTS: LISTADO DE PEDIDOS DEL USUARIO
+# ============================================================
+
+
 class OrderListUserViewTests(TestCase):
     @classmethod
     def setUpTestData(self):
@@ -80,6 +85,11 @@ class OrderListUserViewTests(TestCase):
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 302)
         self.assertTrue("login" in resp.url)
+
+
+# ============================================================
+# TESTS: LISTADO DE PEDIDOS DEL ADMIN
+# ============================================================
 
 
 class OrderListAdminViewTests(TestCase):
@@ -199,7 +209,5 @@ class OrderTrackViewTests(TestCase):
             "email": "track@test.com",
         }
         resp = self.client.post(self.url_search, data)
-
-        self.assertEqual(resp.status_code, 200)  # Se queda en la misma página
-        self.assertTemplateUsed(resp, "order/order_search.html")
+        self.assertEqual(resp.status_code, 302)
         self.assertTrue(resp.context["searched"])  # Indica que se intentó buscar

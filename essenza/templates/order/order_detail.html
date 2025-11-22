@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Pedido #{{ order.id }} · Essenza{% endblock %}
+
+{% block content %}
+<style>
+.order-container {
+    max-width: 900px;
+    background: white;
+    margin: 30px auto;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+.order-header {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+}
+.order-header h1 {
+    font-size: 28px;
+    color: #c06b3e;
+    margin: 0;
+}
+.order-info p {
+    margin: 6px 0;
+    font-size: 15px;
+}
+.products {
+    margin-top: 20px;
+}
+.product-item {
+    display: flex;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0e0d0;
+}
+.product-item img {
+    width: 90px;
+    height: 90px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+.product-name {
+    font-weight: 600;
+}
+.total-box {
+    text-align: right;
+    margin-top: 25px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #c06b3e;
+}
+.btn-back {
+    display: inline-block;
+    margin-top: 25px;
+    background: #c06b3e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+}
+.btn-back:hover {
+    background: #a3552d;
+}
+</style>
+
+<div class="order-container">
+
+    <div class="order-header">
+        <h1>Pedido #{{ order.id }}</h1>
+    </div>
+
+    <div class="order-info">
+        <p><strong>Estado:</strong> {{ order.get_status_display }}</p>
+        <p><strong>Fecha:</strong> {{ order.placed_at|date:"d/m/Y H:i" }}</p>
+        <p><strong>Dirección:</strong> {{ order.address|default:"Sin dirección" }}</p>
+    </div>
+
+    <h3 style="margin-top: 25px; color:#c06b3e;">Productos</h3>
+
+    <div class="products">
+        {% for op in order.order_products.all %}
+        <div class="product-item">
+            {% if op.product.photo %}
+            <img src="{{ op.product.photo.url }}" alt="{{ op.product.name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/90" alt="No image">
+            {% endif %}
+
+            <div>
+                <p class="product-name">{{ op.product.name }}</p>
+                <p>Cantidad: {{ op.quantity }}</p>
+                <p>Precio: {{ op.product.price }} €</p>
+                <p><strong>Subtotal: {{ op.subtotal }} €</strong></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="total-box">
+        Total: {{ order.total_price }} €
+    </div>
+
+    <a href="{{ back_url }}" class="btn-back">← Volver</a>
+
+
+</div>
+
+{% endblock %}

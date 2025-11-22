@@ -94,17 +94,14 @@ class OrderSearchView(View):
     template_name = "order/order_search.html"
 
     def get(self, request):
-        # Solo formulario
-        return render(request, self.template_name, {"order": None, "searched": False})
+        # Solo muestra el formulario vacío
+        return render(request, self.template_name, {"searched": False})
 
     def post(self, request):
         order_tracking_code = request.POST.get(
             "tracking_code", ""
         ).strip()  # Nombre del input corregido a 'tracking_code'
         email = request.POST.get("email", "").strip().lower()
-
-        order = None
-        error = None
 
         if not order_tracking_code or not email:
             error = "Debes introducir el número de pedido y el email."
@@ -124,8 +121,8 @@ class OrderSearchView(View):
                 error = "No se ha encontrado ningún pedido con esos datos."
 
         # Si encontramos el pedido, podemos redirigir a la vista de detalle bonita que ya tienes
-        if order:
-            return redirect("order_tracking", tracking_code=order.tracking_code)
+        if order_tracking_code:
+            return redirect("order_tracking", tracking_code=order_tracking_code)
 
         # Si hubo error, volvemos a mostrar el formulario con el mensaje
         messages.error(request, error)
