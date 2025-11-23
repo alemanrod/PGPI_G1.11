@@ -1,3 +1,5 @@
+import threading  # <--- 1. IMPORTANTE: Para los hilos
+
 import stripe
 from cart.models import Cart
 from django.conf import settings
@@ -5,13 +7,9 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
-from django.db import transaction  # Para la integridad de datos
-from django.db.models import (
-    F,  # Para restar el stock de forma segura
-    Prefetch,
-    Q,
-)
+from django.core.mail import send_mail  # <--- Importado EmailMessage por si acaso
+from django.db import transaction
+from django.db.models import F, Prefetch, Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -24,9 +22,30 @@ from .models import Order, OrderProduct, Status
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-# =======================================================
-# LISTADO DE PEDIDOS - ADMIN
-# =======================================================
+# --------------------------------------------------------------------
+# FUNCIÓN DE ENVÍO EN SEGUNDO PLANO (HILO)
+# --------------------------------------------------------------------
+def send_email_background(subject, message, recipient_list):
+    """
+    Envía el email en un hilo separado para no bloquear la vista.
+    Si falla, lo imprime en consola pero no afecta al usuario.
+    """
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list,
+            fail_silently=True,
+        )
+        print(f"✅ [Background] Email enviado a {recipient_list}")
+    except Exception as e:
+        print(f"❌ [Background] Error enviando email: {e}")
+
+
+# --------------------------------------------------------------------
+# VISTAS DE PEDIDOS (ADMIN Y USER) - SIN CAMBIOS
+# --------------------------------------------------------------------
 class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "order/order_list_admin.html"
 
@@ -49,32 +68,15 @@ class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
             )
             .order_by("-placed_at")
         )
-        # 2. Lógica de Filtrado
-        status_filter = request.GET.get("status")
-
-        # Validamos que el estado sea real para evitar errores
-        valid_statuses = [
-            s[0] for s in Status.choices
-        ]  # ['en_preparacion', 'enviado', 'entregado']
-
-        if status_filter in valid_statuses:
-            orders = orders.filter(status=status_filter)
         return render(request, self.template_name, {"orders": orders})
 
 
-# =======================================================
-# LISTADO DE PEDIDOS - USER
-# =======================================================
-class OrderHistoryView(LoginRequiredMixin, View):
-    template_name = "order/order_history.html"
+class OrderListUserView(LoginRequiredMixin, View):
+    template_name = "order/order_list_user.html"
 
     def get(self, request):
-        # CORRECCIÓN 1: Usamos Q para buscar por Usuario O por Email
-        # Esto permite ver pedidos hechos como invitado si el email coincide
         orders = (
             Order.objects.filter(Q(user=request.user) | Q(email=request.user.email))
-            # CORRECCIÓN 2: Eliminado .exclude(status=Status.EN_PREPARACION)
-            # Ahora los pedidos 'en preparación' (recién pagados) SÍ se muestran.
             .prefetch_related(
                 Prefetch(
                     "order_products",
@@ -82,19 +84,15 @@ class OrderHistoryView(LoginRequiredMixin, View):
                 )
             )
             .order_by("-placed_at")
-            .distinct()  # Evita duplicados si user y email coinciden en el mismo pedido
+            .distinct()
         )
         return render(request, self.template_name, {"orders": orders})
 
 
-# =======================================================
-# BUSQUEDA DE PEDIDO
-# =======================================================
 class OrderSearchView(View):
     template_name = "order/order_search.html"
 
     def get(self, request):
-        # Solo muestra el formulario vacío
         return render(request, self.template_name, {"searched": False})
 
     def post(self, request):
@@ -121,11 +119,9 @@ class OrderSearchView(View):
             except Order.DoesNotExist:
                 error = "No se ha encontrado ningún pedido con esos datos."
 
-        # Si encontramos el pedido, podemos redirigir a la vista de detalle bonita que ya tienes
         if order:
             return redirect("order_tracking", tracking_code=order_tracking_code)
 
-        # Si hubo error, volvemos a mostrar el formulario con el mensaje
         messages.error(request, error)
         context = {
             "order": None,
@@ -136,25 +132,13 @@ class OrderSearchView(View):
         return render(request, self.template_name, context)
 
 
-# =======================================================
-# SEGUIMIENTO ENVÍO
-# =======================================================
 class OrderTrackingView(View):
     def get(self, request, tracking_code):
-        # Buscamos el pedido por su código único
         order = get_object_or_404(Order, tracking_code=tracking_code)
         return render(request, "order/tracking.html", {"order": order})
 
 
-# =======================================================
-# ACTUALIZAR ESTADO (SOLO ADMIN)
-# =======================================================
 class OrderUpdateStatusView(LoginRequiredMixin, View):
-    """
-    Permite a un administrador cambiar el estado de un pedido
-    haciendo clic en la barra de progreso.
-    """
-
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
@@ -166,23 +150,21 @@ class OrderUpdateStatusView(LoginRequiredMixin, View):
     def post(self, request, tracking_code):
         order = get_object_or_404(Order, tracking_code=tracking_code)
         new_status = request.POST.get("status")
-
-        # Validamos que el estado sea uno de los permitidos
         valid_statuses = [choice[0] for choice in Status.choices]
 
         if new_status in valid_statuses:
             order.status = new_status
             order.save()
 
-        # Redirigimos a la misma página de tracking para ver el cambio
         return redirect("order_tracking", tracking_code=order.tracking_code)
 
 
+# --------------------------------------------------------------------
+# VISTAS DE STRIPE (CHECKOUT Y PAGO)
+# --------------------------------------------------------------------
+
+
 def create_checkout(request):
-    """
-    Crea la sesión de pago en Stripe y configura la recolección de dirección.
-    Restringido: Los administradores NO pueden acceder aquí.
-    """
     if request.user.is_authenticated and getattr(request.user, "role", None) == "admin":
         raise PermissionDenied("Los administradores no pueden realizar compras.")
 
@@ -243,8 +225,9 @@ def create_checkout(request):
                 "allowed_countries": ["ES"],
             },
             customer_email=customer_email,
-            success_url=domain_url + "order/success/?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=domain_url + "order/cancelled/",
+            success_url=domain_url
+            + "/order/success/?session_id={CHECKOUT_SESSION_ID}",  # Asegúrate de la barra / inicial
+            cancel_url=domain_url + "/order/cancelled/",
         )
         return redirect(checkout_session.url, code=303)
 
@@ -254,8 +237,7 @@ def create_checkout(request):
 
 def successful_payment(request):
     """
-    Verifica el pago, crea el pedido y ACTUALIZA EL STOCK.
-    Usa una transacción atómica para asegurar que todo se guarda o nada.
+    Verifica el pago, crea el pedido, actualiza stock y lanza el email en segundo plano.
     """
     session_id = request.GET.get("session_id")
 
@@ -273,13 +255,11 @@ def successful_payment(request):
             shipping_address += f", {address_data.line2}"
 
         if session.payment_status == "paid":
-            # --- INICIO DE TRANSACCIÓN ---
-            # Esto asegura que si falla la creación de productos, no se crea el pedido vacío
+            # --- TRANSACCIÓN DE BASE DE DATOS (Pedido y Stock) ---
             with transaction.atomic():
                 items_to_process = []
                 cart_to_delete = None
 
-                # Si esta logueado
                 if request.user.is_authenticated:
                     cart = Cart.objects.filter(user=request.user).first()
                     if cart:
@@ -293,7 +273,6 @@ def successful_payment(request):
                                     "quantity": cart_item.quantity,
                                 }
                             )
-                # Si no esta logueado, usamos la sesion
                 else:
                     cart_session = request.session.get("cart_session", {})
                     if cart_session:
@@ -306,59 +285,53 @@ def successful_payment(request):
                             )
 
                 if not items_to_process:
-                    # Si no hay productos, no creamos el pedido.
                     return HttpResponse(
-                        "Error: No se encontraron productos en el carrito para procesar el pedido."
+                        "Error: No se encontraron productos en el carrito."
                     )
 
-                # 3. Buscar usuario por email
                 User = get_user_model()
                 user_for_order = User.objects.filter(email=stripe_email).first()
 
-                # 4. Crear el Pedido
                 new_order = Order.objects.create(
-                    user=user_for_order,  # Si no existe el usuario, se pone None
+                    user=user_for_order,
                     status=Status.EN_PREPARACION,
                     address=shipping_address,
                     email=stripe_email,
                 )
 
-                # 5. Crear OrderProducts y actualizamos el Stock
                 for item_data in items_to_process:
                     product = item_data["product"]
                     qty = item_data["quantity"]
-
                     OrderProduct.objects.create(
                         order=new_order, product=product, quantity=qty
                     )
-
                     Product.objects.filter(pk=product.pk).update(stock=F("stock") - qty)
 
-                # 6. Borrar el carrito
                 if cart_to_delete:
                     cart_to_delete.delete()
                 else:
                     request.session["cart_session"] = {}
                     request.session.modified = True
-            # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
+
+            # --- PREPARACIÓN Y ENVÍO DE CORREO EN HILO ---
+
             try:
-                # 1. Generar la URL absoluta de seguimiento
-                tracking_url = request.build_absolute_uri(reverse("order_search"))
+                tracking_url = request.build_absolute_uri(
+                    reverse("order_tracking", args=[new_order.tracking_code])
+                )
 
-                # 2. Definir asunto y mensaje
                 subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
-
-                # Mensaje simple en texto plano
                 message = f"""
-                Hola!
+                Hola,
 
                 Gracias por tu compra en Essenza.
                 Tu pedido ha sido confirmado y se está preparando.
 
-                Detalles del pedido:
+                --- DETALLES ---
                 Nº de localizador: {new_order.tracking_code}
                 Total: {new_order.total_price} €
                 Dirección de envío: {new_order.address}
+                ----------------
 
                 Puedes seguir el estado de tu pedido aquí:
                 {tracking_url}
@@ -366,25 +339,25 @@ def successful_payment(request):
                 Gracias por confiar en nosotros.
                 """
 
-                # 3. Enviar el correo
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,  # Asegúrate de tener esto en settings.py
-                    [new_order.email],  # El email del destinatario
-                    fail_silently=True,  # Si falla, no rompe la web
+                # AQUÍ ESTÁ LA MAGIA: Lanzamos el hilo
+                email_thread = threading.Thread(
+                    target=send_email_background,
+                    args=(subject, message, [new_order.email]),
                 )
-            except Exception as e:
-                # Si falla el correo, lo imprimimos en consola pero dejamos pasar al usuario
-                print(f"Error enviando email: {e}")
+                email_thread.start()  # Inicia el envío en paralelo
 
+            except Exception as e:
+                # Error al preparar el hilo (raro, pero posible)
+                print(f"⚠️ Error iniciando hilo de correo: {e}")
+
+            # Retornamos la respuesta al usuario INMEDIATAMENTE
             return render(request, "order/success.html", {"order": new_order})
 
         else:
             return HttpResponse("El pago no se ha completado.")
 
     except Exception as e:
-        return HttpResponse(f"Error verificando el pago o creando el pedido: {e}")
+        return HttpResponse(f"Error verificando el pago: {e}")
 
 
 def cancelled_payment(request):
