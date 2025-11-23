@@ -181,3 +181,26 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # El remitente que aparecerá en los correos
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+# Activa el logging a nivel DEBUG para smtp
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "django.core.mail": {
+            "handlers": ["console"],
+            "level": "DEBUG",  # Este es el importante
+            "propagate": True,
+        },
+    },
+}

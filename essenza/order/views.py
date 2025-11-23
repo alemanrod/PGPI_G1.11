@@ -367,13 +367,14 @@ def successful_payment(request):
                 """
 
                 # 3. Enviar el correo
-                send_mail(
+                s = send_mail(
                     subject,
                     message,
                     settings.DEFAULT_FROM_EMAIL,  # Asegúrate de tener esto en settings.py
                     [new_order.email],  # El email del destinatario
                     fail_silently=True,  # Si falla, no rompe la web
                 )
+                print(s)
             except Exception as e:
                 # Si falla el correo, lo imprimimos en consola pero dejamos pasar al usuario
                 print(f"Error enviando email: {e}")
