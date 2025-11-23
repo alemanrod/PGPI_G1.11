@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,6 +34,13 @@ SECRET_KEY = os.getenv(
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
+
+# Esto es OBLIGATORIO para que Render acepte peticiones POST (Login, Stripe, etc) vía HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    "https://pgpi-g1-11.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 
 # Application definition
@@ -89,10 +97,12 @@ WSGI_APPLICATION = "essenza.wsgi.application"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        # Si estás en Render, usará la variable DATABASE_URL automáticamente.
+        # Si estás en Local (no hay DATABASE_URL), usará este sqlite:
+        default="sqlite:///" + str(BASE_DIR / "db.sqlite3"),
+        conn_max_age=600,
+    )
 }
 
 
