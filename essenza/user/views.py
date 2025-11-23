@@ -1,9 +1,20 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import LoginRequiredMixin  # Para proteger vistas
-from django.shortcuts import redirect, render
+from django.contrib.auth.mixins import (  # Para proteger vistas
+    LoginRequiredMixin,
+    UserPassesTestMixin,
+)
+from django.db.models import F
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
-from .forms import LoginForm, ProfileEditForm, RegisterForm
+from .forms import (
+    LoginForm,
+    ProfileEditForm,
+    RegisterForm,
+    UserCreationFormAdmin,
+    UserEditFormAdmin,
+)
+from .models import Usuario
 
 
 class LoginView(View):
@@ -134,3 +145,147 @@ class ProfileDeleteView(LoginRequiredMixin, View):
             photo_to_delete.delete(save=False)
 
         return redirect("dashboard")
+
+
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "user/user_list.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
+    def get(self, request):
+        role_filter = request.GET.get("role", "all")
+        order_filter = request.GET.get("order", "newest")
+        users = Usuario.objects.all()
+        # Filtrado por rol
+        if role_filter == "admin":
+            users = users.filter(role="admin")
+        elif role_filter == "user":
+            users = users.filter(role="user")
+        # Ordenación
+        if order_filter == "oldest":
+            users = users.order_by("date_joined")
+        elif order_filter == "name_asc":
+            users = users.order_by("first_name", "username")
+        elif order_filter == "name_desc":
+            users = users.order_by("-first_name", "-username")
+        elif order_filter == "email_asc":
+            users = users.order_by("email")
+        elif order_filter == "email_desc":
+            users = users.order_by("-email")
+        elif order_filter == "login_desc":
+            users = users.order_by(F("last_login").desc(nulls_last=True))
+        elif order_filter == "login_asc":
+            users = users.order_by(F("last_login").asc(nulls_first=True))
+        else:
+            users = users.order_by("-date_joined")
+        return render(request, self.template_name, {"users": users})
+
+
+class UserCreateViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
+    form_class = UserCreationFormAdmin
+    template_name = "user/user_create_admin.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        return redirect("dashboard")
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+
+        if form.is_valid():
+            form.save()
+
+            return redirect("user_list")
+
+        return render(request, self.template_name, {"form": form})
+
+
+class UserUpdateViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
+    form_class = UserEditFormAdmin
+    template_name = "user/user_edit_admin.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        return redirect("dashboard")
+
+    def get(self, request, pk, *args, **kwargs):
+        user_to_edit = get_object_or_404(Usuario, pk=pk)
+
+        form = self.form_class(instance=user_to_edit)
+        return render(request, self.template_name, {"form": form})
+
+    def post(self, request, pk, *args, **kwargs):
+        user_to_edit = get_object_or_404(Usuario, pk=pk)
+
+        try:
+            old_photo = user_to_edit.photo
+        except AttributeError:
+            old_photo = None
+
+        form = self.form_class(request.POST, request.FILES, instance=user_to_edit)
+
+        if form.is_valid():
+            saved_user = form.save()
+
+            if old_photo and old_photo != saved_user.photo:
+                try:
+                    old_photo.delete(save=False)
+                except Exception:
+                    pass
+
+            return redirect("user_list")
+
+        return render(request, self.template_name, {"form": form})
+
+
+class UserDeleteViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
+    template_name = "user/confirm_delete_user_admin.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        return redirect("dashboard")
+
+    def get(self, request, pk, *args, **kwargs):
+        user_to_delete = get_object_or_404(Usuario, pk=pk)
+
+        if user_to_delete == request.user:
+            return redirect("user_list")
+
+        return render(request, self.template_name, {"object": user_to_delete})
+
+    def post(self, request, pk, *args, **kwargs):
+        user_to_delete = get_object_or_404(Usuario, pk=pk)
+
+        if user_to_delete == request.user:
+            return redirect("user_list")
+
+        try:
+            photo_to_delete = user_to_delete.photo
+        except AttributeError:
+            photo_to_delete = None
+
+        user_to_delete.delete()
+
+        if photo_to_delete:
+            try:
+                photo_to_delete.delete(save=False)
+            except Exception:
+                pass
+
+        return redirect("user_list")

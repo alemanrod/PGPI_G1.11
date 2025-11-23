@@ -3,8 +3,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from info.views import info_view
-from product.views import DashboardView
-from product.views import CatalogView, CatalogDetailView
+from product.views import CatalogDetailView, CatalogView, DashboardView
 
 urlpatterns = [
     path("info/", info_view, name="info-home"),
@@ -12,8 +11,10 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("product/", include("product.urls")),
     path("", DashboardView.as_view(), name="dashboard"),
-    path("catalogo/", CatalogView.as_view(), name="catalog"),
-    path("catalogo/<int:pk>/", CatalogDetailView.as_view(), name="catalog_detail"),
+    path("catalog/", CatalogView.as_view(), name="catalog"),
+    path("catalog/<int:pk>/", CatalogDetailView.as_view(), name="catalog_detail"),
+    path("cart/", include("cart.urls")),
+    path("order/", include("order.urls")),
 ]
 
 if settings.DEBUG:

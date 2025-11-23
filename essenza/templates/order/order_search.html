@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Seguimiento de pedido · Essenza{% endblock %}
+
+{% block content %}
+<style>
+  .track-page {
+    background-color: #faf7f2;
+    padding: 40px 0 60px;
+    font-family: "Segoe UI", Arial, sans-serif;
+  }
+  .track-container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  .track-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 26px;
+    box-shadow: 0 8px 24px rgba(192, 107, 62, 0.08);
+    border: 1px solid #efe6de;
+  }
+  .track-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .track-header h1 {
+    font-size: 28px;
+    color: #c06b3e;
+    margin-bottom: 6px;
+    font-weight: 800;
+    letter-spacing: .3px;
+  }
+  .track-header p {
+    color: #666;
+    font-size: 14px;
+  }
+  .form-group { margin-bottom: 14px; }
+  label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  input[type="text"], input[type="email"]{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    background: #fafafa;
+    transition: all .2s ease;
+  }
+  input[type="text"]:focus, input[type="email"]:focus{
+    background:#fff;
+    border-color:#c06b3e;
+    box-shadow: 0 0 0 3px rgba(192,107,62,.12);
+  }
+
+  .btn-track {
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: #c06b3e;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 800;
+    letter-spacing: .3px;
+    transition: all .2s ease;
+  }
+  .btn-track:hover { background: #a35a34; transform: translateY(-1px); }
+
+  .error-msg{
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #fdecea;
+    color: #b71c1c;
+    font-size: 13px;
+    border: 1px solid #f5c6cb;
+  }
+
+  .order-summary{
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px dashed #eee;
+    font-size: 14px;
+  }
+  .summary-row{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:6px 0;
+  }
+  .summary-label{ color:#6a5f57; font-weight:700; }
+  .summary-value{ color:#2d2a27; }
+
+  .status-pill{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+    border:1px solid transparent;
+  }
+  .st-prep { background: #fff6e8; color: #9a5f1e; border-color: #f2d7b7; }
+  .st-sent { background: #e9f2ff; color: #1a4e8a; border-color: #c9dcf6; }
+  .st-done { background: #eaf7ef; color: #1f6a3b; border-color: #cfead9; }
+
+  .products-list{
+    margin:8px 0 0;
+    padding-left:18px;
+  }
+  .products-list li{ margin:4px 0; }
+
+  .detail-btn {
+    display: inline-block;
+    margin-top: 14px;
+    padding: 10px 18px;
+    background: #c06b3e;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: .2s ease;
+  }
+  .detail-btn:hover {
+    background: #a35a34;
+    transform: translateY(-1px);
+  }
+</style>
+
+<div class="track-page">
+  <div class="track-container">
+    <div class="track-card">
+      <div class="track-header">
+        <h1>Seguimiento de pedido</h1>
+        <p>Introduce el número de pedido y tu email para ver el estado.</p>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+          <label for="tracking_code">Número de localizador</label>
+          <input type="text" id="tracking_code" name="tracking_code" 
+            placeholder="Ej: H5E7V0SA9" 
+            value="{{ tracking_code }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email del pedido</label>
+          <input type="email" id="email" name="email" 
+            placeholder="tucorreo@ejemplo.com" 
+            value="{{ email }}" required>
+        </div>
+        
+        <button type="submit" class="btn-track">Buscar pedido</button>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div style="color: #9e0000; background: #f5e4e4; padding: 10px; border-radius: 8px; margin-top: 20px; font-size: 0.9rem;">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+
+      </form>
+{% endblock %}

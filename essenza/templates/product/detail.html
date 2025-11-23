@@ -1,5 +1,5 @@
 {% extends "base.html" %} {% load static %} {% block title %}{{ product.name }}
-- Essenza{% endblock %} {% block content %}
+· Essenza{% endblock %} {% block content %}
 <style>
   /* Scoped styles for product detail so base header/navbar are unaffected */
   .detail-body * {
@@ -57,7 +57,7 @@
     font-size: 32px;
     color: #333;
     font-weight: bold;
-    margin-bottom: 15px;
+    margin: 0;
   }
   .detail-body .product-category {
     display: inline-block;
@@ -70,11 +70,7 @@
   }
   .detail-body .product-stock {
     font-size: 16px;
-    margin-bottom: 15px;
-    color: #333;
-  }
-  .detail-body .product-stock strong {
-    color: #c06b3e;
+    font-weight: 600;
   }
   .detail-body .product-description {
     background-color: #f9f5f2;
@@ -82,7 +78,7 @@
     border-left: 4px solid #c06b3e;
     margin: 20px 0;
     border-radius: 4px;
-    line-height: 1.6;
+    line-height: 1.3;
   }
   .detail-body .actions {
     display: flex;
@@ -184,13 +180,17 @@
         <div class="product-details">
           <h1>{{ product.name }}</h1>
           <div class="product-brand">{{ product.brand }}</div>
-          <div class="product-category">{{ product.category }}</div>
-          <div class="product-price">€ {{ product.price }}</div>
-          {% if product.stock == 0 %}
-          <span>¡Producto agotado!</span>
-          {% endif %} {% if product.stock < 10 and product.stock > 0%}
-          <span>¡Últimas unidades!</span>
-          {% endif %}
+          <div class="product-category">{{ product.get_category_display }}</div>
+          <div style="display: flex; gap: 20px; align-items: center; line-height: 1;"> 
+            <div class="product-price">€ {{ product.price }}</div>
+            <div class="product-stock">
+              {% if product.stock == 0 %}
+                <span style="color: #dc3545">Producto agotado</span>
+              {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+                <span style="color: #fd7e14">¡Últimas unidades!</span>
+              {% endif %}
+            </div>
+          </div>
           <div class="product-description">
             <strong>Descripción:</strong>
             <p style="margin-top: 8px">{{ product.description }}</p>

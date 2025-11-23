@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block content %}
+<div style="text-align: center; padding: 50px 20px">
+  <div style="color: #28a745; font-size: 80px; margin-bottom: 20px">
+    &#10004;
+  </div>
+
+  <h1 style="font-family: sans-serif; color: #333">¡Gracias por tu compra!</h1>
+
+  <p
+    style="
+      font-family: sans-serif;
+      color: #666;
+      font-size: 18px;
+      margin: 20px 0;
+    "
+  >
+    Tu pedido ha sido procesado y el pago se ha completado correctamente. 
+    {% if user.is_authenticated %}
+    <br />Puedes ver el estado en tu perfil. 
+    {% else %}
+    <br />Te hemos enviado un email de confirmación. 
+    {% endif %}
+  </p>
+
+  <div style="margin-top: 40px">
+    <a
+      href="{% url 'dashboard' %}"
+      style="
+        background-color: #333;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-family: sans-serif;
+        font-weight: bold;
+      "
+    >
+      Volver al Inicio
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -73,12 +73,11 @@
       /* Centrar el buscador */
       .nav-center {
         flex: 1;
-        justify-content: center;
+        justify-content: right;
       }
 
       .search-bar input {
-        width: 100%;
-        max-width: 420px;
+        width: 320px;
         padding: 11px 20px;
         border: 1px solid #e0d5ca;
         border-radius: 24px;
@@ -86,6 +85,7 @@
         font-size: 14px;
         transition: all 0.3s ease;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+        margin-right: 20px;
       }
       .search-bar input:focus {
         outline: none;
@@ -169,6 +169,54 @@
         display: block;
       }
 
+      /* ====== FILTERS (shared styles for pages) ====== */
+      .filters-bar {
+        max-width: 1100px;
+        margin: 16px auto 0;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 0 24px;
+        justify-content: center;
+      }
+
+      .filter-select {
+        padding: 10px 16px;
+        border-radius: 24px;
+        background: linear-gradient(145deg, #ffffff 0%, #fef9f5 100%);
+        border: 2.5px solid #c06b3e;
+        color: #8b5a3c;
+        font-weight: 700;
+        font-size: 14px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(192, 107, 62, 0.12), inset 0 1px 2px rgba(255,255,255,0.8);
+        appearance: none;
+      }
+
+      .filter-select:focus {
+        outline: none;
+        box-shadow: 0 6px 20px rgba(192,107,62,0.18);
+      }
+
+      .filter-select.small {
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        min-width: 160px;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+
       /* ====== ESCAPARATE ====== */
       main {
         max-width: 1100px;
@@ -196,7 +244,7 @@
       .product-card img {
         width: 100%;
         height: 180px;
-        object-fit: cover;
+        object-fit: contain;
         border-radius: 10px;
       }
 
@@ -241,6 +289,205 @@
         box-shadow: 0 3px 8px rgba(192, 107, 62, 0.35),
           inset 0 1px 2px rgba(255, 255, 255, 0.25);
       }
+      /* ESTILOS AÑADIDOS PARA EL CARRITO */
+      .cart-icon {
+          color: #c06b3e; 
+          margin-right: 20px; 
+          
+          display: inline-flex; 
+          align-items: center; 
+          text-decoration: none; 
+          transition: color 0.2s ease;
+      }
+      .cart-icon:hover {
+          color: #bf6230; 
+      }
+      .cart-icon svg {
+          /* Tamaño deseado del icono */
+          width: 32px; 
+          height: 32px;
+      }
+/* FIN ESTILOS AÑADIDOS */
+
+      .filters {
+        max-width: 1100px;
+        margin: 25px auto 0 auto;
+        display: flex;
+        justify-content: center;
+        gap: 80px;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+
+      /* Custom Dropdown Container */
+      .custom-dropdown {
+        position: relative;
+        min-width: 220px;
+        max-width: 280px;
+        user-select: none;
+        flex-shrink: 0;
+
+      }
+
+      /* Dropdown Button */
+      .dropdown-button {
+        padding: 12px 40px 12px 20px;
+        border-radius: 25px;
+        background: linear-gradient(145deg, #ffffff 0%, #fef9f5 100%);
+        border: 2.5px solid #c06b3e;
+        color: #8b5a3c;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2), 
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        position: relative;
+      }
+
+      .dropdown-button:hover {
+        border-color: #d77b46;
+        box-shadow: 0 6px 20px rgba(192, 107, 62, 0.35),
+                    inset 0 1px 3px rgba(255, 255, 255, 0.9);
+        transform: translateY(-3px) scale(1.02);
+        background: linear-gradient(145deg, #ffffff 0%, #fff5ed 100%);
+      }
+
+      .dropdown-button.active {
+        border-color: #c06b3e;
+        box-shadow: 0 8px 24px rgba(192, 107, 62, 0.4),
+                    0 0 0 4px rgba(192, 107, 62, 0.15);
+        background: #fff;
+        transform: translateY(-3px) scale(1.02);
+      }
+
+      /* Dropdown Arrow */
+      .dropdown-arrow {
+        width: 16px;
+        height: 16px;
+        position: absolute;
+        right: 16px;
+        transition: transform 0.3s ease;
+        stroke: #c06b3e;
+        stroke-width: 3.5;
+      }
+
+      .dropdown-button.active .dropdown-arrow {
+        transform: rotate(180deg);
+      }
+
+      /* Dropdown Menu */
+      .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 0;
+        right: 0;
+        transform: translateY(-10px);
+        background: white;
+        border-radius: 20px;
+        border: 3px solid #c06b3e;
+        box-shadow: 0 12px 32px rgba(192, 107, 62, 0.25);
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+        overflow: hidden;
+        max-height: 300px;
+        overflow-y: auto;
+        white-space: nowrap;
+      }
+
+      .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+
+      /* Dropdown Items */
+      .dropdown-item {
+        padding: 12px 28px;
+        color: #8b5a3c;
+        font-weight: 600;
+        font-size: 15px;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid #f5e6dc;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .dropdown-item:last-child {
+        border-bottom: none;
+      }
+
+      .dropdown-item:hover {
+        background: linear-gradient(135deg, #fff5ed 0%, #ffeee0 100%);
+        color: #c06b3e;
+        padding-left: 32px;
+      }
+
+      .dropdown-item.selected {
+        background: linear-gradient(135deg, #c06b3e 0%, #d77b46 100%);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .dropdown-item.selected:hover {
+        background: linear-gradient(135deg, #d77b46 0%, #e88a55 100%);
+        padding-left: 28px;
+      }
+
+      /* Check Icon for Selected Item */
+      .dropdown-item .check-icon {
+        width: 18px;
+        height: 18px;
+        stroke: white;
+        stroke-width: 3;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      .dropdown-item.selected .check-icon {
+        opacity: 1;
+      }
+
+      /* Scrollbar styling */
+      .dropdown-menu::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .dropdown-menu::-webkit-scrollbar-track {
+        background: #fef9f5;
+        border-radius: 10px;
+      }
+
+      .dropdown-menu::-webkit-scrollbar-thumb {
+        background: #c06b3e;
+        border-radius: 10px;
+      }
+
+      .dropdown-menu::-webkit-scrollbar-thumb:hover {
+        background: #d77b46;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
 
       /* Responsive */
       @media (max-width: 768px) {
@@ -253,40 +500,52 @@
           width: 100%;
           margin-top: 12px;
         }
-        .search-bar input {
-          max-width: 100%;
-        }
       }
     </style>
 
-    {% block extra_head %}{% endblock %}
-  </head>
-  <body>
-    <header>
-      <div class="nav-left">
-        <a href="/info/" class="info-button" title="Información">i</a>
-        <a href="/" class="brand">ESSENZA</a>
-        <nav class="nav-links" aria-label="Navegación principal">
-          {% if not user.is_staff and not user.is_superuser %}
-          <a href="/">Escaparate</a>
-          <a href="/catalogo">Catalogo</a>
-          {% endif %} {% if user.is_staff or user.is_superuser %}
-          <a href="/product/stock/">Stock</a>
-          <a href="/product/">Productos</a>
-          {% endif %}
-        </nav>
-      </div>
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
 
-      <div class="nav-center">
-        <div class="search-bar">
-          <input
-            type="text"
-            placeholder="Buscar..."
-            aria-label="Buscar productos"
-          />
-        </div>
-      </div>
+  <header>
+    
+    <div class="nav-left">
+      <a href="{% url 'info-home' %}" class="info-button" title="Información">i</a>
+      <a href="{% url 'dashboard' %}" class="brand">ESSENZA</a>
+      <nav class="nav-links" aria-label="Navegación principal">
+        {% if user.is_authenticated and user.role == 'admin'%}
+          <a href="{% url 'stock' %}">Stock</a>
+          <a href="{% url 'product_list' %}">Productos</a>
+          <a href="{% url 'order_list_admin' %}">Pedidos</a>
+          <a href="{% url 'user_list' %}">Usuarios</a>
+        {% else %}
+          <a href="{% url 'dashboard' %}">Escaparate</a>
+          <a href="{% url 'catalog' %}">Catalogo</a>
+          {% if user.is_authenticated %}
+          <a href="{% url 'order_history' %}">Mis Pedidos</a>
+          {% else %}
+          <a href="{% url 'order_search' %}">Localiza tu envío</a>
+        {% endif %}
+        {% endif  %}
+      </nav>
+    </div>
 
+    <div class="nav-center">
+      <div class="search-bar">
+        <form method="get" action="{{ request.path }}">
+          <input name="q" type="search" placeholder="Buscar..." aria-label="Buscar" value="{{ request.GET.q|default:'' }}">
+        </form>
+      </div>
+    </div>
+      {% if not user.role == "admin" %}
+      <a href="{% url 'cart_detail' %}" class="cart-icon" title="Mi Carrito de Compra">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1"></circle>
+              <circle cx="20" cy="21" r="1"></circle>
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+      </a>
+      {% endif %}
       <div class="nav-right">
         <div class="profile-dropdown">
           <button

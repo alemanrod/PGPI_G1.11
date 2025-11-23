@@ -5,207 +5,216 @@
 {% block title %}Escaparate · Essenza{% endblock %}
 
 {% block content %}
-    <style>
-      
-      /* ====== ESCAPARATE ====== */
-      main {
-        max-width: 1100px;
-        margin: 40px auto;
-        display: grid;
-        grid-template-columns: repeat(30, 1fr);
-        grid-template-rows: 200px 200px 350px;
-        grid-auto-rows: 350px;
-        gap: 20px;
-        padding: 0 24px;
-      }
+  <style>
+    
+    /* ====== ESCAPARATE ====== */
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      display: grid;
+      grid-template-columns: repeat(30, 1fr);
+      grid-template-rows: 200px 200px 350px;
+      grid-auto-rows: 350px;
+      gap: 20px;
+      padding: 0 24px;
+    }
 
-      .product-card {
-        background: #fff;
-        border: 1px solid #eee;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        padding: 16px;
-        transition: transform 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        height: 350px;
-        box-sizing: border-box;
-        position: relative;
-        /* Si hay más productos, serán en filas de 5 elementos */
-        grid-column: span 6;
-      }
+    .product-card {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 16px;
+      transition: transform 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      height: 350px;
+      box-sizing: border-box;
+      position: relative;
+      /* Si hay más productos, serán en filas de 5 elementos */
+      grid-column: span 6;
+    }
 
-      .product-card:hover {
-        transform: translateY(-4px);
-      }
+    .product-card:hover {
+      transform: translateY(-4px);
+    }
 
-      .product-card:hover .product-name {
-        color: #c06b3e;
-        text-decoration: underline;
-      }
+    .product-card:hover .product-name {
+      color: #c06b3e;
+      text-decoration: underline;
+    }
 
-      .product-card img {
-        width: 150px;
-        height: 150px;
-        object-fit: contain;
-        border-radius: 10px;
-        flex-shrink: 0;
-      }
+    .product-card img {
+      width: 150px;
+      height: 150px;
+      object-fit: contain;
+      border-radius: 10px;
+      flex-shrink: 0;
+    }
 
-      .product-info {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-        flex-grow: 1;
-        justify-content: center;
-      }
+    .product-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      flex-grow: 1;
+      justify-content: center;
+    }
 
-      .product-name {
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
-        margin-top: 16px;
-        width: 100%;
-      }
+    .product-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin-top: 16px;
+      width: 100%;
+    }
 
-      .product-price {
-        font-size: 18px;
-        font-weight: bold;
-        color: #c06b3e;
-        margin-top: 8px;
-      }
+    .product-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: #c06b3e;
+      margin-top: 8px;
+    }
 
-      .product-description {
-        font-size: 14px;
-        color: #666;
-        margin-top: 8px;
-        width: 100%;
-        display: -webkit-box;
-        -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
-        line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
+    .product-description {
+      font-size: 14px;
+      color: #666;
+      margin-top: 8px;
+      width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
+      line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
 
-      .card-link-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-      }
+    .card-link-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
 
-      /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
+    /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
 
-      /* --- FILA 1 (Items 1-2) --- */
-      .product-card:nth-child(1),
-      .product-card:nth-child(2) {
-        grid-column: span 15;
-        flex-direction: row;
-        justify-content: flex-start;
-        height: 200px;
-      }
+    /* --- FILA 1 (Items 1-2) --- */
+    .product-card:nth-child(1),
+    .product-card:nth-child(2) {
+      grid-column: span 15;
+      flex-direction: row;
+      justify-content: flex-start;
+      height: 200px;
+    }
 
-      /* --- FILA 2 (Items 3-5) --- */
-      .product-card:nth-child(3),
-      .product-card:nth-child(4),
-      .product-card:nth-child(5) {
-        grid-column: span 10;
-        flex-direction: row;
-        justify-content: flex-start;
-        height: 200px;
-      }
+    /* --- FILA 2 (Items 3-5) --- */
+    .product-card:nth-child(3),
+    .product-card:nth-child(4),
+    .product-card:nth-child(5) {
+      grid-column: span 10;
+      flex-direction: row;
+      justify-content: flex-start;
+      height: 200px;
+    }
 
-      /* --- FILA 3 (Items 6-10) --- */
-      .product-card:nth-child(6),
-      .product-card:nth-child(7),
-      .product-card:nth-child(8),
-      .product-card:nth-child(9),
-      .product-card:nth-child(10) {
-        grid-column: span 6;
-      }
+    /* --- FILA 3 (Items 6-10) --- */
+    .product-card:nth-child(6),
+    .product-card:nth-child(7),
+    .product-card:nth-child(8),
+    .product-card:nth-child(9),
+    .product-card:nth-child(10) {
+      grid-column: span 6;
+    }
 
-      /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
-      .product-card:nth-child(1) .product-info,
-      .product-card:nth-child(2) .product-info,
-      .product-card:nth-child(3) .product-info,
-      .product-card:nth-child(4) .product-info,
-      .product-card:nth-child(5) .product-info {
-        margin-left: 20px;
-        align-items: flex-start;
-        text-align: left;
-      }
+    /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
+    .product-card:nth-child(1) .product-info,
+    .product-card:nth-child(2) .product-info,
+    .product-card:nth-child(3) .product-info,
+    .product-card:nth-child(4) .product-info,
+    .product-card:nth-child(5) .product-info {
+      margin-left: 20px;
+      align-items: flex-start;
+      text-align: left;
+    }
 
-      .product-card:nth-child(1) .product-name,
-      .product-card:nth-child(2) .product-name,
-      .product-card:nth-child(3) .product-name,
-      .product-card:nth-child(4) .product-name,
-      .product-card:nth-child(5) .product-name {
-        margin-top: 0;
-      }
+    .product-card:nth-child(1) .product-name,
+    .product-card:nth-child(2) .product-name,
+    .product-card:nth-child(3) .product-name,
+    .product-card:nth-child(4) .product-name,
+    .product-card:nth-child(5) .product-name {
+      margin-top: 0;
+    }
 
-      .showcase-title {
-        text-align: center;
-        margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
-      }
-      .showcase-title h2 {
-        font-size: 28px;
-        color: #c06b3e; /* Color de la marca */
-        font-weight: 700;
-        margin-bottom: 4px;
-      }
-      .showcase-title p {
-        font-size: 16px;
-        color: #666;
-        margin: 0;
-      }
-      .category-tag {
-        display: inline-block;
-        margin-top: 8px;
-        background: #f2e5df;
-        color: #c06b3e;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-      }
-    </style>
+    .showcase-title {
+      text-align: center;
+      margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
+    }
+    .showcase-title h2 {
+      font-size: 28px;
+      color: #c06b3e; /* Color de la marca */
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .showcase-title p {
+      font-size: 16px;
+      color: #666;
+      margin: 0;
+    }
+    .category-tag {
+      display: inline-block;
+      margin-top: 8px;
+      background: #f2e5df;
+      color: #c06b3e;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+    .product-stock {
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+  </style>
   </head>
 
   <body>
-
-    {% if products|length > 1 %}
-    <div class="showcase-title">
-      <h2>Top Bestsellers</h2>
-      <p>Una cuidada selección de los productos estrella de la temporada.</p>
-    </div>
+    
+    {% if products %}
+      <div class="showcase-title">
+        <h2>Top Bestsellers</h2>
+        <p>Una cuidada selección de los productos estrella de la temporada.</p>
+      </div>
     {% endif %}
 
     <main>
       {% if products %} {% for p in products %}
-      <div class="product-card">
-        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
-
-        {% if p.photo %}
-        <img src="{{ p.photo.url }}" />
-        {% else %}
-        <img src="{% static 'images/default_product.png' %}" />
-        {% endif %}
-
-        <div class="product-info">
-          <div class="product-name">{{ p.name }}</div>
-          <div class="product-description">{{ p.description }}</div>
-          <div class="product-price">{{ p.price|floatformat:2 }} €</div>
-          <span class="category-tag">{{ p.get_category_display }}</span>
+        <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
+          <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
+          {% if p.photo %}
+            <img src="{{ p.photo.url }}" />
+          {% else %}
+            <img src="{% static 'images/default_product.png' %}" />
+          {% endif %}
+          <div class="product-info">
+            <div class="product-name">{{ p.name }}</div>
+            <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+            <span class="category-tag">{{ p.get_category_display }}</span>
+            <div class="product-stock">
+              {% if p.stock == 0 %}
+                <span style="color: #dc3545">Producto agotado</span>
+              {% endif %} {% if p.stock < 10 and p.stock > 0 %}
+                <span style="color: #fd7e14">¡Últimas unidades!</span>
+              {% endif %}
+            </div>
+          </div>
         </div>
-      </div>
       {% endfor %} {% else %}
-      <p style="text-align: center; grid-column: 1 / -1; color: #555">
-        No hay productos disponibles en este momento.
-      </p>
+        <p style="text-align: center; grid-column: 1 / -1; color: #555">
+          No hay productos disponibles en este momento.
+        </p>
       {% endif %}
     </main>
 
@@ -233,6 +242,96 @@
           }
         }
       };
+      // Custom dropdown para dashboard.html
+      (function(){
+        const categoryButton = document.getElementById('categoryButtonDash');
+        const categoryMenu = document.getElementById('categoryMenuDash');
+        const categorySelected = document.getElementById('categorySelectedDash');
+        const brandButton = document.getElementById('brandButtonDash');
+        const brandMenu = document.getElementById('brandMenuDash');
+        const brandSelected = document.getElementById('brandSelectedDash');
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+
+        // Toggle dropdowns
+        categoryButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          categoryMenu.classList.toggle('show');
+          brandMenu.classList.remove('show');
+        });
+
+        brandButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          brandMenu.classList.toggle('show');
+          categoryMenu.classList.remove('show');
+        });
+
+        document.addEventListener('click', () => {
+          categoryMenu.classList.remove('show');
+          brandMenu.classList.remove('show');
+        });
+
+        // Poblar marcas dinámicamente
+        function populateBrands() {
+          const brands = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.brand || '').trim();
+            if (b) brands.add(b);
+          });
+
+          const sortedBrands = Array.from(brands).sort();
+          sortedBrands.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            brandMenu.appendChild(item);
+          });
+        }
+        populateBrands();
+
+        // Manejar selección de categoría
+        categoryMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          categorySelected.textContent = item.querySelector('span').textContent;
+          categoryMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Manejar selección de marca
+        brandMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          brandSelected.textContent = item.querySelector('span').textContent;
+          brandMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Aplicar filtros
+        function applyFilters() {
+          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
+          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const cat = catSelected ? catSelected.dataset.value : 'all';
+          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+          cards.forEach(c => {
+            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+            c.style.display = (matchCat && matchBrand) ? '' : 'none';
+          });
+        }
+      })();
     </script>
   </body>
 </html>

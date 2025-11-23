@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear Usuario · Essenza{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* === ESTILOS IDÉNTICOS A TU REFERENCIA === */
+  .register-wrapper {
+    /* Variables de tu referencia */
+    --color-principal: #c06b3e;
+    --color-principal-hover: #a35a34;
+    --color-fondo: #faf7f2;
+    --color-fondo-tarjeta: #fff;
+    --color-texto-base: #333;
+    --color-borde-claro: #eee;
+    --color-error: #b00020;
+    --color-foco-sombra: rgba(192, 107, 62, 0.2);
+
+    background-color: var(--color-fondo);
+    font-family: "Segoe UI", Arial, sans-serif;
+    /* Ajuste para centrar dentro del base.html */
+    min-height: calc(100vh - 80px); 
+    display: grid;
+    place-items: start center;
+    padding: 40px 0;
+  }
+
+  .brand-title {
+    color: var(--color-principal);
+    font-size: 48px;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: bold;
+  }
+
+  .form-card {
+    width: min(420px, 88vw);
+    background: var(--color-fondo-tarjeta);
+    border: 2px solid var(--color-principal);
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+    padding: 22px 24px;
+    box-sizing: border-box;
+  }
+
+  /* Labels e Inputs */
+  .register-wrapper label {
+    display: block;
+    font-size: 13px;
+    color: var(--color-texto-base);
+    margin: 10px 0 6px;
+  }
+
+  .register-wrapper input[type="text"],
+  .register-wrapper input[type="email"],
+  .register-wrapper input[type="password"],
+  .register-wrapper select { /* Añadido select para el Rol */
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--color-borde-claro);
+    border-radius: 10px;
+    background: #fafafa;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .register-wrapper input[type="file"] {
+    width: 100%;
+    font-size: 13px;
+    color: #555;
+    margin: 10px 0 15px;
+    padding: 8px;
+    border: 1px solid var(--color-borde-claro);
+    border-radius: 10px;
+    background: #fafafa;
+    box-sizing: border-box;
+  }
+
+  .register-wrapper input:focus,
+  .register-wrapper select:focus {
+    border-color: var(--color-principal);
+    box-shadow: 0 0 0 3px var(--color-foco-sombra);
+  }
+
+  /* Checkbox para 'Activo' */
+  .checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    gap: 8px;
+  }
+  .register-wrapper input[type="checkbox"] {
+    accent-color: var(--color-principal);
+    width: 16px;
+    height: 16px;
+    margin: 0;
+  }
+  .checkbox-label {
+    margin: 0 !important; /* Override del margen default */
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* Botón Principal */
+  .btn-primary {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--color-principal);
+    color: var(--color-fondo-tarjeta);
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background-color: var(--color-principal-hover);
+  }
+
+  /* Botón Volver Flotante (Estilo Referencia) */
+  .return-button {
+    position: fixed;
+    top: 100px; /* Ajustado para no chocar con el navbar del base */
+    left: 20px;
+    width: 80px;
+    height: 30px;
+    background-color: #c06b3e;
+    border-radius: 15px;
+    text-align: center;
+    line-height: 30px;
+    font-size: 14px; /* Un poco más pequeño para encajar 'Volver' */
+    font-weight: bold;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+    z-index: 100;
+  }
+  .return-button:hover {
+    background-color: #a35a34;
+    text-decoration: none;
+    color: white;
+  }
+
+  .form-error {
+    color: var(--color-error);
+    font-size: 13px;
+    margin: 6px 0;
+  }
+  
+  /* Separador visual para zona admin */
+  .divider {
+    border-top: 1px dashed #ddd;
+    margin: 20px 0;
+  }
+  .section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--color-principal);
+    font-weight: bold;
+    margin-bottom: 10px;
+    display: block;
+  }
+  
+  /* Help text contraseñas */
+  .helptext { font-size: 11px; color: #777; margin-top: 3px; display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="register-wrapper">
+    
+    <a href="{% url 'user_list' %}" class="return-button" title="Volver al listado">Volver</a>
+
+    <div class="page">
+      <h1 class="brand-title">ESSENZA ADMIN</h1>
+      <div class="form-card">
+        <h2 style="text-align:center; color:#555; font-size:1.2rem; margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Crear Usuario</h2>
+
+        <form method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+
+          <label for="{{ form.first_name.id_for_label }}">Nombre</label>
+          {{ form.first_name }}
+
+          <label for="{{ form.last_name.id_for_label }}">Apellidos</label>
+          {{ form.last_name }}
+
+          <label for="{{ form.email.id_for_label }}">Correo electrónico (Login)</label>
+          {{ form.email }}
+          {% if form.email.errors %}<p class="form-error">{{ form.email.errors.0 }}</p>{% endif %}
+
+          {% for field in form %}
+            {% if 'password' in field.name %}
+                <label for="{{ field.id_for_label }}" style="margin-top: 10px;">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                    <p class="form-error">{{ field.errors.0 }}</p>
+                {% endif %}
+            {% endif %}
+          {% endfor %}
+
+          <div class="divider"></div>
+          <span class="section-title">Configuración Admin</span>
+
+          <label for="{{ form.role.id_for_label }}">Rol Asignado</label>
+          {{ form.role }}
+
+          <div class="checkbox-wrapper">
+            {{ form.is_active }}
+            <label for="{{ form.is_active.id_for_label }}" class="checkbox-label">Cuenta Activa (Permitir acceso)</label>
+          </div>
+
+          <div class="divider"></div>
+          <label for="{{ form.photo.id_for_label }}">Foto (Opcional)</label>
+          {{ form.photo }} 
+
+          {% if form.non_field_errors %}
+          <div style="margin-top: 15px; border: 1px solid #b00020; padding: 10px; border-radius: 8px; background: #fff5f5;">
+            {% for error in form.non_field_errors %}
+            <p class="form-error" style="margin:0;">{{ error }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <button type="submit" class="btn-primary">Crear Usuario</button>
+
+        </form>
+      </div>
+    </div>
+</div>
+{% endblock %}

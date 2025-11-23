@@ -1,191 +1,459 @@
 {% extends "base.html" %}
 
-
-
 {% load static %} {% load humanize %}
 
 {% block title %}Catálogo · Essenza{% endblock %}
 
 {% block content %}
-    <style>
-      body {
-        margin: 0;
-        background-color: #faf7f2;
-        font-family: "Segoe UI", Arial, sans-serif;
-      }
+<style>
+  .list-page * {
+    box-sizing: border-box;
+  }
+  .list-page {
+    background-color: #faf7f2;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #333;
+    padding: 20px 0;
+  }
+  .list-page .container {
+    /* Contenedor principal centrado para el contenido */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: transparent;
+  }
 
-      
-      /* ===== HERO ===== */
-      .hero {
-        text-align: center;
-        padding: 40px 20px 10px;
-      }
-      .hero h1 {
-        font-size: 36px;
-        font-weight: 700;
-        color: #c06b3e;
-      }
-      .hero p {
-        color: #666;
-        margin-top: 5px;
-      }
+  h1 {
+    color: #c06b3e;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 32px;
+  }
 
-      /* ===== FILTROS ===== */
-      .filters {
-        max-width: 1100px;
-        margin: 25px auto 0 auto;
-        display: flex;
-        justify-content: center;
-        gap: 12px;
-        flex-wrap: wrap;
-      }
+  p {
+    color: #666;
+    text-align: center;
+    margin-top: 5px;
+  }
 
-      .filter-btn {
-        padding: 10px 18px;
-        border-radius: 20px;
-        background: #fff;
-        border: 2px solid #c06b3e;
-        color: #c06b3e;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.25s;
-      }
-      .filter-btn.active,
-      .filter-btn:hover {
-        background: #c06b3e;
-        color: white;
-      }
+  /* ===== FILTROS ===== */
+  .filters {
+    max-width: 1100px;
+    margin: 25px auto 0 auto;
+    display: flex;
+    margin-bottom: 30px;
+  }
 
-      /* ===== GRID ===== */
-      .grid {
-        max-width: 1100px;
-        margin: 30px auto;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
-        gap: 22px;
-      }
-      .card {
-        background: white;
-        border-radius: 14px;
-        padding: 16px;
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
-        text-align: center;
-        transition: 0.25s;
-        cursor: pointer;
-      }
-      .card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-      }
-      .card img {
-        width: 100%;
-        height: 180px;
-        object-fit: contain;
-        border-radius: 10px;
-      }
-      .price {
-        margin-top: 8px;
-        color: #c06b3e;
-        font-weight: bold;
-      }
-      .category-tag {
-        display: inline-block;
-        margin-top: 8px;
-        background: #f2e5df;
-        color: #c06b3e;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 12px;
-      }
-    </style>
-  </head>
+  /* Dropdown Button */
+  .dropdown-button {
+    padding: 12px 40px 12px 20px;
+    border-radius: 25px;
+    background: linear-gradient(145deg, #ffffff 0%, #fef9f5 100%);
+    border: 2.5px solid #c06b3e;
+    color: #8b5a3c;
+    font-weight: 700;
+    font-size: 14px;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+  }
 
-  <body>
+  .dropdown-button:hover {
+    border-color: #d77b46;
+    box-shadow: 0 6px 20px rgba(192, 107, 62, 0.35),
+                inset 0 1px 3px rgba(255, 255, 255, 0.9);
+    transform: translateY(-3px) scale(1.02);
+    background: linear-gradient(145deg, #ffffff 0%, #fff5ed 100%);
+  }
 
-    <!-- TÍTULO -->
-    <div class="hero">
-      <h1>Catálogo Essenza</h1>
-      <p>Explora nuestra selección de productos mejor valorados</p>
-    </div>
+  .dropdown-button.active {
+    border-color: #c06b3e;
+    box-shadow: 0 8px 24px rgba(192, 107, 62, 0.4),
+                0 0 0 4px rgba(192, 107, 62, 0.15);
+    background: #fff;
+    transform: translateY(-3px) scale(1.02);
+  }
 
-    <!-- FILTROS -->
+  /* Dropdown Arrow */
+  .dropdown-arrow {
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    right: 16px;
+    transition: transform 0.3s ease;
+    stroke: #c06b3e;
+    stroke-width: 3.5;
+  }
+
+  .dropdown-button.active .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Dropdown Menu */
+  .dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    transform: translateY(-10px);
+    background: white;
+    border-radius: 20px;
+    border: 3px solid #c06b3e;
+    box-shadow: 0 12px 32px rgba(192, 107, 62, 0.25);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow: hidden;
+    max-height: 300px;
+    overflow-y: auto;
+    white-space: nowrap;
+  }
+
+  .dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  /* Dropdown Items */
+  .dropdown-item {
+    padding: 12px 28px;
+    color: #8b5a3c;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f5e6dc;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .dropdown-item:last-child {
+    border-bottom: none;
+  }
+
+  .dropdown-item:hover {
+    background: linear-gradient(135deg, #fff5ed 0%, #ffeee0 100%);
+    color: #c06b3e;
+    padding-left: 32px;
+  }
+
+  .dropdown-item.selected {
+    background: linear-gradient(135deg, #c06b3e 0%, #d77b46 100%);
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .dropdown-item.selected:hover {
+    background: linear-gradient(135deg, #d77b46 0%, #e88a55 100%);
+    padding-left: 28px;
+  }
+
+  /* Check Icon for Selected Item */
+  .dropdown-item .check-icon {
+    width: 18px;
+    height: 18px;
+    stroke: white;
+    stroke-width: 3;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .dropdown-item.selected .check-icon {
+    opacity: 1;
+  }
+
+  /* Scrollbar styling */
+  .dropdown-menu::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .dropdown-menu::-webkit-scrollbar-track {
+    background: #fef9f5;
+    border-radius: 10px;
+  }
+
+  .dropdown-menu::-webkit-scrollbar-thumb {
+    background: #c06b3e;
+    border-radius: 10px;
+  }
+
+  .dropdown-menu::-webkit-scrollbar-thumb:hover {
+    background: #d77b46;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* ===== GRID ===== */
+  .grid {
+    max-width: 1100px;
+    margin: 30px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 22px;
+  }
+  .card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: 0.25s;
+    cursor: pointer;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  }
+  .card img {
+    width: 100%;
+    height: 180px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  .card-link-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    }
+  .price {
+    margin-top: 8px;
+    color: #c06b3e;
+    font-weight: bold;
+  }
+  .category-tag {
+    display: inline-block;
+    margin-top: 8px;
+    background: #f2e5df;
+    color: #c06b3e;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  .product-stock {
+    margin-top: 12px;
+    font-weight: 600;
+    font-size: 14px;
+  }
+</style>
+
+<div class="list-page">
+  <div class="container">
+    <h1>Catálogo Essenza</h1>
+    <p>Explora nuestra selección de productos mejor valorados</p>
+
+    <!-- FILTROS: categoría + marca -->
     <div class="filters">
-      <button class="filter-btn active" data-category="all">Todos</button>
-      <button class="filter-btn" data-category="maquillaje">Maquillaje</button>
-      <button class="filter-btn" data-category="tratamiento">
-        Tratamiento
-      </button>
-      <button class="filter-btn" data-category="cabello">Cabello</button>
-      <button class="filter-btn" data-category="perfume">Perfume</button>
+      <div class="custom-dropdown" id="categoryDropdownList">
+        <div class="dropdown-button" id="categoryButtonList">
+          <span id="categorySelectedList">Todas las categorías</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-menu" id="categoryMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las categorías</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-dropdown" id="brandDropdownList">
+        <div class="dropdown-button" id="brandButtonList">
+          <span id="brandSelectedList">Todas las marcas</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-menu" id="brandMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las marcas</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- GRID PRODUCTOS -->
     <div class="grid" id="productGrid">
-      {% for product in products %}
-      <div
-        class="card"
-        data-name="{{ product.name|lower }}"
-        data-category="{{ product.category }}"
-        onclick="location.href='{% url 'catalog_detail' product.pk %}'"
-      >
-        {% if product.photo %}
-        <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
-        {% else %}
-        <img
-          src="{% static 'images/default_product.png' %}"
-          alt="{{ product.name }}"
-        />
-        {% endif %}
+      {% if products %} {% for product in products %}
+        <div
+          class="card"
+          data-name="{{ product.name|lower }}"
+          data-category="{{ product.category }}"
+          data-brand="{{ product.brand|default:''|lower }}"
+        >
+          <a href="{% url 'catalog_detail' product.pk %}" class="card-link-overlay"></a>
 
-        <h3>{{ product.name }}</h3>
-        <p class="price">{{ product.price }} €</p>
-        <span class="category-tag">{{ product.get_category_display }}</span>
-      </div>
-      {% endfor %}
+          {% if product.photo %}
+            <img src="{{ product.photo.url }}" />
+          {% else %}
+            <img src="{% static 'images/default_product.png' %}" />
+          {% endif %}
+
+          <h3>{{ product.name }}</h3>
+          <p class="price">{{ product.price }} €</p>
+          <span class="category-tag">{{ product.get_category_display }}</span>
+          <div class="product-stock">
+            {% if product.stock == 0 %}
+              <span style="color: #dc3545">Producto agotado</span>
+            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+              <span style="color: #fd7e14">¡Últimas unidades!</span>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %} {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555">
+        No hay productos disponibles en este momento.
+      </p>
+      {% endif %}
     </div>
 
     <script>
-      /* ========== DROPDOWN PERFIL ========== */
-      function toggleDropdown() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
-      window.onclick = function (e) {
-        if (!e.target.closest(".profile-icon-btn")) {
-          document.getElementById("myDropdown")?.classList.remove("show");
-        }
-      };
+      // Custom dropdown para catalog.html
+      (function(){
+        const categoryButton = document.getElementById('categoryButtonList');
+        const categoryMenu = document.getElementById('categoryMenuList');
+        const categorySelected = document.getElementById('categorySelectedList');
+        const brandButton = document.getElementById('brandButtonList');
+        const brandMenu = document.getElementById('brandMenuList');
+        const brandSelected = document.getElementById('brandSelectedList');
+        const cards = Array.from(document.querySelectorAll('.card'));
 
-      /* ========== FILTROS ========== */
-      const filterButtons = document.querySelectorAll(".filter-btn");
-      const cards = document.querySelectorAll(".card");
+        // Toggle dropdowns
+        categoryButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          categoryMenu.classList.toggle('show');
+          brandMenu.classList.remove('show');
+        });
 
-      filterButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          filterButtons.forEach((b) => b.classList.remove("active"));
-          btn.classList.add("active");
+        brandButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          brandMenu.classList.toggle('show');
+          categoryMenu.classList.remove('show');
+        });
 
-          const category = btn.dataset.category;
-          cards.forEach((card) => {
-            const match =
-              category === "all" || card.dataset.category === category;
-            card.style.display = match ? "block" : "none";
+        document.addEventListener('click', () => {
+          categoryMenu.classList.remove('show');
+          brandMenu.classList.remove('show');
+        });
+
+        // Poblar categorías dinámicamente
+        function populateCategories() {
+          const categories = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.category || '').trim();
+            if (b) categories.add(b);
           });
+
+          const sortedCategories = Array.from(categories).sort();
+          sortedCategories.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            categoryMenu.appendChild(item);
+          });
+        }
+        populateCategories();
+
+        // Poblar marcas dinámicamente
+        function populateBrands() {
+          const brands = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.brand || '').trim();
+            if (b) brands.add(b);
+          });
+
+          const sortedBrands = Array.from(brands).sort();
+          sortedBrands.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            brandMenu.appendChild(item);
+          });
+        }
+        populateBrands();
+
+        // Manejar selección de categoría
+        categoryMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          categorySelected.textContent = item.querySelector('span').textContent;
+          categoryMenu.classList.remove('show');
+          applyFilters();
         });
-      });
 
-      /* ========== BUSCADOR ========== */
-      const searchInput = document.getElementById("searchInput");
+        // Manejar selección de marca
+        brandMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
 
-      searchInput.addEventListener("input", function () {
-        const searchText = this.value.toLowerCase();
-
-        cards.forEach((card) => {
-          const name = card.dataset.name;
-          const visible = name.includes(searchText);
-          card.style.display = visible ? "block" : "none";
+          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          brandSelected.textContent = item.querySelector('span').textContent;
+          brandMenu.classList.remove('show');
+          applyFilters();
         });
-      });
+
+        // Aplicar filtros
+        function applyFilters() {
+          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
+          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const cat = catSelected ? catSelected.dataset.value : 'all';
+          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+          cards.forEach(c => {
+            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+            c.style.display = (matchCat && matchBrand) ? '' : 'none';
+          });
+        }
+      })();
     </script>
-  </body>
-</html>
+  </div>
+</div>
 {% endblock %}

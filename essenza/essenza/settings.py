@@ -10,7 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-7+c*kj699pt34%5ub-x04i3%nlbhc@y+7sdew3+7!z5h-z1k_v"
+SECRET_KEY = os.getenv(
+    "SECRET_KEY", "django-insecure-7+c*kj699pt34%5ub-x04i3%nlbhc@y+7sdew3+7!z5h-z1k_v"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["pgpi-g1-11.onrender.com"]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -42,10 +49,12 @@ INSTALLED_APPS = [
     "product",
     "order",
     "info",
+    "cart",
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -111,8 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "es"
 
-TIME_ZONE = "UTC"
-
+TIME_ZONE = "Europe/Madrid"
 USE_I18N = True
 
 USE_TZ = True
@@ -124,6 +132,9 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Configuración para que Whitenoise sirva los estáticos comprimidos y rápido
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -139,3 +150,24 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # es el modelo de autenticación oficial.
 # -----------------------------------------------------------------
 AUTH_USER_MODEL = "user.Usuario"
+
+# -----------------------------------------------------------------
+# CONFIGURACIÓN DE STRIPE Y DOMINIO (Leen del .env)
+# -----------------------------------------------------------------
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+DOMAIN_URL = os.getenv(
+    "DOMAIN_URL", "http://127.0.0.1:8000"
+)  # Default a localhost si falla
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# Leemos las credenciales del archivo .env (o las pones aquí directamente entre comillas si prefieres)
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+
+# El remitente que aparecerá en los correos
+DEFAULT_FROM_EMAIL = "Essenza <noreply@essenza.com>"
