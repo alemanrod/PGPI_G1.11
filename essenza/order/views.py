@@ -44,6 +44,23 @@ def send_email_background(subject, message, recipient_list):
         print(f"❌ [Background] Error enviando email: {e}")
 
 
+# order/views.py
+
+
+def test_email_view(request):
+    try:
+        send_mail(
+            "Prueba de correo Essenza",
+            "Si lees esto, la configuración SMTP funciona correctamente.",
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.EMAIL_HOST_USER],  # Se envía a ti mismo
+            fail_silently=False,  # ¡Importante! Queremos que falle si hay error
+        )
+        return HttpResponse("✅ Correo enviado correctamente.")
+    except Exception as e:
+        return HttpResponse(f"❌ Error enviando correo: {e}")
+
+
 # =======================================================
 # LISTADO DE PEDIDOS - ADMIN
 # =======================================================
