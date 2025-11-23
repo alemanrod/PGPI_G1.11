@@ -180,4 +180,4 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # El remitente que aparecerá en los correos
-DEFAULT_FROM_EMAIL = "Essenza <noreply@essenza.com>"
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
