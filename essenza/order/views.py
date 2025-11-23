@@ -243,8 +243,8 @@ def create_checkout(request):
                 "allowed_countries": ["ES"],
             },
             customer_email=customer_email,
-            success_url=domain_url + "/order/success/?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=domain_url + "/order/cancelled/",
+            success_url=domain_url + "order/success/?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url=domain_url + "order/cancelled/",
         )
         return redirect(checkout_session.url, code=303)
 
