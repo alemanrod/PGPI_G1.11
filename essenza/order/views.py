@@ -399,7 +399,6 @@ def test_email_view(request):
             "Si lees esto, la configuración SMTP funciona correctamente.",
             settings.DEFAULT_FROM_EMAIL,
             [settings.EMAIL_HOST_USER],  # Se envía a ti mismo
-            fail_silently=False,  # ¡Importante! Queremos que falle si hay error
         )
         return HttpResponse("✅ Correo enviado correctamente.")
     except Exception as e:
