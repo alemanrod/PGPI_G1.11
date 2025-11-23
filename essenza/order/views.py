@@ -1,5 +1,3 @@
-import threading  # <--- 1. IMPORTANTE: Necesario para los hilos
-
 import stripe
 from cart.models import Cart
 from django.conf import settings
@@ -24,27 +22,6 @@ from .models import Order, OrderProduct, Status
 
 # Configuración de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
-# --------------------------------------------------------------------
-# FUNCIÓN AUXILIAR PARA EL ENVÍO EN SEGUNDO PLANO
-# --------------------------------------------------------------------
-def send_email_background(subject, message, from_email, recipient_list):
-    """
-    Esta función se ejecutará en un hilo paralelo.
-    No bloquea la respuesta al usuario.
-    """
-    try:
-        send_mail(
-            subject,
-            message,
-            from_email,
-            recipient_list,
-            fail_silently=True,  # Si falla aquí, no rompe nada porque el usuario ya vio el éxito
-        )
-        print(f"✅ [Background] Correo enviado a {recipient_list}")
-    except Exception as e:
-        print(f"❌ [Background] Error enviando correo: {e}")
 
 
 # =======================================================
@@ -296,7 +273,7 @@ def successful_payment(request):
             shipping_address += f", {address_data.line2}"
 
         if session.payment_status == "paid":
-            # --- INICIO DE TRANSACCIÓN (DB) ---
+            # --- INICIO DE TRANSACCIÓN ---
             # Esto asegura que si falla la creación de productos, no se crea el pedido vacío
             with transaction.atomic():
                 items_to_process = []
@@ -363,29 +340,25 @@ def successful_payment(request):
                 else:
                     request.session["cart_session"] = {}
                     request.session.modified = True
-
-            # --- FIN TRANSACCIÓN DE DB ---
-
-            # --- ENVÍO DE CORREO EN SEGUNDO PLANO (THREADING) ---
+            # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
             try:
-                # 1. Generar URL
-                tracking_url = request.build_absolute_uri(
-                    reverse("order_tracking", args=[new_order.tracking_code])
-                )
+                # 1. Generar la URL absoluta de seguimiento
+                tracking_url = request.build_absolute_uri(reverse("order_search"))
 
-                # 2. Contenido del email
+                # 2. Definir asunto y mensaje
                 subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
+
+                # Mensaje simple en texto plano
                 message = f"""
-                Hola,
+                Hola!
 
                 Gracias por tu compra en Essenza.
                 Tu pedido ha sido confirmado y se está preparando.
 
-                --- DETALLES ---
+                Detalles del pedido:
                 Nº de localizador: {new_order.tracking_code}
                 Total: {new_order.total_price} €
                 Dirección de envío: {new_order.address}
-                ----------------
 
                 Puedes seguir el estado de tu pedido aquí:
                 {tracking_url}
@@ -393,23 +366,17 @@ def successful_payment(request):
                 Gracias por confiar en nosotros.
                 """
 
-                # 3. Lanzar el hilo
-                # Esto devuelve el control al usuario inmediatamente
-                # mientras el correo se envía "detrás de las cámaras".
-                email_thread = threading.Thread(
-                    target=send_email_background,
-                    args=(
-                        subject,
-                        message,
-                        settings.DEFAULT_FROM_EMAIL,
-                        [new_order.email],
-                    ),
+                # 3. Enviar el correo
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,  # Asegúrate de tener esto en settings.py
+                    [new_order.email],  # El email del destinatario
+                    fail_silently=True,  # Si falla, no rompe la web
                 )
-                email_thread.start()
-
             except Exception as e:
-                # Si falla el lanzamiento del hilo (raro)
-                print(f"⚠️ Error iniciando hilo de correo: {e}")
+                # Si falla el correo, lo imprimimos en consola pero dejamos pasar al usuario
+                print(f"Error enviando email: {e}")
 
             return render(request, "order/success.html", {"order": new_order})
 
