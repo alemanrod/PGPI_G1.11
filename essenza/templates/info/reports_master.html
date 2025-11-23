@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Reportes · Essenza{% endblock %}
+
+{% block top_nav %}{% endblock %} 
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* =======================================================
+    INICIO DEL CSS COMPLETO (SOLO ESTILOS)
+    ======================================================= */
+    /* === ESTILOS BASE Y CONTENEDOR DE PÁGINA === */
+    body { background-color: #faf7f2; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
+    
+    /* Clase envolvente única para el contenido de reporte */
+    .page-container-reports { 
+        max-width: 1000px; 
+        margin: 40px auto; 
+        padding: 0 20px 60px; 
+    }
+    
+    /* --- CABECERA --- */
+    .page-header { margin-bottom: 30px; text-align: center; }
+    .page-header h1 { font-size: 2rem; color: #c06b3e; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; }
+    .page-header p { color: #666; font-size: 1rem; margin: 0; }
+
+    /* --- BARRA DE FILTROS (BOTONES DE NAVEGACIÓN) --- */
+    .filters { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-bottom: 35px; }
+    .filter-btn {
+        background-color: white; border: 1px solid #e0e0e0; border-radius: 8px; 
+        padding: 10px 20px; cursor: pointer; transition: all 0.3s ease; 
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05); color: #555; 
+        font-weight: 600; text-decoration: none; display: inline-flex; 
+        align-items: center; gap: 8px; font-size: 0.95rem;
+    }
+    .filter-btn:hover { border-color: #c06b3e; color: #c06b3e; transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
+    .filter-btn.active {
+        background-color: #c06b3e; color: white; border-color: #c06b3e; 
+        box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2);
+    }
+
+    /* --- ESTILOS DE TABLAS DE REPORTE --- */
+    .report-table-container {
+        margin-top: 20px;
+        padding: 25px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eee;
+        overflow-x: auto;
+    }
+    .report-table { width: 100%; border-collapse: collapse; min-width: 650px; }
+    .report-table th, .report-table td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+    .report-table th { background-color: #f8f8f8; color: #555; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .report-table tr:hover { background-color: #fffaf7; }
+    .total-row { background-color: #fff5e8; font-weight: 800; color: #c06b3e; }
+
+    @media (max-width: 768px) {
+        .filters { flex-direction: column; align-items: stretch; }
+        .filter-btn { justify-content: center; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container-reports">
+    
+    <div class="page-header">
+        <h1>Reportes Administrativos</h1>
+        <p>{{ report_title|default:"Selecciona un reporte de ventas" }}</p>
+    </div>
+
+    {% include 'info/reports_nav.html' %}
+
+    <div id="report-content">
+        {% include template_name %} 
+    </div>
+</div>
+{% endblock %}
