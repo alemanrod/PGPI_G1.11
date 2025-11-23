@@ -20,5 +20,4 @@ urlpatterns = [
         views.OrderUpdateStatusView.as_view(),
         name="order_update_status",
     ),
-    path("test-email/", views.test_email_view, name="test_email"),
 ]

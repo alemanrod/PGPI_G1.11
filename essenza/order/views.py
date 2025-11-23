@@ -1,5 +1,3 @@
-import threading
-
 import stripe
 from cart.models import Cart
 from django.conf import settings
@@ -24,41 +22,6 @@ from .models import Order, OrderProduct, Status
 
 # Configuración de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
-
-def send_email_background(subject, message, recipient_list):
-    """
-    Envía el email en un hilo separado para no bloquear la vista.
-    Si falla, lo imprime en consola pero no afecta al usuario.
-    """
-    try:
-        send_mail(
-            subject,
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            recipient_list,
-            fail_silently=True,
-        )
-        print(f"✅ [Background] Email enviado a {recipient_list}")
-    except Exception as e:
-        print(f"❌ [Background] Error enviando email: {e}")
-
-
-# order/views.py
-
-
-def test_email_view(request):
-    try:
-        send_mail(
-            "Prueba de correo Essenza",
-            "Si lees esto, la configuración SMTP funciona correctamente.",
-            settings.DEFAULT_FROM_EMAIL,
-            [settings.EMAIL_HOST_USER],  # Se envía a ti mismo
-            fail_silently=False,  # ¡Importante! Queremos que falle si hay error
-        )
-        return HttpResponse("✅ Correo enviado correctamente.")
-    except Exception as e:
-        return HttpResponse(f"❌ Error enviando correo: {e}")
 
 
 # =======================================================
@@ -402,18 +365,21 @@ def successful_payment(request):
                 Gracias por confiar en nosotros.
                 """
 
-                # AQUÍ ESTÁ LA MAGIA: Lanzamos el hilo
-                email_thread = threading.Thread(
-                    target=send_email_background,
-                    args=(subject, message, [new_order.email]),
+                # Enviamos directamente. Si tarda 1-2 segundos, es aceptable
+                # para asegurar que no se rompe por falta de memoria RAM.
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [new_order.email],
+                    fail_silently=True,  # Si falla por memoria, el usuario no se entera y ve el éxito
                 )
-                email_thread.start()  # Inicia el envío en paralelo
+                print(f"✅ Correo enviado a {new_order.email}")
 
             except Exception as e:
-                # Error al preparar el hilo (raro, pero posible)
-                print(f"⚠️ Error iniciando hilo de correo: {e}")
+                # Capturamos cualquier error (Memoria, Red, SMTP)
+                print(f"⚠️ No se pudo enviar el email (Probable OOM): {e}")
 
-            # Retornamos la respuesta al usuario INMEDIATAMENTE
             return render(request, "order/success.html", {"order": new_order})
 
         else:
