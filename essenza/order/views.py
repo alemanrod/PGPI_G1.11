@@ -1,3 +1,5 @@
+import threading  # <--- 1. IMPORTANTE: Necesario para los hilos
+
 import stripe
 from cart.models import Cart
 from django.conf import settings
@@ -22,6 +24,27 @@ from .models import Order, OrderProduct, Status
 
 # Configuración de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+# --------------------------------------------------------------------
+# FUNCIÓN AUXILIAR PARA EL ENVÍO EN SEGUNDO PLANO
+# --------------------------------------------------------------------
+def send_email_background(subject, message, from_email, recipient_list):
+    """
+    Esta función se ejecutará en un hilo paralelo.
+    No bloquea la respuesta al usuario.
+    """
+    try:
+        send_mail(
+            subject,
+            message,
+            from_email,
+            recipient_list,
+            fail_silently=True,  # Si falla aquí, no rompe nada porque el usuario ya vio el éxito
+        )
+        print(f"✅ [Background] Correo enviado a {recipient_list}")
+    except Exception as e:
+        print(f"❌ [Background] Error enviando correo: {e}")
 
 
 # =======================================================
@@ -273,7 +296,7 @@ def successful_payment(request):
             shipping_address += f", {address_data.line2}"
 
         if session.payment_status == "paid":
-            # --- INICIO DE TRANSACCIÓN ---
+            # --- INICIO DE TRANSACCIÓN (DB) ---
             # Esto asegura que si falla la creación de productos, no se crea el pedido vacío
             with transaction.atomic():
                 items_to_process = []
@@ -340,12 +363,17 @@ def successful_payment(request):
                 else:
                     request.session["cart_session"] = {}
                     request.session.modified = True
-            # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
+
+            # --- FIN TRANSACCIÓN DE DB ---
+
+            # --- ENVÍO DE CORREO EN SEGUNDO PLANO (THREADING) ---
             try:
+                # 1. Generar URL
                 tracking_url = request.build_absolute_uri(
                     reverse("order_tracking", args=[new_order.tracking_code])
                 )
 
+                # 2. Contenido del email
                 subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
                 message = f"""
                 Hola,
@@ -365,20 +393,23 @@ def successful_payment(request):
                 Gracias por confiar en nosotros.
                 """
 
-                # Enviamos directamente. Si tarda 1-2 segundos, es aceptable
-                # para asegurar que no se rompe por falta de memoria RAM.
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [new_order.email],
-                    fail_silently=True,  # Si falla por memoria, el usuario no se entera y ve el éxito
+                # 3. Lanzar el hilo
+                # Esto devuelve el control al usuario inmediatamente
+                # mientras el correo se envía "detrás de las cámaras".
+                email_thread = threading.Thread(
+                    target=send_email_background,
+                    args=(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [new_order.email],
+                    ),
                 )
-                print(f"✅ Correo enviado a {new_order.email}")
+                email_thread.start()
 
             except Exception as e:
-                # Capturamos cualquier error (Memoria, Red, SMTP)
-                print(f"⚠️ No se pudo enviar el email (Probable OOM): {e}")
+                # Si falla el lanzamiento del hilo (raro)
+                print(f"⚠️ Error iniciando hilo de correo: {e}")
 
             return render(request, "order/success.html", {"order": new_order})
 
@@ -386,7 +417,7 @@ def successful_payment(request):
             return HttpResponse("El pago no se ha completado.")
 
     except Exception as e:
-        return HttpResponse(f"Error verificando el pago: {e}")
+        return HttpResponse(f"Error verificando el pago o creando el pedido: {e}")
 
 
 def cancelled_payment(request):
