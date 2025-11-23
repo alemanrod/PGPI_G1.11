@@ -4,7 +4,6 @@
 
 {% block title %}Reportes · Essenza{% endblock %}
 
-{# ESTE BLOQUE SILENCIA LA BARRA DE NAVEGACIÓN SUPERIOR SI ESTÁ DUPLICADA EN base.html #}
 {% block top_nav %}{% endblock %} 
 
 {% block extra_head %}
@@ -59,16 +58,10 @@
     .report-table tr:hover { background-color: #fffaf7; }
     .total-row { background-color: #fff5e8; font-weight: 800; color: #c06b3e; }
 
-    /* Media Queries y estilos de tarjeta (Mantener para coherencia) */
     @media (max-width: 768px) {
         .filters { flex-direction: column; align-items: stretch; }
         .filter-btn { justify-content: center; }
     }
-    /* ... (Estilos de tarjeta) ... */
-
-    /* =======================================================
-    FIN DEL CSS COMPLETO
-    ======================================================= */
 </style>
 {% endblock %}
 
@@ -83,7 +76,6 @@
     {% include 'info/reports_nav.html' %}
 
     <div id="report-content">
-        {# La vista define qué fragmento se incluye: sales_history.html, etc. #}
         {% include template_name %} 
     </div>
 </div>

@@ -13,7 +13,7 @@
             {% for sale in sales_data %} 
             <tr>
                 <td>{{ sale.user__id }}</td>
-                <td>{{ sale.user__username }}</td>
+                <td>{{ sale.user__first_name }}</td>
                 <td>{{ sale.user__email }}</td>
                 <td>{{ sale.total_spent|floatformat:2 }} €</td>
             </tr>
@@ -22,8 +22,6 @@
                 <td colspan="4" style="text-align: center; color: #999;">No hay datos de ventas por usuario.</td>
             </tr>
             {% endfor %}
-            {# Aquí podrías añadir la fila de totales si calculas el total general en la vista #}
-            {# <tr class="total-row">...</tr> #}
         </tbody>
     </table>
 </div>

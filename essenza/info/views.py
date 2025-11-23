@@ -5,7 +5,7 @@ from django.db.models import Sum, F, Count
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views import View
-from django.http import HttpResponseForbidden # Importación necesaria para 403
+from django.http import HttpResponseForbidden 
 
 from order.models import Order, OrderProduct
 
@@ -48,7 +48,7 @@ class SalesReportsView(LoginRequiredMixin, UserPassesTestMixin, View):
             context['report_title'] = 'Ventas Totales por Usuario'
             context['template_name'] = 'info/user_sales.html'
             context['sales_data'] = Order.objects.values(
-                'user__id', 'user__username', 'user__email' 
+                'user__id', 'user__first_name', 'user__email' 
             ).annotate(
                 total_spent=Sum(F('order_products__quantity') * F('order_products__product__price'))
             ).exclude(
