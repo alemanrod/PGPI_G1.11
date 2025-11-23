@@ -1,3 +1,5 @@
+import threading
+
 import stripe
 from cart.models import Cart
 from django.conf import settings
@@ -22,6 +24,24 @@ from .models import Order, OrderProduct, Status
 
 # Configuración de Stripe
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+
+def send_email_background(subject, message, recipient_list):
+    """
+    Envía el email en un hilo separado para no bloquear la vista.
+    Si falla, lo imprime en consola pero no afecta al usuario.
+    """
+    try:
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            recipient_list,
+            fail_silently=True,
+        )
+        print(f"✅ [Background] Email enviado a {recipient_list}")
+    except Exception as e:
+        print(f"❌ [Background] Error enviando email: {e}")
 
 
 # =======================================================
@@ -342,23 +362,22 @@ def successful_payment(request):
                     request.session.modified = True
             # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
             try:
-                # 1. Generar la URL absoluta de seguimiento
-                tracking_url = request.build_absolute_uri(reverse("order_search"))
+                tracking_url = request.build_absolute_uri(
+                    reverse("order_tracking", args=[new_order.tracking_code])
+                )
 
-                # 2. Definir asunto y mensaje
                 subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
-
-                # Mensaje simple en texto plano
                 message = f"""
-                Hola!
+                Hola,
 
                 Gracias por tu compra en Essenza.
                 Tu pedido ha sido confirmado y se está preparando.
 
-                Detalles del pedido:
+                --- DETALLES ---
                 Nº de localizador: {new_order.tracking_code}
                 Total: {new_order.total_price} €
                 Dirección de envío: {new_order.address}
+                ----------------
 
                 Puedes seguir el estado de tu pedido aquí:
                 {tracking_url}
@@ -366,25 +385,25 @@ def successful_payment(request):
                 Gracias por confiar en nosotros.
                 """
 
-                # 3. Enviar el correo
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,  # Asegúrate de tener esto en settings.py
-                    [new_order.email],  # El email del destinatario
-                    fail_silently=True,  # Si falla, no rompe la web
+                # AQUÍ ESTÁ LA MAGIA: Lanzamos el hilo
+                email_thread = threading.Thread(
+                    target=send_email_background,
+                    args=(subject, message, [new_order.email]),
                 )
-            except Exception as e:
-                # Si falla el correo, lo imprimimos en consola pero dejamos pasar al usuario
-                print(f"Error enviando email: {e}")
+                email_thread.start()  # Inicia el envío en paralelo
 
+            except Exception as e:
+                # Error al preparar el hilo (raro, pero posible)
+                print(f"⚠️ Error iniciando hilo de correo: {e}")
+
+            # Retornamos la respuesta al usuario INMEDIATAMENTE
             return render(request, "order/success.html", {"order": new_order})
 
         else:
             return HttpResponse("El pago no se ha completado.")
 
     except Exception as e:
-        return HttpResponse(f"Error verificando el pago o creando el pedido: {e}")
+        return HttpResponse(f"Error verificando el pago: {e}")
 
 
 def cancelled_payment(request):
