@@ -1,0 +1,29 @@
+<div class="report-table-container">
+    <h2>Listado de Ventas</h2>
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>ID Venta</th>
+                <th>Cliente</th>
+                <th>Email</th>
+                <th>Fecha</th>
+                <th>Total (€)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %} 
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.user.username|default:"Anónimo" }}</td>
+                <td>{{ order.email }}</td>
+                <td>{{ order.placed_at|date:"d M Y, H:i" }}</td>
+                <td>{{ order.total_price|floatformat:2 }} €</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #999;">No hay ventas para mostrar.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
