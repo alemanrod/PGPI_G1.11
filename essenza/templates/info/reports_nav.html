@@ -1,0 +1,9 @@
+{% load static %}
+<div class="filters">
+    {% for nav_item in reports_nav %}
+        <a href="{{ nav_item.url }}" 
+           class="filter-btn {% if current_report == nav_item.id %}active{% endif %}" >
+            {{ nav_item.name }}
+        </a>
+    {% endfor %}
+</div>

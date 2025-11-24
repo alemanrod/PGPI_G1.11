@@ -6,7 +6,7 @@ __pycache__/
 
 # Entorno virtual
 venv/
-.env/
+.env
 .venv
 
 # Archivos de base de datos

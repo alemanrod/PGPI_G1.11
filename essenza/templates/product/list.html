@@ -18,6 +18,14 @@
     padding: 20px;
     background: transparent;
   }
+
+  .filters {
+    max-width: 1100px;
+    margin: 25px auto 0 auto;
+    display: flex;
+    margin-bottom: 30px;
+  }
+
   h1 {
     color: #c06b3e;
     text-align: center;
@@ -74,6 +82,7 @@
   }
   .product-info {
     padding: 15px;
+    padding-bottom: 0;
   }
   .product-name {
     font-size: 18px;
@@ -95,14 +104,14 @@
     color: #333;
     margin-bottom: 8px;
   }
-  .product-stock {
-    font-size: 13px;
-    color: #999;
-    margin-bottom: 12px;
-  }
   .product-actions {
     display: flex;
     gap: 8px;
+    margin-bottom: 12px;
+  }
+  .product-stock {
+    font-weight: 600;
+    font-size: 16px;
   }
   .btn-small {
     flex: 1;
@@ -145,13 +154,6 @@
     color: #999;
     font-size: 16px;
   }
-  .footer {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #ddd;
-    color: #666;
-  }
 
   /* Header/profile/dropdown styles intentionally omitted here so
          the global header in base.html keeps its styles unchanged. */
@@ -165,10 +167,47 @@
       >
     </div>
 
+    <!-- FILTROS: categoría + marca -->
+    <div class="filters">
+      <div class="custom-dropdown" id="categoryDropdownList">
+        <div class="dropdown-button" id="categoryButtonList">
+          <span id="categorySelectedList">Todas las categorías</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-menu" id="categoryMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las categorías</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="custom-dropdown" id="brandDropdownList">
+        <div class="dropdown-button" id="brandButtonList">
+          <span id="brandSelectedList">Todas las marcas</span>
+          <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </div>
+        <div class="dropdown-menu" id="brandMenuList">
+          <div class="dropdown-item selected" data-value="all">
+            <span>Todas las marcas</span>
+            <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
     {% if products %}
     <div class="products-grid">
       {% for product in products %}
-      <div class="product-card">
+      <div class="product-card" data-category="{{ product.category }}" data-brand="{{ product.brand|default:''|lower }}">
         <div class="product-image">
           {% if product.photo %}
           <img src="{{ product.photo.url }}" alt="{{ product.name }}" />
@@ -197,12 +236,14 @@
               >Borrar</a
             >
           </div>
+          <div class="product-stock">
+            {% if product.stock == 0 %}
+              <span style="color: #dc3545">Producto agotado</span>
+            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
+            <span style="color: #fd7e14">Últimas unidades</span>
+            {% endif %}
+          </div>
         </div>
-        {% if product.stock == 0 %}
-        <strong>¡Producto agotado!</strong>
-        {% endif %} {% if product.stock < 10 and product.stock > 0 %}
-        <strong>¡Últimas unidades!</strong>
-        {% endif %}
       </div>
       {% endfor %}
     </div>
@@ -214,16 +255,122 @@
       </p>
     </div>
     {% endif %}
-    <div class="footer">
-      <p>
-        <a
-          href="#"
-          onclick="history.back(); return false;"
-          style="color: #c06b3e; text-decoration: none"
-          >← Volver</a
-        >
-      </p>
-    </div>
+    <script>
+      // Custom dropdown para list.html
+      (function(){
+        const categoryButton = document.getElementById('categoryButtonList');
+        const categoryMenu = document.getElementById('categoryMenuList');
+        const categorySelected = document.getElementById('categorySelectedList');
+        const brandButton = document.getElementById('brandButtonList');
+        const brandMenu = document.getElementById('brandMenuList');
+        const brandSelected = document.getElementById('brandSelectedList');
+        const cards = Array.from(document.querySelectorAll('.product-card'));
+
+        // Toggle dropdowns
+        categoryButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          categoryMenu.classList.toggle('show');
+          brandMenu.classList.remove('show');
+        });
+
+        brandButton.addEventListener('click', (e) => {
+          e.stopPropagation();
+          brandMenu.classList.toggle('show');
+          categoryMenu.classList.remove('show');
+        });
+
+        document.addEventListener('click', () => {
+          categoryMenu.classList.remove('show');
+          brandMenu.classList.remove('show');
+        });
+
+        // Poblar categorías dinámicamente
+        function populateCategories() {
+          const categories = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.category || '').trim();
+            if (b) categories.add(b);
+          });
+
+          const sortedCategories = Array.from(categories).sort();
+          sortedCategories.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            categoryMenu.appendChild(item);
+          });
+        }
+        populateCategories();
+
+        // Poblar marcas dinámicamente
+        function populateBrands() {
+          const brands = new Set();
+          cards.forEach(c => {
+            const b = (c.dataset.brand || '').trim();
+            if (b) brands.add(b);
+          });
+
+          const sortedBrands = Array.from(brands).sort();
+          sortedBrands.forEach(b => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.dataset.value = b;
+            item.innerHTML = `
+              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
+              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            `;
+            brandMenu.appendChild(item);
+          });
+        }
+        populateBrands();
+
+        // Manejar selección de categoría
+        categoryMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          categorySelected.textContent = item.querySelector('span').textContent;
+          categoryMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Manejar selección de marca
+        brandMenu.addEventListener('click', (e) => {
+          const item = e.target.closest('.dropdown-item');
+          if (!item) return;
+
+          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+          item.classList.add('selected');
+          brandSelected.textContent = item.querySelector('span').textContent;
+          brandMenu.classList.remove('show');
+          applyFilters();
+        });
+
+        // Aplicar filtros
+        function applyFilters() {
+          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
+          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const cat = catSelected ? catSelected.dataset.value : 'all';
+          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+          cards.forEach(c => {
+            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+            c.style.display = (matchCat && matchBrand) ? '' : 'none';
+          });
+        }
+      })();
+    </script>
   </div>
 </div>
 {% endblock %}

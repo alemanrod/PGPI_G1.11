@@ -1,4 +1,3 @@
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404, redirect, render
@@ -23,7 +22,12 @@ class DashboardView(UserPassesTestMixin, View):
             not self.request.user.is_authenticated or self.request.user.role != "admin"
         )
 
+    def handle_no_permission(self):
+        return redirect("stock")
+
     def get(self, request, *args, **kwargs):
+        q = request.GET.get("q", "").strip()
+
         month_ago = timezone.now() - timezone.timedelta(days=30)
         year_ago = timezone.now() - timezone.timedelta(days=365)
 
@@ -42,6 +46,13 @@ class DashboardView(UserPassesTestMixin, View):
             ordered_query = filtered_query.order_by("-total_quantity")
             top_products = ordered_query[:10]
             return top_products
+
+        # If a search query is provided, show matching products instead of top sellers
+        if q:
+            products = Product.objects.filter(is_active=True, name__icontains=q)
+            return render(
+                request, self.template_name, {"products": products, "query": q}
+            )
 
         products = get_top_selling_products(since=month_ago)
         if not products.exists():
@@ -63,8 +74,12 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request):
         # Carga y muestra todos los productos ordenados por nombre
-        products = Product.objects.all().order_by("name")
-        return render(request, "product/stock.html", {"products": products})
+        q = request.GET.get("q", "").strip()
+        if q:
+            products = Product.objects.filter(name__icontains=q).order_by("name")
+        else:
+            products = Product.objects.all().order_by("name")
+        return render(request, "product/stock.html", {"products": products, "query": q})
 
     def post(self, request):
         # Coge datos del formulario para actualizar stock
@@ -82,14 +97,9 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
 
             product.stock = new_stock
             product.save(update_fields=["stock"])
-            messages.success(
-                request, f"Stock de '{product.name}' actualizado a {new_stock}."
-            )
 
         except (ValueError, TypeError):
-            messages.error(
-                request, f"El valor de stock '{stock_value}' no es un número válido."
-            )
+            pass
 
         # Recarga la misma página
         return redirect("stock")
@@ -102,8 +112,12 @@ class ProductListView(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def get(self, request):
-        products = Product.objects.all()
-        return render(request, self.template_name, {"products": products})
+        q = request.GET.get("q", "").strip()
+        if q:
+            products = Product.objects.filter(name__icontains=q)
+        else:
+            products = Product.objects.all()
+        return render(request, self.template_name, {"products": products, "query": q})
 
 
 class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -177,8 +191,12 @@ class CatalogView(View):
     template_name = "product/catalog.html"
 
     def get(self, request):
-        products = Product.objects.filter(is_active=True)
-        return render(request, self.template_name, {"products": products})
+        q = request.GET.get("q", "").strip()
+        if q:
+            products = Product.objects.filter(is_active=True, name__icontains=q)
+        else:
+            products = Product.objects.filter(is_active=True)
+        return render(request, self.template_name, {"products": products, "query": q})
 
 
 class CatalogDetailView(View):

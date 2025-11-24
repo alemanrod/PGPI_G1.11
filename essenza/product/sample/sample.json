@@ -22,7 +22,7 @@
       "category": "tratamiento",
       "brand": "Pantene",
       "price": 6.99,
-      "photo": "products/shampoo_reconstructivo.jpg",
+      "photo": "products/champu_reconstructivo.jpg",
       "stock": 100,
       "is_active": true
     }
@@ -30,6 +30,20 @@
   {
     "model": "product.product",
     "pk": 3,
+    "fields": {
+      "name": "Sesión de Maquillaje Profesional",
+      "description": "Maquillaje completo para eventos, bodas o fiestas. Duración 60 min. Válido por una semana desde el momento de la compra.",
+      "category": "servicio",
+      "brand": "Essenza Studio",
+      "price": 45.00,
+      "photo": "products/servicio_maquillaje.jpg",
+      "stock": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 4,
     "fields": {
       "name": "Secador de Pelo",
       "description": "Secador de pelo con 3 niveles de temperatura, 2000W.",
@@ -43,7 +57,7 @@
   },
   {
     "model": "product.product",
-    "pk": 4,
+    "pk": 5,
     "fields": {
       "name": "Perfume Floral",
       "description": "Perfume con notas de jazmín y rosa, 100ml.",
@@ -57,7 +71,7 @@
   },
   {
     "model": "product.product",
-    "pk": 5,
+    "pk": 6,
     "fields": {
       "name": "Crema Hidratante",
       "description": "Crema hidratante para piel seca, 50ml.",
@@ -71,7 +85,21 @@
   },
   {
     "model": "product.product",
-    "pk": 6,
+    "pk": 7,
+    "fields": {
+      "name": "Corte y Peinado Personalizado",
+      "description": "Asesoramiento de imagen, lavado, corte y peinado final. Válido por una semana desde el momento de la compra.",
+      "category": "servicio",
+      "brand": "Essenza Hair",
+      "price": 25.00,
+      "photo": "products/servicio_corte.jpg",
+      "stock": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 8,
     "fields": {
       "name": "Rizador de Pelo",
       "description": "Rizador de pelo con control de temperatura, 25mm.",
@@ -85,7 +113,7 @@
   },
   {
     "model": "product.product",
-    "pk": 7,
+    "pk": 9,
     "fields": {
       "name": "Gel Antibacterial",
       "description": "Gel antibacterial para manos, 250ml.",
@@ -99,21 +127,35 @@
   },
   {
     "model": "product.product",
-    "pk": 8,
+    "pk": 10,
     "fields": {
       "name": "Champú Anticaspa",
       "description": "Champú anticaspa para cuero cabelludo sensible, 400ml.",
       "category": "tratamiento",
       "brand": "Head & Shoulders",
       "price": 7.99,
-      "photo": "products/shampoo_anticaspa.jpg",
+      "photo": "products/champu_anticaspa.jpg",
       "stock": 90,
       "is_active": true
     }
   },
   {
     "model": "product.product",
-    "pk": 9,
+    "pk": 11,
+    "fields": {
+      "name": "Limpieza Facial Profunda",
+      "description": "Tratamiento facial completo con exfoliación y vapor ozono. Válido por una semana desde el momento de la compra.",
+      "category": "servicio",
+      "brand": "Essenza Spa",
+      "price": 35.00,
+      "photo": "products/servicio_facial.jpg",
+      "stock": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 12,
     "fields": {
       "name": "Aceite Capilar",
       "description": "Aceite nutritivo para el cabello, 150ml.",
@@ -127,7 +169,7 @@
   },
   {
     "model": "product.product",
-    "pk": 10,
+    "pk": 13,
     "fields": {
       "name": "Tinte de Pelo",
       "description": "Tinte permanente para pelo, color castaño claro.",
@@ -141,7 +183,7 @@
   },
   {
     "model": "product.product",
-    "pk": 11,
+    "pk": 14,
     "fields": {
       "name": "Mascarilla Facial",
       "description": "Mascarilla hidratante para todo tipo de piel, 100ml.",
@@ -155,26 +197,40 @@
   },
   {
     "model": "product.product",
-    "pk": 12,
+    "pk": 15,
+    "fields": {
+      "name": "Manicura Semipermanente",
+      "description": "Limado, retirada de cutículas y esmaltado de larga duración. Válido por una semana desde el momento de la compra.",
+      "category": "servicio",
+      "brand": "Essenza Nails",
+      "price": 18.00,
+      "photo": "products/servicio_manicura.jpg",
+      "stock": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 16,
     "fields": {
       "name": "Champú Voluminizador",
       "description": "Champú voluminizador para cabellos finos, 300ml.",
       "category": "tratamiento",
       "brand": "TRESemmé",
       "price": 5.99,
-      "photo": "products/shampoo_voluminizador.jpg",
+      "photo": "products/champu_voluminizador.jpg",
       "stock": 120,
       "is_active": true
     }
   },
   {
     "model": "product.product",
-    "pk": 13,
+    "pk": 17,
     "fields": {
       "name": "Laca de Pelo",
       "description": "Laca fijadora para todo el día, 400ml.",
       "category": "cabello",
-      "brand": "Schwarzkopf",
+      "brand": "Nelly",
       "price": 10.99,
       "photo": "products/laca_pelo.jpg",
       "stock": 70,
@@ -183,7 +239,7 @@
   },
   {
     "model": "product.product",
-    "pk": 14,
+    "pk": 18,
     "fields": {
       "name": "Crema Solar",
       "description": "Protección solar SPF 50+, 200ml.",
@@ -197,7 +253,7 @@
   },
   {
     "model": "product.product",
-    "pk": 15,
+    "pk": 19,
     "fields": {
       "name": "Crema Antiedad",
       "description": "Crema antiarrugas para el rostro, 50ml.",
@@ -211,7 +267,7 @@
   },
   {
     "model": "product.product",
-    "pk": 16,
+    "pk": 20,
     "fields": {
       "name": "Desodorante",
       "description": "Desodorante en barra, 75g.",
@@ -225,7 +281,21 @@
   },
   {
     "model": "product.product",
-    "pk": 17,
+    "pk": 21,
+    "fields": {
+      "name": "Asesoría de Imagen Completa",
+      "description": "Estudio de colorimetría, morfología y estilo personal. Válido por una semana desde el momento de la compra.",
+      "category": "servicio",
+      "brand": "Essenza Style",
+      "price": 60.00,
+      "photo": "products/servicio_asesoria.jpg",
+      "stock": 1,
+      "is_active": true
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 22,
     "fields": {
       "name": "Toallitas Desmaquillantes",
       "description": "Toallitas para desmaquillar, 25 unidades.",
@@ -239,7 +309,7 @@
   },
   {
     "model": "product.product",
-    "pk": 18,
+    "pk": 23,
     "fields": {
       "name": "Pincel de Maquillaje",
       "description": "Pincel para base líquida, cerdas suaves.",
@@ -253,7 +323,7 @@
   },
   {
     "model": "product.product",
-    "pk": 19,
+    "pk": 24,
     "fields": {
       "name": "Crema para Pies",
       "description": "Crema reparadora para pies agrietados, 100ml.",
@@ -267,7 +337,7 @@
   },
   {
     "model": "product.product",
-    "pk": 20,
+    "pk": 25,
     "fields": {
       "name": "Limpieza Facial",
       "description": "Gel limpiador facial suave, 200ml.",

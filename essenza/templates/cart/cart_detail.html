@@ -1,0 +1,252 @@
+{% extends "base.html" %} 
+{% load static %}
+{% load humanize %} 
+
+{% block title %}Mi Carrito · Essenza{% endblock %}
+
+{% block extra_head %}
+<style>
+    .cart-page-body {
+        background-color: #faf7f2; /* Fondo del cuerpo */
+        padding: 40px 20px;
+    }
+    .cart-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* --- ESTILO DEL TÍTULO (Inspirado en "Top Bestsellers") --- */
+    .cart-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    .cart-header h1 {
+        font-size: 36px;
+        color: #c06b3e; /* Marrón/Naranja cálido de la marca */
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+    .cart-header p {
+        font-size: 16px;
+        color: #666;
+        margin: 0;
+    }
+
+    /* --- ESTILO DE LAS TARJETAS DE PRODUCTO --- */
+    .cart-items-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .cart-item-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        padding: 15px 25px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: box-shadow 0.2s;
+    }
+    .cart-item-card:hover {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Sección de Imagen y Nombre */
+    .item-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        flex: 3;
+    }
+    .item-image {
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+        border-radius: 8px;
+        border: 1px solid #f0e8e0;
+    }
+    .item-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+    .item-details h2 {
+        font-size: 16px;
+        color: #333;
+        margin: 0 0 4px 0;
+        font-weight: 600;
+    }
+    .item-details p {
+        font-size: 14px;
+        color: #666;
+        margin: 0;
+    }
+
+    /* Sección de Cantidad y Subtotal */
+    .item-controls {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+        flex: 1;
+        justify-content: flex-end;
+    }
+    .item-price {
+        font-size: 16px;
+        font-weight: bold;
+        color: #c06b3e;
+        width: 80px; /* Ancho fijo para alineación */
+        text-align: right;
+    }
+
+    /* Estilo del formulario de cantidad/eliminación */
+    .quantity-form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .quantity-form input[type="number"] {
+        width: 50px;
+        padding: 6px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 14px;
+    }
+    .btn-remove {
+        background: none;
+        border: none;
+        color: #a35a34;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    .btn-remove:hover {
+        color: #c00;
+    }
+
+    /* --- TOTALES Y BOTONES DE ACCIÓN --- */
+    .cart-summary {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 30px;
+    }
+    .total-price-display {
+        font-size: 20px;
+        font-weight: 700;
+        color: #333;
+    }
+    .total-price-display span {
+        color: #c06b3e;
+        margin-left: 10px;
+    }
+    .btn-checkout {
+        padding: 12px 25px;
+        background: #c06b3e;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: opacity 0.2s;
+    }
+    .btn-checkout:hover {
+        opacity: 0.85;
+    }
+
+    /* --- CARRITO VACÍO --- */
+    .empty-cart {
+        text-align: center;
+        padding: 60px 0;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        color: #666;
+    }
+    .empty-cart h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+        color: #c06b3e;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cart-page-body">
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1>Tu Carrito de Compra</h1>
+            <p>Productos seleccionados por ti.</p>
+        </div>
+
+        {% if cart_products %}
+            <div class="cart-items-list">
+                {% for item in cart_products %}
+                    <div class="cart-item-card">
+                        
+                        <div class="item-info">
+                            <div class="item-image">
+                                {% if item.product.photo %}
+                                    <img src="{{ item.product.photo.url }}" alt="{{ item.product.name }}" />
+                                {% else %}
+                                    <img src="{% static 'images/default_product.png' %}" alt="{{ item.product.name }}" />
+                                {% endif %}
+                            </div>
+                            <div class="item-details">
+                                <h2>{{ item.product.name }}</h2>
+                                <p>{{ item.product.brand }}</p>
+                            </div>
+                        </div>
+
+                        <div class="item-controls">
+                            <form method="POST" action="{% url 'update_cart_item' product_id=item.pk %}" class="quantity-form">
+                                {% csrf_token %}
+                                <input 
+                                    type="number" 
+                                    name="quantity" 
+                                    value="{{ item.quantity }}" 
+                                    min="0" 
+                                    max="{{ item.product.stock }}"
+                                    data-item-pk="{{ item.pk }}"
+                                    onchange="this.form.submit()" 
+                                    aria-label="Cantidad"
+                                    onkeydown="return false" 
+                                    style="caret-color: transparent"
+                                >
+                            </form>
+                            <form method="POST" action="{% url 'remove_from_cart' product_id=item.pk %}" class="quantity-form">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-remove" title="Eliminar ítem">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button>
+                            </form>
+                            <div class="item-price">{{ item.subtotal|floatformat:2|intcomma }} €</div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        <div class="cart-summary">
+            <div class="total-price-display">
+                TOTAL: <span>{{ total_price|floatformat:2|intcomma }} €</span>
+            </div>
+            <div>
+                <a href="{% url 'create_checkout' %}" class="btn-checkout">
+                    Pagar Ahora
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty-cart">
+            <h2>Tu carrito está vacío</h2>
+            <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

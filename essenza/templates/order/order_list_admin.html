@@ -1,0 +1,413 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load static %}
+
+{% block title %}Pedidos · Essenza{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+  /* === ESTILOS BASE (Coherentes con list.html) === */
+  body {
+    background-color: #faf7f2;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+  }
+
+  .page-container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px 60px;
+  }
+
+  /* --- CABECERA --- */
+  .page-header {
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .page-header h1 {
+    font-size: 2rem; /* Similar al h1 de list.html (32px) */
+    color: #c06b3e;
+    font-weight: 800;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.5px;
+  }
+
+  .page-header p {
+    color: #666;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  /* --- NUEVA BARRA DE FILTROS (ESTILO list.html) --- */
+  .filters {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 35px;
+  }
+
+  /* Adaptación del estilo .dropdown-button de list.html a botones individuales */
+  .filter-btn {
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px; /* Mismo radio que en list.html */
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    color: #555;
+    font-weight: 600;
+    text-decoration: none; /* Quitar subrayado de enlace */
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+  }
+
+  .filter-btn:hover {
+    border-color: #c06b3e;
+    color: #c06b3e;
+    transform: translateY(-2px); /* Pequeño efecto elevación */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Estado Activo (Cuando el filtro está seleccionado) */
+  .filter-btn.active {
+    background-color: #c06b3e;
+    color: white;
+    border-color: #c06b3e;
+    box-shadow: 0 4px 12px rgba(192, 107, 62, 0.2);
+  }
+
+  /* --- ESTILOS DE TARJETA DE PEDIDO --- */
+  .card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+
+  .order-card {
+    background: white;
+    border-radius: 12px; /* Coherente con product-card */
+    border: 1px solid #eee; /* Borde sutil como en list.html */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px; 
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  }
+
+  .card-link:hover .order-card {
+    transform: translateY(-5px); /* Mismo efecto hover que product-card */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-color: #c06b3e; /* Borde naranja al pasar el ratón */
+  }
+
+  /* Cabecera de Tarjeta */
+  .card-header {
+    padding: 15px 25px;
+    background: #fffcf9; /* Fondo muy sutil */
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .order-id {
+    font-weight: 700;
+    color: #333;
+    font-size: 1.1rem;
+  }
+  
+  .order-id i { color: #c06b3e; }
+
+  .order-date {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    background: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+  }
+
+  /* Cuerpo de Tarjeta */
+  .card-body {
+    padding: 25px;
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1fr; /* Estructura de columnas */
+    gap: 30px;
+    align-items: start;
+  }
+
+  /* Columna 1: Envío */
+  .info-group label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .customer-info {
+    font-size: 0.95rem;
+    color: #333;
+    line-height: 1.6;
+  }
+  .customer-address {
+    color: #666;
+    font-size: 0.9rem;
+    margin-top: 4px;
+  }
+
+  /* Columna 2: Productos */
+  .products-summary {
+    background: #fff;
+    padding: 0;
+  }
+  
+  .product-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: #555;
+    border-bottom: 1px dotted #eee;
+    padding-bottom: 4px;
+  }
+  .product-line:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .qty-badge {
+    background: #f0f0f0;
+    color: #333;
+    font-size: 0.75rem;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-weight: 700;
+    border: 1px solid #ddd;
+  }
+
+  /* Columna 3: Estado y Total */
+  .status-total-col {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 100%;
+    min-height: 80px;
+  }
+
+  .order-total {
+    font-size: 1.5rem; /* Grande como en product-list */
+    font-weight: 800;
+    color: #c06b3e; /* Color marca */
+    margin-top: 15px;
+  }
+
+  /* Badges de Estado */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .st-prep { background-color: #fff8e1; color: #f57c00; border: 1px solid #ffe0b2; }
+  .st-sent { background-color: #e3f2fd; color: #1976d2; border: 1px solid #bbdefb; }
+  .st-done { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    color: #999;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  .empty-state i {
+    font-size: 40px;
+    margin-bottom: 15px;
+    color: #e0e0e0;
+  }
+  
+  .btn-shop {
+      display: inline-block;
+      margin-top: 15px;
+      background-color: #c06b3e; /* btn-create style */
+      color: white;
+      padding: 12px 30px;
+      border-radius: 5px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background-color 0.3s;
+  }
+  .btn-shop:hover { background-color: #a35a34; }
+
+  @media (max-width: 768px) {
+    .card-body {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+    .status-total-col {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid #f0f0f0;
+      padding-top: 15px;
+      margin-top: 10px;
+    }
+    .order-total { margin-top: 0; }
+    .filters { flex-direction: column; align-items: stretch; }
+    .filter-btn { justify-content: center; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-container">
+  
+  <div class="page-header">
+    <h1>Pedidos</h1>
+    <p>Historial de todas las compras</p>
+  </div>
+
+  <!-- BARRA DE FILTROS (BOTONES SEPARADOS) -->
+  <div class="filters">
+    <a href="{% url 'order_list_admin' %}" 
+       class="filter-btn {% if not request.GET.status %}active{% endif %}" >
+       Todos
+    </a>
+
+    <a href="?status=en_preparacion" 
+       class="filter-btn {% if request.GET.status == 'en_preparacion' %}active{% endif %}">
+       En Preparación
+    </a>
+
+    <a href="?status=enviado" 
+       class="filter-btn {% if request.GET.status == 'enviado' %}active{% endif %}">
+       Enviados
+    </a>
+
+    <a href="?status=entregado" 
+       class="filter-btn {% if request.GET.status == 'entregado' %}active{% endif %}">
+       Entregados
+    </a>
+  </div>
+
+  <!-- LISTADO DE PEDIDOS -->
+  {% if orders %}
+    {% for order in orders %}
+      
+      <!-- ENLACE A TRACKING -->
+      <a href="{% url 'order_tracking' order.tracking_code %}" class="card-link">
+        
+        <article class="order-card">
+          
+          <div class="card-header">
+            <div class="order-id">
+              <i class="fas fa-hashtag"></i> {{ order.tracking_code }}
+            </div>
+            <div class="order-date">
+              <i class="far fa-clock"></i> {{ order.placed_at|date:"d M Y, H:i" }}
+            </div>
+          </div>
+
+          <div class="card-body">
+            
+            <!-- Columna 1: Envío -->
+            <div class="info-group">
+              <label>Datos de envío</label>
+              <div class="customer-info">
+                <div class="customer-address">
+                  <i class="fas fa-map-marker-alt" style="color:#c06b3e; width:12px; margin-right:4px;"></i> 
+                  {{ order.address|default:"Dirección no disponible"|truncatechars:40 }}
+                </div>
+                <div style="font-size: 0.85rem; color: #aaa; margin-top: 4px;">
+                    {{ order.email }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna 2: Productos -->
+            <div class="info-group">
+              <label>Productos</label>
+              <div class="products-summary">
+                {% for op in order.order_products.all|slice:":3" %}
+                  <div class="product-line">
+                    <span><span class="qty-badge">{{ op.quantity }}</span> {{ op.product.name|truncatechars:20 }}</span>
+                    <span>{{ op.subtotal|floatformat:2 }}€</span>
+                  </div>
+                {% empty %}
+                  <div style="font-size:0.9rem; color:#999;">Sin productos</div>
+                {% endfor %}
+                
+                {% if order.order_products.count > 3 %}
+                  <div style="font-size: 0.8rem; color: #888; text-align: center; margin-top: 5px;">
+                    + {{ order.order_products.count|add:"-3" }} más...
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Columna 3: Estado y Total -->
+            <div class="status-total-col">
+              <!-- Badge -->
+              {% if order.status == "en_preparacion" %}
+                <span class="status-badge st-prep"><i class="fas fa-box-open"></i> Preparando</span>
+              {% elif order.status == "enviado" %}
+                <span class="status-badge st-sent"><i class="fas fa-truck"></i> Enviado</span>
+              {% elif order.status == "entregado" %}
+                <span class="status-badge st-done"><i class="fas fa-check-circle"></i> Entregado</span>
+              {% else %}
+                <span class="status-badge">{{ order.get_status_display }}</span>
+              {% endif %}
+
+              <!-- Total -->
+              <div class="order-total">
+                {{ order.total_price|floatformat:2 }} €
+              </div>
+            </div>
+
+          </div>
+        </article>
+      </a>
+    {% endfor %}
+  
+  {% else %}
+    <div class="empty-state">
+      <i class="fas fa-shopping-bag"></i>
+      <h3>No tienes pedidos {% if request.GET.status %}en esta categoría{% endif %}</h3>
+      <p>
+          {% if request.GET.status %}
+             Prueba seleccionando "Todos" para ver tu historial completo.
+          {% else %}
+             Cuando realices tu primera compra, aparecerá aquí para que puedas seguirla.
+          {% endif %}
+      </p>
+      {% if request.GET.status %}
+        <a href="{% url 'order_list_admin' %}" class="btn-shop" style="background-color: #6c757d;">Ver todos</a>
+      {% else %}
+        <a href="{% url 'catalog' %}" class="btn-shop">Ir a la tienda</a>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

@@ -7,6 +7,7 @@ class Category(models.TextChoices):
     TRATAMIENTO = "tratamiento", "Tratamiento"
     CABELLO = "cabello", "Cabello"
     PERFUME = "perfume", "Perfume"
+    SERVICIO = "servicio", "Servicio"
 
 
 class Product(models.Model):
