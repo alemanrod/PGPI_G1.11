@@ -170,7 +170,10 @@ DOMAIN_URL = os.getenv(
     "DOMAIN_URL", "http://127.0.0.1:8000"
 )  # Default a localhost si falla
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+
+ANYMAIL = {"SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY")}
+
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
