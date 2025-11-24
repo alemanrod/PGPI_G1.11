@@ -180,8 +180,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 # El remitente que aparecerá en los correos
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
+DEFAULT_FROM_EMAIL = "noreply.essenza@gmail.com"
 
 # Activa el logging a nivel DEBUG para smtp
 LOGGING = {
