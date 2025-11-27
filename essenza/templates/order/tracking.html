@@ -246,18 +246,23 @@
         padding-top: 20px;
         border-top: 2px solid #eee;
         display: flex;
-        justify-content: flex-end;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
+    }
+    .shipping-line {
+        font-size: 0.95rem;
+        color: #888;
+        font-weight: 500;
+        display: flex;
         align-items: center;
-        gap: 20px;
+        gap: 8px;
     }
-    .total-label {
-        font-size: 1.1rem;
-        color: #666;
-    }
-    .order-total-price {
-        font-size: 1.5rem;
+    .total-line {
+        font-size: 1.6rem;
         color: #c06b3e;
         font-weight: 800;
+        line-height: 1.1;
     }
 
     .btn-back {
@@ -421,8 +426,16 @@
 
         <!-- Total Final -->
         <div class="order-total-container">
-            <span class="total-label">TOTAL PAGADO:</span>
-            <span class="order-total-price">{{ order.total|floatformat:2 }} €</span>
+            
+            <div class="shipping-line">
+                <i class="fas fa-shipping-fast"></i> 
+                Envío: {{ order.shipping|floatformat:2 }} €
+            </div>
+
+            <div class="total-line">
+                {{ order.total|floatformat:2 }} €
+            </div>
+            
         </div>
     </div>
 

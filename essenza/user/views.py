@@ -1,8 +1,5 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.mixins import (  # Para proteger vistas
-    LoginRequiredMixin,
-    UserPassesTestMixin,
-)
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
@@ -17,9 +14,18 @@ from .forms import (
 from .models import Usuario
 
 
-class LoginView(View):
+class LoginView(UserPassesTestMixin, View):
     form_class = LoginForm
     template_name = "user/login.html"
+
+    def test_func(self):
+        return not self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        if not self.request.user.role == "user":
+            return redirect("dashboard")
+        else:
+            return redirect("stock")
 
     def get(self, request, *args, **kwargs):
         # Si el usuario ya está autenticado, lo mandamos a dashboard
@@ -50,7 +56,13 @@ class LoginView(View):
         return render(request, self.template_name, {"form": form})
 
 
-class LogoutView(View):
+class LogoutView(LoginRequiredMixin, View):
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        return redirect("login")
+
     def get(self, request):
         logout(request)
         response = redirect("dashboard")
@@ -64,9 +76,18 @@ class LogoutView(View):
         return response
 
 
-class RegisterView(View):
+class RegisterView(UserPassesTestMixin, View):
     form_class = RegisterForm
     template_name = "user/register.html"
+
+    def test_func(self):
+        return not self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        if not self.request.user.role == "user":
+            return redirect("dashboard")
+        else:
+            return redirect("stock")
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
@@ -86,6 +107,12 @@ class RegisterView(View):
 class ProfileView(LoginRequiredMixin, View):
     template_name = "user/profile.html"
 
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        return redirect("login")
+
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name)
 
@@ -93,6 +120,12 @@ class ProfileView(LoginRequiredMixin, View):
 class ProfileEditView(LoginRequiredMixin, View):
     form_class = ProfileEditForm
     template_name = "user/edit_profile.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        return redirect("login")
 
     def get(self, request, *args, **kwargs):
         # Rellena el formulario con los datos actuales del usuario
@@ -123,6 +156,12 @@ class ProfileEditView(LoginRequiredMixin, View):
 
 class ProfileDeleteView(LoginRequiredMixin, View):
     template_name = "user/confirm_delete_profile.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated
+
+    def handle_no_permission(self):
+        return redirect("login")
 
     def get(self, request, *args, **kwargs):
         # Muestra la página de confirmación
@@ -195,6 +234,8 @@ class UserCreateViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
         return redirect("dashboard")
 
     def get(self, request, *args, **kwargs):
@@ -220,6 +261,8 @@ class UserUpdateViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
         return redirect("dashboard")
 
     def get(self, request, pk, *args, **kwargs):
@@ -259,6 +302,8 @@ class UserDeleteViewAdmin(LoginRequiredMixin, UserPassesTestMixin, View):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
         return redirect("dashboard")
 
     def get(self, request, pk, *args, **kwargs):

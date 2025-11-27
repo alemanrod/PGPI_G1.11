@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from product.models import Product
@@ -7,12 +8,20 @@ from product.models import Product
 from .models import Cart, CartProduct
 
 
-class CartDetailView(View):
+class CartDetailView(UserPassesTestMixin, View):
     """
-    Muestra el carrito.
+    Muestra el carrito (si no eres admin).
     - Si es usuario logueado: Lee de la base de datos
     - Si es anónimo: Lee de la sesión
     """
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     template_name = "cart/cart_detail.html"
 
@@ -68,10 +77,18 @@ class CartDetailView(View):
         return render(request, self.template_name, context)
 
 
-class AddToCartView(View):
+class AddToCartView(UserPassesTestMixin, View):
     """
     Añade productos al carrito (DB o Sesión).
     """
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def post(self, request, product_id):
         product = get_object_or_404(Product, pk=product_id)
@@ -130,10 +147,18 @@ class AddToCartView(View):
         return redirect("cart_detail")
 
 
-class RemoveFromCartView(View):
+class RemoveFromCartView(UserPassesTestMixin, View):
     """
     Elimina productos del carrito.
     """
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def post(self, request, product_id):
         # Si el usuario está logueado
@@ -162,10 +187,18 @@ class RemoveFromCartView(View):
         return redirect("cart_detail")
 
 
-class UpdateCartItemView(View):
+class UpdateCartItemView(UserPassesTestMixin, View):
     """
     Actualiza la cantidad de un producto.
     """
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def post(self, request, product_id):
         try:

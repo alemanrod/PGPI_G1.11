@@ -215,7 +215,7 @@ class LogoutViewTests(TestCase):
     # 3. Comprobar que un usuario no autenticado también redirige correctamente
     def test_logout_redirects_even_if_not_authenticated(self):
         response = self.client.get(self.logout_url)
-        self.assertRedirects(response, self.dashboard_url)
+        self.assertRedirects(response, self.login_url)
 
 
 class UserAdminViewsTests(TestCase):

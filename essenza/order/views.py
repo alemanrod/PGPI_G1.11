@@ -64,8 +64,16 @@ class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
 # =======================================================
 # LISTADO DE PEDIDOS - USER
 # =======================================================
-class OrderHistoryView(LoginRequiredMixin, View):
+class OrderHistoryView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "order/order_history.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "user"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("stock")
 
     def get(self, request):
         # CORRECCIÓN 1: Usamos Q para buscar por Usuario O por Email
@@ -89,8 +97,16 @@ class OrderHistoryView(LoginRequiredMixin, View):
 # =======================================================
 # BUSQUEDA DE PEDIDO
 # =======================================================
-class OrderSearchView(View):
+class OrderSearchView(UserPassesTestMixin, View):
     template_name = "order/order_search.html"
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def get(self, request):
         # Solo muestra el formulario vacío
@@ -148,7 +164,7 @@ class OrderTrackingView(View):
 # =======================================================
 # ACTUALIZAR ESTADO (SOLO ADMIN)
 # =======================================================
-class OrderUpdateStatusView(LoginRequiredMixin, View):
+class OrderUpdateStatusView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Permite a un administrador cambiar el estado de un pedido
     haciendo clic en la barra de progreso.
@@ -298,7 +314,7 @@ def create_checkout(request):
         city = request.POST.get("shipping_city")
         zip_code = request.POST.get("shipping_zip")
 
-        # 2. Validación básica (Brutalmente honesta: si falta algo, detenemos todo)
+        # 2. Validación básica (si falta algo, detenemos todo)
         if not (name and email_input and address and city and zip_code):
             return HttpResponse(
                 "Error: Faltan datos de envío obligatorios.", status=400
@@ -306,7 +322,7 @@ def create_checkout(request):
 
         # 3. Construimos la dirección completa en un solo string
         # Formato: "Nombre | Dirección, Ciudad (CP)"
-        full_address = f"{name} | {address}, {city} ({zip_code})"
+        full_address = f"{address}, {city} ({zip_code})"
 
         # 4. Determinamos el usuario y email
         user = request.user if request.user.is_authenticated else None
@@ -440,6 +456,8 @@ def successful_payment(request):
                 )
 
             return render(request, "order/success.html", {"order": new_order})
+        else:
+            return render(request, "order/cancel.html")
     except Exception as e:
         return HttpResponse(f"Error: {e}")
 

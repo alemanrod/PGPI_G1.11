@@ -19,7 +19,7 @@ class DashboardView(UserPassesTestMixin, View):
     # Todos excepto los administradores pueden acceder a esta vista
     def test_func(self):
         return (
-            not self.request.user.is_authenticated or self.request.user.role != "admin"
+            not self.request.user.is_authenticated or self.request.user.role == "user"
         )
 
     def handle_no_permission(self):
@@ -68,8 +68,9 @@ class StockView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
-    # Redirige a 'dashboard' si no pasa el test_func
     def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
         return redirect("dashboard")
 
     def get(self, request):
@@ -111,6 +112,11 @@ class ProductListView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
     def get(self, request):
         q = request.GET.get("q", "").strip()
         if q:
@@ -126,6 +132,11 @@ class ProductDetailView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         return render(request, self.template_name, {"product": product})
@@ -137,6 +148,11 @@ class ProductCreateView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
 
     def get(self, request):
         form = self.form_class()
@@ -156,6 +172,11 @@ class ProductUpdateView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
@@ -177,6 +198,11 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_authenticated and self.request.user.role == "admin"
 
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("dashboard")
+
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk)
         return render(request, self.template_name, {"product": product})
@@ -187,8 +213,16 @@ class ProductDeleteView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("product_list")
 
 
-class CatalogView(View):
+class CatalogView(UserPassesTestMixin, View):
     template_name = "product/catalog.html"
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def get(self, request):
         q = request.GET.get("q", "").strip()
@@ -199,8 +233,16 @@ class CatalogView(View):
         return render(request, self.template_name, {"products": products, "query": q})
 
 
-class CatalogDetailView(View):
+class CatalogDetailView(UserPassesTestMixin, View):
     template_name = "product/detail_user.html"
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def get(self, request, pk):
         product = get_object_or_404(Product, pk=pk, is_active=True)
