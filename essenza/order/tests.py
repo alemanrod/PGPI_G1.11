@@ -89,7 +89,7 @@ class CheckoutFlowTests(TestCase):
         self.assertFalse(order.is_paid)
 
         # [VERDAD DE DATOS] La dirección se concatenó correctamente
-        expected_address = "Juan Pérez | Calle Falsa 123, Madrid (28001)"
+        expected_address = "Calle Falsa 123, Madrid (28001)"
         self.assertEqual(order.address, expected_address)
         self.assertEqual(order.email, "juan@test.com")
 

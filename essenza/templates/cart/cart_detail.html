@@ -139,7 +139,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        min-width: 200px;
+        min-width: 210px;
     }
     .price-row-small {
         font-size: 14px;
@@ -464,15 +464,18 @@
         const stripeRadio = document.getElementById('pay_stripe');
         const codRadio = document.getElementById('pay_cod');
         const formDiv = document.getElementById('cod-shipping-details');
-        const inputs = document.querySelectorAll('.cod-input');
+        const codInputs = document.querySelectorAll('.cod-input');
         const mainCard = document.querySelector('.cart-summary');
 
         if (codRadio.checked) {
             // Mostrar formulario
             formDiv.style.display = 'block';
             
-            // Hacer inputs obligatorios
-            inputs.forEach(input => input.required = true);
+            // Hacer cod_inputs obligatorios
+            codInputs.forEach(input => {
+                input.required = true;
+                input.disabled = false;
+            });
             
             // Ajuste visual para conectar la tarjeta de arriba con el form de abajo
             mainCard.style.borderRadius = "16px 16px 0 0";
@@ -484,7 +487,10 @@
             formDiv.style.display = 'none';
             
             // Quitar obligatoriedad (para que no falle al enviar a Stripe)
-            inputs.forEach(input => input.required = false);
+            codInputs.forEach(input => {
+                input.required = false;
+                input.disabled = true;
+            });
             
             // Restaurar estilos originales
             mainCard.style.borderRadius = "16px";

@@ -193,11 +193,6 @@ class OrderUpdateStatusView(LoginRequiredMixin, UserPassesTestMixin, View):
         return redirect("order_tracking", tracking_code=order.tracking_code)
 
 
-# essenza/order/views.py
-
-# ... (tus importaciones se mantienen igual) ...
-
-
 def _process_order(request, user, email, address, is_paid):
     """
     Función auxiliar interna para procesar el pedido.
@@ -240,7 +235,7 @@ def _process_order(request, user, email, address, is_paid):
         email=email,
         address=address,
         status=Status.EN_PREPARACION,
-        is_paid=is_paid,  # <--- AQUÍ USAMOS EL VALOR QUE PASAMOS
+        is_paid=is_paid,
     )
 
     # 4. Crear OrderProducts y actualizar Stock
@@ -307,9 +302,7 @@ def create_checkout(request):
     if payment_method == "cod":
         # 1. Capturamos los datos DEL FORMULARIO HTML
         name = request.POST.get("shipping_name")
-        email_input = request.POST.get(
-            "shipping_email"
-        )  # El input se llama shipping_email en tu HTML
+        email_input = request.POST.get("shipping_email")
         address = request.POST.get("shipping_address")
         city = request.POST.get("shipping_city")
         zip_code = request.POST.get("shipping_zip")
@@ -321,15 +314,13 @@ def create_checkout(request):
             )
 
         # 3. Construimos la dirección completa en un solo string
-        # Formato: "Nombre | Dirección, Ciudad (CP)"
         full_address = f"{address}, {city} ({zip_code})"
 
         # 4. Determinamos el usuario y email
         user = request.user if request.user.is_authenticated else None
 
         # Prioridad: Si el usuario escribió un email en el form, usamos ese.
-        # Si no (caso raro si usaste readonly), usamos el del user logueado.
-        final_email = email_input if email_input else (user.email if user else None)
+        final_email = email_input if email_input else user.email
 
         if not final_email:
             return HttpResponse("Error: Se requiere un email válido.", status=400)
@@ -339,14 +330,13 @@ def create_checkout(request):
             order = _process_order(
                 request,
                 user=user,
-                email=final_email,  # Usamos el email del formulario
-                address=full_address,  # Usamos la dirección concatenada
+                email=final_email,
+                address=full_address,
                 is_paid=False,  # COD = No pagado aún
             )
 
         if order:
             # IMPORTANTE: Redirigimos pasando el ID del pedido para mostrar éxito
-            # Asegúrate de que tu URL espera un parámetro, o usa la sesión
             return render(request, "order/success.html", {"order": order})
         else:
             return redirect("cart_detail")
@@ -396,15 +386,12 @@ def create_checkout(request):
                 }
             )
 
-        # --- Lógica de Envío (Hardcoded por ahora según tu código anterior) ---
-        # Si tienes lógica de envío, añádela aquí a line_items_stripe
+        # --- Lógica de Envío ---
 
         domain_url = settings.DOMAIN_URL
         try:
             customer_email = (
-                request.user.email
-                if request.user.is_authenticated
-                else request.POST.get("email_input", "")
+                request.user.email if request.user.is_authenticated else None
             )
 
             checkout_session = stripe.checkout.Session.create(
