@@ -1,5 +1,6 @@
 import random
 import string
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -25,20 +26,28 @@ class Order(models.Model):
     address = models.CharField(max_length=255)
     placed_at = models.DateTimeField(default=timezone.now)
     status = models.CharField(choices=Status.choices, default=Status.EN_PREPARACION)
-
     tracking_code = models.CharField(
         max_length=8,
         unique=True,
         editable=False,  # No se puede editar manualmente
         verbose_name="Localizador",
     )
+    is_paid = models.BooleanField(default=False)
 
     @property
-    def total_price(self):
-        total = 0
+    def shipping(self):
+        return Decimal(4.99 if self.subtotal < 100 else 0)
+
+    @property
+    def subtotal(self):
+        subtotal = 0
         for product in self.order_products.all():
-            total += product.subtotal
-        return total
+            subtotal += product.subtotal
+        return Decimal(subtotal)
+
+    @property
+    def total(self):
+        return self.subtotal + self.shipping
 
     def save(self, *args, **kwargs):
         """

@@ -7,22 +7,22 @@
 {% block extra_head %}
 <style>
     .cart-page-body {
-        background-color: #faf7f2; /* Fondo del cuerpo */
+        background-color: #faf7f2;
         padding: 40px 20px;
     }
     .cart-container {
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
     }
 
-    /* --- ESTILO DEL TÍTULO (Inspirado en "Top Bestsellers") --- */
+    /* --- CABECERA --- */
     .cart-header {
         text-align: center;
         margin-bottom: 40px;
     }
     .cart-header h1 {
         font-size: 36px;
-        color: #c06b3e; /* Marrón/Naranja cálido de la marca */
+        color: #c06b3e;
         font-weight: 700;
         letter-spacing: 1px;
         margin-bottom: 8px;
@@ -49,11 +49,6 @@
         justify-content: space-between;
         transition: box-shadow 0.2s;
     }
-    .cart-item-card:hover {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Sección de Imagen y Nombre */
     .item-info {
         display: flex;
         align-items: center;
@@ -83,8 +78,6 @@
         color: #666;
         margin: 0;
     }
-
-    /* Sección de Cantidad y Subtotal */
     .item-controls {
         display: flex;
         align-items: center;
@@ -96,11 +89,9 @@
         font-size: 16px;
         font-weight: bold;
         color: #c06b3e;
-        width: 80px; /* Ancho fijo para alineación */
+        width: 80px;
         text-align: right;
     }
-
-    /* Estilo del formulario de cantidad/eliminación */
     .quantity-form {
         display: flex;
         align-items: center;
@@ -126,40 +117,204 @@
         color: #c00;
     }
 
-    /* --- TOTALES Y BOTONES DE ACCIÓN --- */
+    /* --- FOOTER DEL CARRITO (BARRA DE MANDO) --- */
     .cart-summary {
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #eee;
+        margin-top: 50px;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
+        padding: 25px 35px;
+        
         display: flex;
-        justify-content: flex-end;
+        flex-direction: row;
         align-items: center;
-        gap: 30px;
+        justify-content: space-between;
+        gap: 40px;
+        border: 1px solid rgba(0,0,0,0.02);
+        
+        /* IMPORTANTE: Para que el formulario extra se posicione relativo a esto */
+        position: relative;
+        z-index: 2; 
     }
-    .total-price-display {
-        font-size: 20px;
-        font-weight: 700;
+
+    .summary-price-block {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-width: 150px;
+    }
+    .price-row-small {
+        font-size: 14px;
+        color: #888;
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin-bottom: 4px;
+    }
+    .price-total-big {
+        font-size: 28px;
+        font-weight: 800;
         color: #333;
+        line-height: 1.1;
+        margin-top: 5px;
     }
-    .total-price-display span {
+    .price-total-big span {
+        font-size: 16px;
+        font-weight: 500;
         color: #c06b3e;
-        margin-left: 10px;
+        vertical-align: middle;
     }
-    .btn-checkout {
-        padding: 12px 25px;
+
+    .payment-form-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+    .payment-option-input {
+        display: none;
+    }
+    .payment-card-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 160px;
+        padding: 12px 15px;
+        background: #fbfbfb;
+        border: 2px solid #eee;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: center;
+    }
+    .payment-card-label h4 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 600;
+        color: #555;
+    }
+    .payment-card-label span {
+        font-size: 11px;
+        color: #999;
+    }
+    .payment-card-label:hover {
+        background: #fdfdfd;
+        border-color: #ddd;
+    }
+    .payment-option-input:checked + .payment-card-label {
+        border-color: #c06b3e;
+        background-color: #fff8f5;
+        box-shadow: 0 4px 12px rgba(192, 107, 62, 0.15);
+        transform: translateY(-2px);
+    }
+    .payment-option-input:checked + .payment-card-label h4 {
+        color: #c06b3e;
+    }
+
+    .action-block {
+        min-width: 200px;
+    }
+    .btn-checkout-submit {
+        width: 100%;
+        padding: 18px 25px;
         background: #c06b3e;
         color: white;
         border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        text-decoration: none;
-        transition: opacity 0.2s;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: background 0.2s, transform 0.1s;
+        box-shadow: 0 5px 15px rgba(192, 107, 62, 0.3);
     }
-    .btn-checkout:hover {
-        opacity: 0.85;
+    .btn-checkout-submit:hover {
+        background: #a35a34;
+        transform: translateY(-1px);
+    }
+    .divider-vertical {
+        width: 1px;
+        height: 50px;
+        background: #eee;
+        margin: 0 10px;
     }
 
-    /* --- CARRITO VACÍO --- */
+    /* --- NUEVO: ESTILOS DEL FORMULARIO DE DIRECCIÓN (COD) --- */
+    .cod-shipping-form {
+        display: none; /* Oculto por defecto */
+        background: #fff;
+        margin-top: -10px; /* Para que parezca salir de debajo */
+        padding: 40px 35px 25px 35px;
+        border-radius: 0 0 16px 16px;
+        border: 1px solid rgba(0,0,0,0.02);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        
+        /* Animación */
+        animation: slideDown 0.3s ease-out forwards;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    .form-group label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+    }
+    .form-group input {
+        padding: 10px 12px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+        outline: none;
+        transition: border 0.2s;
+    }
+    .form-group input:focus {
+        border-color: #c06b3e;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 900px) {
+        .cart-summary {
+            flex-direction: column;
+            gap: 30px;
+            text-align: center;
+        }
+        .divider-vertical {
+            width: 50px;
+            height: 1px;
+            margin: 10px 0;
+        }
+        .payment-form-container {
+            width: 100%;
+            justify-content: space-around;
+        }
+        .payment-card-label {
+            width: 45%;
+        }
+        .action-block {
+            width: 100%;
+        }
+        .form-row {
+            flex-direction: column;
+            gap: 15px;
+        }
+    }
     .empty-cart {
         text-align: center;
         padding: 60px 0;
@@ -179,16 +334,17 @@
 {% block content %}
 <div class="cart-page-body">
     <div class="cart-container">
+        
         <div class="cart-header">
             <h1>Tu Carrito de Compra</h1>
             <p>Productos seleccionados por ti.</p>
         </div>
 
         {% if cart_products %}
+            
             <div class="cart-items-list">
                 {% for item in cart_products %}
                     <div class="cart-item-card">
-                        
                         <div class="item-info">
                             <div class="item-image">
                                 {% if item.product.photo %}
@@ -206,18 +362,7 @@
                         <div class="item-controls">
                             <form method="POST" action="{% url 'update_cart_item' product_id=item.pk %}" class="quantity-form">
                                 {% csrf_token %}
-                                <input 
-                                    type="number" 
-                                    name="quantity" 
-                                    value="{{ item.quantity }}" 
-                                    min="0" 
-                                    max="{{ item.product.stock }}"
-                                    data-item-pk="{{ item.pk }}"
-                                    onchange="this.form.submit()" 
-                                    aria-label="Cantidad"
-                                    onkeydown="return false" 
-                                    style="caret-color: transparent"
-                                >
+                                <input type="number" name="quantity" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}" data-item-pk="{{ item.pk }}" onchange="this.form.submit()" aria-label="Cantidad" onkeydown="return false" style="caret-color: transparent">
                             </form>
                             <form method="POST" action="{% url 'remove_from_cart' product_id=item.pk %}" class="quantity-form">
                                 {% csrf_token %}
@@ -231,22 +376,135 @@
                 {% endfor %}
             </div>
 
-        <div class="cart-summary">
-            <div class="total-price-display">
-                TOTAL: <span>{{ total_price|floatformat:2|intcomma }} €</span>
-            </div>
-            <div>
-                <a href="{% url 'create_checkout' %}" class="btn-checkout">
-                    Pagar Ahora
-                </a>
-            </div>
-        </div>
+            <form action="{% url 'create_checkout' %}" method="POST" id="checkout-form">
+                {% csrf_token %}
+
+                <div class="cart-summary">
+                    
+                    <div class="summary-price-block">
+                        <div class="price-row-small">
+                            <span>Subtotal:</span> <strong>{{ subtotal|floatformat:2|intcomma }} €</strong>
+                        </div>
+                        <div class="price-row-small">
+                            <span>Envío:</span> <strong>{{ shipping|floatformat:2|intcomma }} €</strong>
+                        </div>
+                        <div class="price-total-big">
+                            {{ total|floatformat:2|intcomma }} <span>€</span>
+                        </div>
+                    </div>
+
+                    <div class="divider-vertical"></div>
+
+                    <div class="payment-form-container">
+                        <input type="radio" name="payment_method" value="stripe" id="pay_stripe" class="payment-option-input" checked onchange="toggleShippingForm()">
+                        <label for="pay_stripe" class="payment-card-label">
+                            <h4>Tarjeta</h4>
+                            <span>Stripe Seguro</span>
+                        </label>
+
+                        <input type="radio" name="payment_method" value="cod" id="pay_cod" class="payment-option-input" onchange="toggleShippingForm()">
+                        <label for="pay_cod" class="payment-card-label">
+                            <h4>Efectivo</h4>
+                            <span>Pagar al recibir</span>
+                        </label>
+                    </div>
+
+                    <div class="divider-vertical"></div>
+
+                    <div class="action-block">
+                        <button type="submit" class="btn-checkout-submit">
+                            FINALIZAR COMPRA
+                        </button>
+                    </div>
+                </div>
+
+                <div id="cod-shipping-details" class="cod-shipping-form">
+                    <h3 style="font-size: 18px; color: #a35a34; margin-bottom: 20px;">Datos de Envío para Contrarrembolso</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nombre Completo *</label>
+                            <input type="text" name="shipping_name" class="cod-input" placeholder="Ej. Juan Pérez">
+                        </div>
+                        <div class="form-group">
+                            <label>Correo Electrónico *</label>
+                            <input 
+                                type="email" 
+                                name="shipping_email" 
+                                class="cod-input" 
+                                value="{% if request.user.is_authenticated %}{{ request.user.email }}{% endif %}" 
+                                placeholder="tu@email.com"
+                                {% if request.user.is_authenticated %}readonly style="background-color: #f0f0f0; cursor: not-allowed;"{% endif %}
+                            >
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Dirección de Entrega *</label>
+                            <input type="text" name="shipping_address" class="cod-input" placeholder="Calle, Número, Piso...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ciudad *</label>
+                            <input type="text" name="shipping_city" class="cod-input" placeholder="Ej. Madrid">
+                        </div>
+                        <div class="form-group">
+                            <label>Código Postal *</label>
+                            <input type="text" name="shipping_zip" class="cod-input" placeholder="Ej. 28001">
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+
         {% else %}
-        <div class="empty-cart">
-            <h2>Tu carrito está vacío</h2>
-            <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
-        </div>
+            <div class="empty-cart">
+                <h2>Tu carrito está vacío</h2>
+                <p>¡Añade productos de nuestro <a href="{% url 'catalog' %}" style="color: #c06b3e; text-decoration: none;">Catálogo</a> para empezar!</p>
+            </div>
         {% endif %}
     </div>
 </div>
+
+<script>
+    function toggleShippingForm() {
+        const stripeRadio = document.getElementById('pay_stripe');
+        const codRadio = document.getElementById('pay_cod');
+        const formDiv = document.getElementById('cod-shipping-details');
+        const inputs = document.querySelectorAll('.cod-input');
+        const mainCard = document.querySelector('.cart-summary');
+
+        if (codRadio.checked) {
+            // Mostrar formulario
+            formDiv.style.display = 'block';
+            
+            // Hacer inputs obligatorios
+            inputs.forEach(input => input.required = true);
+            
+            // Ajuste visual para conectar la tarjeta de arriba con el form de abajo
+            mainCard.style.borderRadius = "16px 16px 0 0";
+            mainCard.style.borderBottom = "none";
+            mainCard.style.boxShadow = "none"; // Quitamos sombra para que se fusione
+            
+        } else {
+            // Ocultar formulario
+            formDiv.style.display = 'none';
+            
+            // Quitar obligatoriedad (para que no falle al enviar a Stripe)
+            inputs.forEach(input => input.required = false);
+            
+            // Restaurar estilos originales
+            mainCard.style.borderRadius = "16px";
+            mainCard.style.borderBottom = "1px solid rgba(0,0,0,0.02)";
+            mainCard.style.boxShadow = "0 15px 40px rgba(0, 0, 0, 0.08)";
+        }
+    }
+
+    // Ejecutar al cargar por si el navegador recuerda la selección
+    document.addEventListener('DOMContentLoaded', toggleShippingForm);
+</script>
+
 {% endblock %}

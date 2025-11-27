@@ -65,7 +65,7 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Verifica que lee de la DB
         self.assertEqual(len(response.context["cart_products"]), 1)
-        self.assertEqual(response.context["total_price"], 20.00)  # 2 * 10.00
+        self.assertEqual(response.context["subtotal"], 20.00)  # 2 * 10.00
 
     def test_cart_detail_anonymous_session(self):
         """Usuario anónimo con datos en sesión."""
@@ -83,7 +83,7 @@ class CartTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Tu vista pasa 'cart_products' también para anónimos (lo vi en tu código)
         self.assertEqual(len(response.context["cart_products"]), 1)
-        self.assertEqual(response.context["total_price"], 30.00)  # 3 * 10.00
+        self.assertEqual(response.context["subtotal"], 30.00)  # 3 * 10.00
 
     # ---------------------------------------------------------
     # BLOQUE 2: AÑADIR AL CARRITO (POST)

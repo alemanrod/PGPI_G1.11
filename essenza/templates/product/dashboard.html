@@ -18,6 +18,20 @@
       gap: 20px;
       padding: 0 24px;
     }
+    /* Estilos necesarios para el botón Añadir al Carrito en el escaparate */
+    .btn-add {
+      background: #c06b3e;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-add:hover {
+      background: #a54f2b;
+    }
 
     .product-card {
       background: #fff;
@@ -211,12 +225,14 @@
             </div>
           </div>
         </div>
+
       {% endfor %} {% else %}
         <p style="text-align: center; grid-column: 1 / -1; color: #555">
           No hay productos disponibles en este momento.
         </p>
       {% endif %}
     </main>
+
 
     <script>
       /*

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from product.models import Product
@@ -15,7 +17,7 @@ class CartDetailView(View):
     template_name = "cart/cart_detail.html"
 
     def get(self, request):
-        context = {"cart_products": [], "total_price": 0}
+        context = {"cart_products": [], "shipping": 0, "subtotal": 0, "total": 0}
 
         # Si esta logueado
         if request.user.is_authenticated:
@@ -24,7 +26,9 @@ class CartDetailView(View):
                 cart = get_object_or_404(Cart, user=request.user)
                 # Cogemos los datos del carrito desde la base de datos
                 context["cart_products"] = cart.cart_products.all()
-                context["total_price"] = cart.total_price
+                context["shipping"] = cart.shipping
+                context["subtotal"] = cart.subtotal
+                context["total"] = cart.total
                 context["cart"] = cart
             except Exception:
                 pass
@@ -33,7 +37,7 @@ class CartDetailView(View):
         else:
             cart_session = request.session.get("cart_session", {})
             cart_products = []
-            total_price = 0
+            subtotal = 0
 
             if cart_session:
                 # Obtenemos los productos
@@ -43,21 +47,23 @@ class CartDetailView(View):
                 # Construimos los items del carrito
                 for product in products:
                     quantity = cart_session[str(product.pk)]["quantity"]
-                    subtotal = quantity * product.price
+                    product_subtotal = quantity * product.price
 
                     # Añadimos al listado de items del carrito la info necesaria
                     cart_products.append(
                         {
                             "product": product,
                             "quantity": quantity,
-                            "subtotal": subtotal,
+                            "subtotal": product_subtotal,
                             "pk": product.pk,
                         }
                     )
-                    total_price += subtotal
+                    subtotal += product_subtotal
 
             context["cart_products"] = cart_products
-            context["total_price"] = total_price
+            context["subtotal"] = subtotal
+            context["shipping"] = Decimal(4.99 if subtotal < 100 else 0)
+            context["total"] = subtotal + context["shipping"]
 
         return render(request, self.template_name, context)
 

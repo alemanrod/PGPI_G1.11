@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 
@@ -7,11 +9,19 @@ class Cart(models.Model):
     )
 
     @property
-    def total_price(self):
-        total = 0
+    def shipping(self):
+        return Decimal(4.99 if self.subtotal < 100 else 0)
+
+    @property
+    def subtotal(self):
+        subtotal = 0
         for product in self.cart_products.all():
-            total += product.subtotal
-        return total
+            subtotal += product.subtotal
+        return Decimal(subtotal)
+
+    @property
+    def total(self):
+        return self.subtotal + self.shipping
 
     def __str__(self):
         return f"Cart {self.id} by {self.user.email}"
