@@ -1,5 +1,6 @@
 from decimal import Decimal
 
+from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
@@ -79,7 +80,9 @@ class CartDetailView(UserPassesTestMixin, View):
 
 class AddToCartView(UserPassesTestMixin, View):
     """
-    Añade productos al carrito (DB o Sesión).
+    Añade productos al carrito.
+    - Acción 'add': Se queda en la página y muestra mensaje.
+    - Acción 'buy': Redirige al carrito.
     """
 
     def test_func(self):
@@ -93,8 +96,12 @@ class AddToCartView(UserPassesTestMixin, View):
     def post(self, request, product_id):
         product = get_object_or_404(Product, pk=product_id)
 
+        # Guardar la URL anterior para volver si es "Añadir"
+        next_url = request.META.get("HTTP_REFERER", "catalog")
+
         if product.stock <= 0:
-            return redirect("catalog")
+            messages.error(request, "Este producto está agotado.")
+            return redirect(next_url)
 
         try:
             quantity = int(request.POST.get("quantity", 1))
@@ -103,36 +110,40 @@ class AddToCartView(UserPassesTestMixin, View):
         except ValueError:
             quantity = 1
 
-        # Si el usuario está logueado
+        # --- LÓGICA DE AÑADIR (unificada) ---
         if request.user.is_authenticated:
-            cart, create = Cart.objects.get_or_create(user=request.user)
+            cart, _ = Cart.objects.get_or_create(user=request.user)
+            # Usamos get_or_create con defaults para evitar condiciones de carrera simples
+            cart_product, created = CartProduct.objects.get_or_create(
+                cart=cart, product=product, defaults={"quantity": 0}
+            )
 
-            if cart:
-                cart_product, created = CartProduct.objects.get_or_create(
-                    cart=cart, product=product, defaults={"quantity": quantity}
-                )
+            # Si se acaba de crear, quantity es 0 (por el default), si ya existía tiene X
+            # Así que simplemente sumamos la cantidad nueva.
+            if created:
+                cart_product.quantity = quantity
             else:
-                cart_product, created = CartProduct.objects.get_or_create(
-                    cart=create, product=product, defaults={"quantity": quantity}
+                cart_product.quantity += quantity
+
+            # Validación Stock
+            if cart_product.quantity > product.stock:
+                cart_product.quantity = product.stock
+                messages.warning(
+                    request, f"Has alcanzado el límite de stock ({product.stock})."
                 )
 
-            if not created:
-                if cart_product.quantity + quantity > product.stock:
-                    cart_product.quantity = product.stock
-                    return redirect("cart_detail")
-                else:
-                    cart_product.quantity += quantity
-                cart_product.save()
+            cart_product.save()
 
-        # Si el usuario no está logueado, guardamos en sesión
         else:
+            # Lógica de Sesión
             cart_session = request.session.get("cart_session", {})
             product_id_str = str(product_id)
 
             if product_id_str in cart_session:
-                if cart_session[product_id_str]["quantity"] + quantity > product.stock:
+                current_qty = cart_session[product_id_str]["quantity"]
+                if current_qty + quantity > product.stock:
                     cart_session[product_id_str]["quantity"] = product.stock
-                    return redirect("cart_detail")
+                    messages.warning(request, "Has alcanzado el límite de stock.")
                 else:
                     cart_session[product_id_str]["quantity"] += quantity
             else:
@@ -144,7 +155,16 @@ class AddToCartView(UserPassesTestMixin, View):
             request.session["cart_session"] = cart_session
             request.session.modified = True
 
-        return redirect("cart_detail")
+        # --- AQUÍ ESTÁ LA MAGIA DE LA REDIRECCIÓN ---
+        action = request.POST.get("action", "add")  # 'add' o 'buy'
+
+        if action == "buy":
+            # Si quiere comprar ya, lo llevamos al carrito
+            return redirect("cart_detail")
+        else:
+            # Si solo añade, le damos feedback y lo dejamos donde estaba
+            messages.success(request, f"¡{product.name} añadido al carrito!")
+            return redirect(next_url)
 
 
 class RemoveFromCartView(UserPassesTestMixin, View):

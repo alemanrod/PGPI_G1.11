@@ -16,7 +16,6 @@
     padding: 20px 0;
   }
   .list-page .container {
-    /* Contenedor principal centrado para el contenido */
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
@@ -209,7 +208,7 @@
     max-width: 1100px;
     margin: 30px auto;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 22px;
   }
   .card {
@@ -219,8 +218,12 @@
     box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
     text-align: center;
     transition: 0.25s;
-    cursor: pointer;
+    cursor: default;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
   }
   .card:hover {
     transform: translateY(-6px);
@@ -231,23 +234,27 @@
     height: 180px;
     object-fit: contain;
     border-radius: 10px;
+    margin-bottom: 10px;
   }
   .card-link-overlay {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 55%; /* Solo cubre imagen y título */
     z-index: 1;
-    }
+    cursor: pointer;
+  }
   .price {
-    margin-top: 8px;
+    margin-top: 5px;
     color: #c06b3e;
     font-weight: bold;
+    font-size: 1.1rem;
   }
   .category-tag {
     display: inline-block;
-    margin-top: 8px;
+    margin-left: 50px;
+    margin-right: 50px;
     background: #f2e5df;
     color: #c06b3e;
     padding: 4px 10px;
@@ -255,18 +262,162 @@
     font-size: 12px;
   }
   .product-stock {
-    margin-top: 12px;
+    margin-top: 10px;
     font-weight: 600;
     font-size: 14px;
   }
+
+  /* --- NUEVOS ESTILOS: CONTROLES DE COMPRA --- */
+  .purchase-form {
+    width: 100%;
+    margin-top: 15px;
+    position: relative;
+    z-index: 2; /* Encima del overlay */
+  }
+
+  /* Selector de Cantidad */
+  .qty-control-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+
+  .qty-control {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+  }
+
+  .btn-qty {
+    width: 32px;
+    height: 32px;
+    background-color: #f9f9f9;
+    border: none;
+    font-weight: bold;
+    color: #555;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    padding: 0;
+  }
+
+  .btn-qty:hover {
+    background-color: #e0e0e0;
+    color: #333;
+  }
+
+  .btn-qty:active {
+    background-color: #ccc;
+  }
+
+  .qty-input {
+    width: 40px;
+    height: 32px;
+    border: none;
+    border-left: 1px solid #eee;
+    border-right: 1px solid #eee;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    cursor: default;
+  }
+  .qty-input:focus { outline: none; }
+  .qty-input::-webkit-inner-spin-button,
+  .qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+
+  /* Botones de Acción */
+  .btns-row {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .btn-card {
+    flex: 1;
+    padding: 10px 0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-add {
+    background-color: #fff;
+    border: 1px solid #c06b3e;
+    color: #c06b3e;
+  }
+  .btn-add:hover {
+    background-color: #fff5f0;
+  }
+
+  .btn-buy {
+    background-color: #c06b3e;
+    color: white;
+    border: 1px solid #c06b3e;
+  }
+  .btn-buy:hover {
+    background-color: #a35a34;
+    border-color: #a35a34;
+  }
+
+  /* --- MENSAJES FLOTANTES --- */
+  .messages-container {
+      position: fixed;
+      top: 90px;
+      right: 20px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+  }
+  .msg {
+      padding: 12px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+      font-size: 14px;
+  }
+  .msg.success { background-color: #2e7d32; }
+  .msg.warning { background-color: #f57c00; }
+  .msg.error { background-color: #c62828; }
+
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  @keyframes fadeOut { to { opacity: 0; display: none; } }
+
 </style>
 
 <div class="list-page">
   <div class="container">
+    
+    {% if messages %}
+      <div class="messages-container">
+          {% for message in messages %}
+              <div class="msg {{ message.tags }}">{{ message }}</div>
+          {% endfor %}
+      </div>
+    {% endif %}
+
     <h1>Catálogo Essenza</h1>
     <p>Explora nuestra selección de productos mejor valorados</p>
 
-    <!-- FILTROS: categoría + marca -->
     <div class="filters">
       <div class="custom-dropdown" id="categoryDropdownList">
         <div class="dropdown-button" id="categoryButtonList">
@@ -303,7 +454,6 @@
       </div>
     </div>
 
-    <!-- GRID PRODUCTOS -->
     <div class="grid" id="productGrid">
       {% if products %} {% for product in products %}
         <div
@@ -323,13 +473,44 @@
           <h3>{{ product.name }}</h3>
           <p class="price">{{ product.price }} €</p>
           <span class="category-tag">{{ product.get_category_display }}</span>
+          
           <div class="product-stock">
             {% if product.stock == 0 %}
               <span style="color: #dc3545">Producto agotado</span>
-            {% endif %} {% if product.stock < 10 and product.stock > 0 %}
-              <span style="color: #fd7e14">¡Últimas unidades!</span>
+            {% elif product.stock < 10 %}
+              <span style="color: #fd7e14; font-size:12px;">¡Últimas unidades!</span>
             {% endif %}
           </div>
+
+          <form method="POST" action="{% url 'add_to_cart' product.pk %}" class="purchase-form">
+            {% csrf_token %}
+            
+            {% if product.stock > 0 %}
+                <div class="qty-control-wrapper">
+                    <div class="qty-control">
+                        <button type="button" class="btn-qty" onclick="updateQty(this, -1)">−</button>
+                        <input type="number" 
+                               name="quantity" 
+                               value="1" 
+                               min="1" 
+                               max="{{ product.stock }}" 
+                               class="qty-input" 
+                               readonly>
+                        <button type="button" class="btn-qty" onclick="updateQty(this, 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="btns-row">
+                    <button type="submit" name="action" value="add" class="btn-card btn-add" title="Añadir al carrito">
+                        <i class="fas fa-cart-plus"></i> Añadir
+                    </button>
+                    <button type="submit" name="action" value="buy" class="btn-card btn-buy" title="Comprar ahora">
+                        Comprar
+                    </button>
+                </div>
+            {% endif %}
+          </form>
+
         </div>
       {% endfor %} {% else %}
       <p style="text-align: center; grid-column: 1 / -1; color: #555">
@@ -339,7 +520,21 @@
     </div>
 
     <script>
-      // Custom dropdown para catalog.html
+      /* LÓGICA DE CANTIDAD */
+      function updateQty(btn, change) {
+          const wrapper = btn.closest('.qty-control');
+          const input = wrapper.querySelector('.qty-input');
+          const min = parseInt(input.getAttribute('min')) || 1;
+          const max = parseInt(input.getAttribute('max')) || 999;
+          let currentVal = parseInt(input.value) || 1;
+          let newVal = currentVal + change;
+
+          if (newVal >= min && newVal <= max) {
+              input.value = newVal;
+          }
+      }
+
+      // Custom dropdown para list.html
       (function(){
         const categoryButton = document.getElementById('categoryButtonList');
         const categoryMenu = document.getElementById('categoryMenuList');
@@ -350,25 +545,30 @@
         const cards = Array.from(document.querySelectorAll('.card'));
 
         // Toggle dropdowns
-        categoryButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          categoryMenu.classList.toggle('show');
-          brandMenu.classList.remove('show');
-        });
+        if(categoryButton){
+            categoryButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              categoryMenu.classList.toggle('show');
+              brandMenu.classList.remove('show');
+            });
+        }
 
-        brandButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          brandMenu.classList.toggle('show');
-          categoryMenu.classList.remove('show');
-        });
+        if(brandButton){
+            brandButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              brandMenu.classList.toggle('show');
+              categoryMenu.classList.remove('show');
+            });
+        }
 
         document.addEventListener('click', () => {
-          categoryMenu.classList.remove('show');
-          brandMenu.classList.remove('show');
+          if(categoryMenu) categoryMenu.classList.remove('show');
+          if(brandMenu) brandMenu.classList.remove('show');
         });
 
         // Poblar categorías dinámicamente
         function populateCategories() {
+          if(!categoryMenu) return;
           const categories = new Set();
           cards.forEach(c => {
             const b = (c.dataset.category || '').trim();
@@ -393,6 +593,7 @@
 
         // Poblar marcas dinámicamente
         function populateBrands() {
+          if(!brandMenu) return;
           const brands = new Set();
           cards.forEach(c => {
             const b = (c.dataset.brand || '').trim();
@@ -416,33 +617,37 @@
         populateBrands();
 
         // Manejar selección de categoría
-        categoryMenu.addEventListener('click', (e) => {
-          const item = e.target.closest('.dropdown-item');
-          if (!item) return;
+        if(categoryMenu){
+            categoryMenu.addEventListener('click', (e) => {
+              const item = e.target.closest('.dropdown-item');
+              if (!item) return;
 
-          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          categorySelected.textContent = item.querySelector('span').textContent;
-          categoryMenu.classList.remove('show');
-          applyFilters();
-        });
+              categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+              item.classList.add('selected');
+              categorySelected.textContent = item.querySelector('span').textContent;
+              categoryMenu.classList.remove('show');
+              applyFilters();
+            });
+        }
 
         // Manejar selección de marca
-        brandMenu.addEventListener('click', (e) => {
-          const item = e.target.closest('.dropdown-item');
-          if (!item) return;
+        if(brandMenu){
+            brandMenu.addEventListener('click', (e) => {
+              const item = e.target.closest('.dropdown-item');
+              if (!item) return;
 
-          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          brandSelected.textContent = item.querySelector('span').textContent;
-          brandMenu.classList.remove('show');
-          applyFilters();
-        });
+              brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+              item.classList.add('selected');
+              brandSelected.textContent = item.querySelector('span').textContent;
+              brandMenu.classList.remove('show');
+              applyFilters();
+            });
+        }
 
         // Aplicar filtros
         function applyFilters() {
-          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
-          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
+          const catSelected = categoryMenu ? categoryMenu.querySelector('.dropdown-item.selected') : null;
+          const brandSelItem = brandMenu ? brandMenu.querySelector('.dropdown-item.selected') : null;
           const cat = catSelected ? catSelected.dataset.value : 'all';
           const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
 

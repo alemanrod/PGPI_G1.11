@@ -5,7 +5,6 @@ from product.models import Category, Product
 
 from cart.models import Cart, CartProduct
 
-# Usamos get_user_model() porque usas un usuario personalizado (user.Usuario)
 User = get_user_model()
 
 
@@ -23,7 +22,6 @@ class CartTests(TestCase):
         )
 
         # 2. Crear Producto
-        # Usamos las choices reales de tu modelo
         self.product = Product.objects.create(
             name="Producto Test",
             description="Descripción de prueba",
@@ -34,44 +32,38 @@ class CartTests(TestCase):
             is_active=True,
         )
 
-        # 3. URLs (Sin namespace 'order' según tu urls.py actual)
+        # 3. URLs
         self.url_detail = reverse("cart_detail")
         self.url_add = reverse("add_to_cart", args=[self.product.pk])
         self.url_update = reverse("update_cart_item", args=[self.product.pk])
         self.url_remove = reverse("remove_from_cart", args=[self.product.pk])
+
+        # URL ficticia para simular el "referer" (la página anterior)
+        self.url_catalog = reverse("catalog")
 
     # ---------------------------------------------------------
     # BLOQUE 1: DETALLE DEL CARRITO (GET)
     # ---------------------------------------------------------
 
     def test_cart_detail_authenticated_empty(self):
-        """Usuario logueado sin carrito previo. Debe cargar vacío sin fallar."""
         self.client.force_login(self.user)
         response = self.client.get(self.url_detail)
         self.assertEqual(response.status_code, 200)
-        # Tu vista pasa 'cart_products' vacío si falla el try/except o no hay carrito
         self.assertEqual(len(response.context.get("cart_products", [])), 0)
 
     def test_cart_detail_authenticated_with_items(self):
-        """Usuario logueado con carrito en DB."""
         self.client.force_login(self.user)
-
-        # Setup DB
         cart = Cart.objects.create(user=self.user)
         CartProduct.objects.create(cart=cart, product=self.product, quantity=2)
 
         response = self.client.get(self.url_detail)
 
         self.assertEqual(response.status_code, 200)
-        # Verifica que lee de la DB
         self.assertEqual(len(response.context["cart_products"]), 1)
-        self.assertEqual(response.context["subtotal"], 20.00)  # 2 * 10.00
+        self.assertEqual(response.context["subtotal"], 20.00)
 
     def test_cart_detail_anonymous_session(self):
-        """Usuario anónimo con datos en sesión."""
         self.client.logout()
-
-        # Inyectar sesión
         session = self.client.session
         session["cart_session"] = {
             str(self.product.pk): {"quantity": 3, "price": "10.00"}
@@ -81,33 +73,64 @@ class CartTests(TestCase):
         response = self.client.get(self.url_detail)
 
         self.assertEqual(response.status_code, 200)
-        # Tu vista pasa 'cart_products' también para anónimos (lo vi en tu código)
         self.assertEqual(len(response.context["cart_products"]), 1)
-        self.assertEqual(response.context["subtotal"], 30.00)  # 3 * 10.00
+        self.assertEqual(response.context["subtotal"], 30.00)
 
     # ---------------------------------------------------------
-    # BLOQUE 2: AÑADIR AL CARRITO (POST)
+    # BLOQUE 2: AÑADIR AL CARRITO (POST) - ACTUALIZADO
     # ---------------------------------------------------------
 
-    def test_add_item_authenticated(self):
-        """Añadir ítem crea Cart y CartProduct en DB."""
+    def test_add_item_action_buy_redirects_to_cart(self):
+        """
+        Prueba el flujo 'Comprar ahora' (action='buy').
+        Debe añadir el producto y redirigir al carrito.
+        """
         self.client.force_login(self.user)
 
-        response = self.client.post(self.url_add, {"quantity": 1})
-        response = self.client.post(self.url_add, {"quantity": 3})
+        # Enviamos action='buy' explícitamente
+        response = self.client.post(self.url_add, {"quantity": 1, "action": "buy"})
 
+        # Debe redirigir a cart_detail
         self.assertRedirects(response, self.url_detail)
 
         # Verificar DB
         cart = Cart.objects.get(user=self.user)
         cp = CartProduct.objects.get(cart=cart, product=self.product)
-        self.assertEqual(cp.quantity, 4)
+        self.assertEqual(cp.quantity, 1)
+
+    def test_add_item_action_add_stays_on_page(self):
+        """
+        Prueba el flujo 'Añadir al carrito' (action='add').
+        Debe añadir el producto y redirigir a la página anterior (Referer).
+        """
+        self.client.force_login(self.user)
+
+        # Simulamos que venimos del catálogo
+        referer = self.url_catalog
+
+        # Enviamos action='add' y el HTTP_REFERER
+        response = self.client.post(
+            self.url_add, {"quantity": 2, "action": "add"}, HTTP_REFERER=referer
+        )
+
+        # Debe redirigir DE VUELTA al catálogo, no al carrito
+        self.assertRedirects(response, referer)
+
+        # Verificar DB
+        cart = Cart.objects.get(user=self.user)
+        cp = CartProduct.objects.get(cart=cart, product=self.product)
+        self.assertEqual(cp.quantity, 2)
+
+        # Verificar mensajes (feedback visual)
+        messages = list(response.wsgi_request._messages)
+        self.assertEqual(len(messages), 1)
+        self.assertIn("añadido al carrito", str(messages[0]))
 
     def test_add_item_anonymous(self):
-        """Añadir ítem guarda en Sesión."""
+        """Añadir ítem guarda en Sesión (usando 'buy' para verificar redirect clásico)."""
         self.client.logout()
 
-        response = self.client.post(self.url_add, {"quantity": 1})
+        response = self.client.post(self.url_add, {"quantity": 1, "action": "buy"})
 
         self.assertRedirects(response, self.url_detail)
 
@@ -122,24 +145,29 @@ class CartTests(TestCase):
 
         self.client.force_login(self.user)
 
-        # Debería redirigir al catálogo (o donde definas 'catalog') y mostrar error
-        # Como no sé tu URL 'catalog', verificamos que NO se creó el CartProduct
+        # Simulamos venir del catálogo
+        referer = self.url_catalog
+        response = self.client.post(self.url_add, {"quantity": 1}, HTTP_REFERER=referer)
+
+        # Debe redirigir atrás con error
+        self.assertRedirects(response, referer)
+
+        # Verificar mensaje de error
+        messages = list(response.wsgi_request._messages)
+        self.assertIn("agotado", str(messages[0]).lower())
+
+        # Verificar que NO se creó nada en DB
         self.assertFalse(CartProduct.objects.filter(product=self.product).exists())
 
     # ---------------------------------------------------------
-    # BLOQUE 3: ACTUALIZAR (POST) - AQUI ESTÁ EL PELIGRO
+    # BLOQUE 3: ACTUALIZAR (POST)
     # ---------------------------------------------------------
 
     def test_auth_update_item(self):
-        """
-        Verifica update para logueados.
-        NOTA: Este test está 'trucado' para que pase con tu bug actual.
-        """
         self.client.force_login(self.user)
         cart = Cart.objects.create(user=self.user)
 
         # TRUCO: Forzamos que el ID del CartProduct sea igual al del Product
-        # para que tu vista rota (pk=product_id) lo encuentre.
         cp = CartProduct(
             id=self.product.pk, cart=cart, product=self.product, quantity=1
         )
@@ -152,10 +180,9 @@ class CartTests(TestCase):
         self.assertEqual(cp.quantity, 5)
 
     def test_anon_update_item(self):
-        """Verifica update para anónimos (Sesión)."""
         self.client.logout()
-        # Añadimos primero
-        self.client.post(self.url_add, {"quantity": 1})
+        # Añadimos primero (action buy para ir al carrito)
+        self.client.post(self.url_add, {"quantity": 1, "action": "buy"})
 
         # Actualizamos
         response = self.client.post(self.url_update, {"quantity": 4})
@@ -169,10 +196,6 @@ class CartTests(TestCase):
     # ---------------------------------------------------------
 
     def test_auth_remove_item(self):
-        """
-        Verifica borrado para logueados.
-        NOTA: También trucado por tu bug.
-        """
         self.client.force_login(self.user)
         cart = Cart.objects.create(user=self.user)
 
@@ -188,7 +211,6 @@ class CartTests(TestCase):
         self.assertFalse(CartProduct.objects.filter(pk=cp.pk).exists())
 
     def test_anon_remove_item(self):
-        """Verifica borrado para anónimos."""
         self.client.logout()
         # Setup sesión
         session = self.client.session

@@ -6,31 +6,16 @@
 
 {% block content %}
   <style>
-    
-    /* ====== ESCAPARATE ====== */
+    /* ====== ESCAPARATE GRID ====== */
     main {
       max-width: 1100px;
       margin: 40px auto;
       display: grid;
       grid-template-columns: repeat(30, 1fr);
-      grid-template-rows: 200px 200px 350px;
-      grid-auto-rows: 350px;
+      grid-template-rows: 240px 240px 420px;
+      grid-auto-rows: 420px;
       gap: 20px;
       padding: 0 24px;
-    }
-    /* Estilos necesarios para el botón Añadir al Carrito en el escaparate */
-    .btn-add {
-      background: #c06b3e;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      position: relative;
-      overflow: hidden;
-    }
-    .btn-add:hover {
-      background: #a54f2b;
     }
 
     .product-card {
@@ -44,20 +29,16 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      height: 350px;
+      height: 100%;
       box-sizing: border-box;
       position: relative;
-      /* Si hay más productos, serán en filas de 5 elementos */
       grid-column: span 6;
     }
 
     .product-card:hover {
       transform: translateY(-4px);
-    }
-
-    .product-card:hover .product-name {
-      color: #c06b3e;
-      text-decoration: underline;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      z-index: 5;
     }
 
     .product-card img {
@@ -66,6 +47,7 @@
       object-fit: contain;
       border-radius: 10px;
       flex-shrink: 0;
+      margin-bottom: 10px;
     }
 
     .product-info {
@@ -74,34 +56,38 @@
       align-items: center;
       width: 100%;
       flex-grow: 1;
-      justify-content: center;
+      justify-content: space-between;
     }
 
     .product-name {
       font-size: 16px;
       font-weight: 600;
       color: #333;
-      margin-top: 16px;
+      margin-top: 5px;
       width: 100%;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .product-price {
       font-size: 18px;
       font-weight: bold;
       color: #c06b3e;
-      margin-top: 8px;
+      margin-top: 5px;
     }
 
-    .product-description {
-      font-size: 14px;
-      color: #666;
-      margin-top: 8px;
-      width: 100%;
-      display: -webkit-box;
-      -webkit-line-clamp: 3; /* El número de líneas que quieres mostrar */
-      line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    .category-tag {
+      display: inline-block;
+      margin-top: 5px;
+      background: #f2e5df;
+      color: #c06b3e;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      text-transform: uppercase;
     }
 
     .card-link-overlay {
@@ -109,246 +95,415 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 55%; 
       z-index: 1;
+      cursor: pointer;
     }
 
-    /* --- ESTILOS PARA EL LAYOUT 2-3-5 --- */
+    /* --- FORMULARIO Y CONTROLES --- */
+    .purchase-form {
+      width: 100%;
+      margin-top: 10px; /* Reducido un poco para dejar espacio al stock */
+      z-index: 2;
+      position: relative;
+    }
 
-    /* --- FILA 1 (Items 1-2) --- */
-    .product-card:nth-child(1),
-    .product-card:nth-child(2) {
+    /* Selector de Cantidad Unificado */
+    .qty-control-wrapper {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .qty-control {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .btn-qty {
+      width: 32px;
+      height: 32px;
+      background-color: #f9f9f9;
+      border: none;
+      font-weight: bold;
+      color: #555;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      padding: 0;
+    }
+
+    .btn-qty:hover {
+      background-color: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-qty:active {
+      background-color: #ccc;
+    }
+
+    .qty-input {
+      width: 40px;
+      height: 32px;
+      border: none;
+      border-left: 1px solid #eee;
+      border-right: 1px solid #eee;
+      text-align: center;
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+      background: #fff;
+      cursor: default;
+    }
+    .qty-input:focus { outline: none; }
+    .qty-input::-webkit-inner-spin-button, 
+    .qty-input::-webkit-outer-spin-button { 
+      -webkit-appearance: none; margin: 0; 
+    }
+
+    /* Botones de Acción */
+    .btns-row {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .btn-card {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-add {
+      background-color: #fff;
+      border: 1px solid #c06b3e;
+      color: #c06b3e;
+    }
+    .btn-add:hover {
+      background-color: #fff5f0;
+    }
+
+    .btn-buy {
+      background-color: #c06b3e;
+      color: white;
+      border: 1px solid #c06b3e;
+    }
+    .btn-buy:hover {
+      background-color: #a35a34;
+      border-color: #a35a34;
+    }
+
+    /* --- INDICADORES DE STOCK --- */
+    .stock-indicator {
+        margin-top: 8px;
+        margin-bottom: 4px;
+        font-size: 13px;
+        font-weight: 700;
+        min-height: 20px; /* Para evitar saltos si no hay texto */
+    }
+    
+    .text-low-stock {
+        color: #fd7e14; /* Naranja */
+    }
+    
+    .text-out-of-stock {
+        color: #dc3545; /* Rojo */
+    }
+
+    /* --- MENSAJES FLOTANTES --- */
+    .messages-container {
+        position: fixed;
+        top: 90px;
+        right: 20px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .msg {
+        padding: 12px 20px;
+        border-radius: 8px;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 3.5s forwards;
+        font-size: 14px;
+    }
+    .msg.success { background-color: #2e7d32; }
+    .msg.warning { background-color: #f57c00; }
+    .msg.error { background-color: #c62828; }
+
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes fadeOut { to { opacity: 0; display: none; } }
+
+    /* --- LAYOUT ESPECÍFICO (Grilla irregular) --- */
+    /* FILA 1 (Items 1-2) */
+    .product-card:nth-child(1), .product-card:nth-child(2) {
       grid-column: span 15;
       flex-direction: row;
       justify-content: flex-start;
-      height: 200px;
+      height: 240px;
+      padding: 20px;
+    }
+    .product-card:nth-child(1) img, .product-card:nth-child(2) img {
+        margin-right: 30px; width: 180px; height: 180px;
+    }
+    .product-card:nth-child(1) .product-info, .product-card:nth-child(2) .product-info {
+      align-items: flex-start; text-align: left;
+    }
+    .product-card:nth-child(1) .qty-control-wrapper, .product-card:nth-child(2) .qty-control-wrapper {
+        justify-content: flex-start;
+    }
+    .product-card:nth-child(1) .btns-row, .product-card:nth-child(2) .btns-row {
+        max-width: 300px;
     }
 
-    /* --- FILA 2 (Items 3-5) --- */
-    .product-card:nth-child(3),
-    .product-card:nth-child(4),
-    .product-card:nth-child(5) {
+    /* FILA 2 (Items 3-5) */
+    .product-card:nth-child(3), .product-card:nth-child(4), .product-card:nth-child(5) {
       grid-column: span 10;
       flex-direction: row;
       justify-content: flex-start;
-      height: 200px;
+      height: 240px;
+      padding: 20px;
+    }
+    .product-card:nth-child(3) img, .product-card:nth-child(4) img, .product-card:nth-child(5) img {
+        margin-right: 20px;
+    }
+    .product-card:nth-child(3) .product-info, .product-card:nth-child(4) .product-info, .product-card:nth-child(5) .product-info {
+      align-items: flex-start; text-align: left;
+    }
+    .product-card:nth-child(3) .qty-control-wrapper, .product-card:nth-child(4) .qty-control-wrapper, .product-card:nth-child(5) .qty-control-wrapper {
+        justify-content: flex-start;
     }
 
-    /* --- FILA 3 (Items 6-10) --- */
-    .product-card:nth-child(6),
-    .product-card:nth-child(7),
-    .product-card:nth-child(8),
-    .product-card:nth-child(9),
-    .product-card:nth-child(10) {
-      grid-column: span 6;
-    }
+    /* FILA 3+ (Items 6+) */
+    .product-card:nth-child(n+6) { grid-column: span 6; }
 
-    /* --- AJUSTES PARA EL TEXTO EN TARJETAS HORIZONTALES (1-5) --- */
-    .product-card:nth-child(1) .product-info,
-    .product-card:nth-child(2) .product-info,
-    .product-card:nth-child(3) .product-info,
-    .product-card:nth-child(4) .product-info,
-    .product-card:nth-child(5) .product-info {
-      margin-left: 20px;
-      align-items: flex-start;
-      text-align: left;
-    }
-
-    .product-card:nth-child(1) .product-name,
-    .product-card:nth-child(2) .product-name,
-    .product-card:nth-child(3) .product-name,
-    .product-card:nth-child(4) .product-name,
-    .product-card:nth-child(5) .product-name {
-      margin-top: 0;
-    }
-
-    .showcase-title {
-      text-align: center;
-      margin: 40px 20px 10px 20px; /* Reducimos el margen inferior */
-    }
-    .showcase-title h2 {
-      font-size: 28px;
-      color: #c06b3e; /* Color de la marca */
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-    .showcase-title p {
-      font-size: 16px;
-      color: #666;
-      margin: 0;
-    }
-    .category-tag {
-      display: inline-block;
-      margin-top: 8px;
-      background: #f2e5df;
-      color: #c06b3e;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 12px;
-    }
-    .product-stock {
-      margin-top: 12px;
-      font-weight: 600;
-      font-size: 14px;
-    }
+    .showcase-title { text-align: center; margin: 40px 20px 10px 20px; }
+    .showcase-title h2 { font-size: 28px; color: #c06b3e; font-weight: 700; margin-bottom: 4px; }
+    .showcase-title p { font-size: 16px; color: #666; margin: 0; }
   </style>
-  </head>
 
-  <body>
-    
-    {% if products %}
-      <div class="showcase-title">
-        <h2>Top Bestsellers</h2>
-        <p>Una cuidada selección de los productos estrella de la temporada.</p>
-      </div>
-    {% endif %}
+  {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+            <div class="msg {{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+  {% endif %}
 
-    <main>
-      {% if products %} {% for p in products %}
-        <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
-          <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay"></a>
-          {% if p.photo %}
-            <img src="{{ p.photo.url }}" />
-          {% else %}
-            <img src="{% static 'images/default_product.png' %}" />
-          {% endif %}
-          <div class="product-info">
-            <div class="product-name">{{ p.name }}</div>
-            <div class="product-price">{{ p.price|floatformat:2 }} €</div>
-            <span class="category-tag">{{ p.get_category_display }}</span>
-            <div class="product-stock">
-              {% if p.stock == 0 %}
-                <span style="color: #dc3545">Producto agotado</span>
-              {% endif %} {% if p.stock < 10 and p.stock > 0 %}
-                <span style="color: #fd7e14">¡Últimas unidades!</span>
-              {% endif %}
-            </div>
+  {% if products %}
+    <div class="showcase-title">
+      <h2>Top Bestsellers</h2>
+      <p>Una cuidada selección de los productos estrella de la temporada.</p>
+    </div>
+  {% endif %}
+
+  <main>
+    {% if products %} 
+      {% for p in products %}
+      <div class="product-card" data-category="{{ p.category }}" data-brand="{{ p.brand|default:''|lower }}">
+        
+        <a href="{% url 'catalog_detail' p.pk %}" class="card-link-overlay" title="Ver detalle"></a>
+
+        {% if p.photo %}
+          <img src="{{ p.photo.url }}" />
+        {% else %}
+          <img src="{% static 'images/default_product.png' %}" />
+        {% endif %}
+
+        <div class="product-info">
+          <div>
+              <div class="product-name">{{ p.name }}</div>
+              <div class="product-price">{{ p.price|floatformat:2 }} €</div>
+              <span class="category-tag">{{ p.get_category_display }}</span>
           </div>
+
+          <div class="stock-indicator">
+            {% if p.stock == 0 %}
+                <span class="text-out-of-stock">Agotado</span>
+            {% elif p.stock < 10 %}
+                <span class="text-low-stock">¡Últimas unidades!</span>
+            {% endif %}
+          </div>
+
+          <form method="POST" action="{% url 'add_to_cart' p.pk %}" class="purchase-form">
+            {% csrf_token %}
+            
+            {% if p.stock > 0 %}
+                <div class="qty-control-wrapper">
+                    <div class="qty-control">
+                        <button type="button" class="btn-qty" onclick="updateQty(this, -1)">−</button>
+                        
+                        <input type="number" 
+                               name="quantity" 
+                               value="1" 
+                               min="1" 
+                               max="{{ p.stock }}" 
+                               class="qty-input" 
+                               readonly>
+                        
+                        <button type="button" class="btn-qty" onclick="updateQty(this, 1)">+</button>
+                    </div>
+                </div>
+
+                <div class="btns-row">
+                    <button type="submit" name="action" value="add" class="btn-card btn-add" title="Añadir al carrito">
+                        <i class="fas fa-cart-plus"></i> Añadir
+                    </button>
+                    <button type="submit" name="action" value="buy" class="btn-card btn-buy" title="Comprar ahora">
+                        Comprar
+                    </button>
+                </div>
+            {% endif %}
+          </form>
+
         </div>
+      </div>
+      {% endfor %} 
+    {% else %}
+      <p style="text-align: center; grid-column: 1 / -1; color: #555">
+        No hay productos disponibles en este momento.
+      </p>
+    {% endif %}
+  </main>
 
-      {% endfor %} {% else %}
-        <p style="text-align: center; grid-column: 1 / -1; color: #555">
-          No hay productos disponibles en este momento.
-        </p>
-      {% endif %}
-    </main>
+  <script>
+    /* LÓGICA DEL SELECTOR DE CANTIDAD */
+    function updateQty(btn, change) {
+        const wrapper = btn.closest('.qty-control');
+        const input = wrapper.querySelector('.qty-input');
+        
+        const min = parseInt(input.getAttribute('min')) || 1;
+        const max = parseInt(input.getAttribute('max')) || 999;
+        let currentVal = parseInt(input.value) || 1;
 
+        let newVal = currentVal + change;
 
-    <script>
-      /*
-       * Función para mostrar/ocultar el desplegable
-       */
-      function toggleDropdown() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
+        // Validar límites
+        if (newVal >= min && newVal <= max) {
+            input.value = newVal;
+        }
+    }
 
-      /*
-       * Cierra el desplegable si el usuario
-       * hace clic fuera de él
-       */
-      window.onclick = function (event) {
-        if (!event.target.closest(".profile-icon-btn")) {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          var i;
-          for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains("show")) {
-              openDropdown.classList.remove("show");
-            }
+    // --- LÓGICA EXISTENTE DE DROPDOWNS (Mantener) ---
+    function toggleDropdown() {
+      document.getElementById("myDropdown").classList.toggle("show");
+    }
+
+    window.onclick = function (event) {
+      if (!event.target.closest(".profile-icon-btn")) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+          var openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains("show")) {
+            openDropdown.classList.remove("show");
           }
         }
-      };
-      // Custom dropdown para dashboard.html
-      (function(){
-        const categoryButton = document.getElementById('categoryButtonDash');
-        const categoryMenu = document.getElementById('categoryMenuDash');
-        const categorySelected = document.getElementById('categorySelectedDash');
-        const brandButton = document.getElementById('brandButtonDash');
-        const brandMenu = document.getElementById('brandMenuDash');
-        const brandSelected = document.getElementById('brandSelectedDash');
-        const cards = Array.from(document.querySelectorAll('.product-card'));
+      }
+    };
 
-        // Toggle dropdowns
-        categoryButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          categoryMenu.classList.toggle('show');
-          brandMenu.classList.remove('show');
-        });
+    (function(){
+      const categoryButton = document.getElementById('categoryButtonDash');
+      const categoryMenu = document.getElementById('categoryMenuDash');
+      const categorySelected = document.getElementById('categorySelectedDash');
+      const brandButton = document.getElementById('brandButtonDash');
+      const brandMenu = document.getElementById('brandMenuDash');
+      const brandSelected = document.getElementById('brandSelectedDash');
+      const cards = Array.from(document.querySelectorAll('.product-card'));
 
-        brandButton.addEventListener('click', (e) => {
-          e.stopPropagation();
-          brandMenu.classList.toggle('show');
-          categoryMenu.classList.remove('show');
-        });
-
-        document.addEventListener('click', () => {
-          categoryMenu.classList.remove('show');
-          brandMenu.classList.remove('show');
-        });
-
-        // Poblar marcas dinámicamente
-        function populateBrands() {
-          const brands = new Set();
-          cards.forEach(c => {
-            const b = (c.dataset.brand || '').trim();
-            if (b) brands.add(b);
+      if(categoryButton){
+          categoryButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            categoryMenu.classList.toggle('show');
+            brandMenu.classList.remove('show');
           });
+      }
 
-          const sortedBrands = Array.from(brands).sort();
-          sortedBrands.forEach(b => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.dataset.value = b;
-            item.innerHTML = `
-              <span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>
-              <svg class="check-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-            `;
-            brandMenu.appendChild(item);
+      if(brandButton){
+          brandButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            brandMenu.classList.toggle('show');
+            categoryMenu.classList.remove('show');
           });
-        }
-        populateBrands();
+      }
 
-        // Manejar selección de categoría
-        categoryMenu.addEventListener('click', (e) => {
-          const item = e.target.closest('.dropdown-item');
-          if (!item) return;
+      document.addEventListener('click', () => {
+        if(categoryMenu) categoryMenu.classList.remove('show');
+        if(brandMenu) brandMenu.classList.remove('show');
+      });
 
-          categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          categorySelected.textContent = item.querySelector('span').textContent;
-          categoryMenu.classList.remove('show');
-          applyFilters();
+      function populateBrands() {
+        if(!brandMenu) return;
+        const brands = new Set();
+        cards.forEach(c => {
+          const b = (c.dataset.brand || '').trim();
+          if (b) brands.add(b);
         });
 
-        // Manejar selección de marca
-        brandMenu.addEventListener('click', (e) => {
-          const item = e.target.closest('.dropdown-item');
-          if (!item) return;
-
-          brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
-          item.classList.add('selected');
-          brandSelected.textContent = item.querySelector('span').textContent;
-          brandMenu.classList.remove('show');
-          applyFilters();
+        const sortedBrands = Array.from(brands).sort();
+        sortedBrands.forEach(b => {
+          const item = document.createElement('div');
+          item.className = 'dropdown-item';
+          item.dataset.value = b;
+          item.innerHTML = `<span>${b.charAt(0).toUpperCase() + b.slice(1)}</span>`;
+          brandMenu.appendChild(item);
         });
+      }
+      populateBrands();
 
-        // Aplicar filtros
-        function applyFilters() {
-          const catSelected = categoryMenu.querySelector('.dropdown-item.selected');
-          const brandSelItem = brandMenu.querySelector('.dropdown-item.selected');
-          const cat = catSelected ? catSelected.dataset.value : 'all';
-          const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
-
-          cards.forEach(c => {
-            const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
-            const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
-            c.style.display = (matchCat && matchBrand) ? '' : 'none';
+      if(categoryMenu){
+          categoryMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('.dropdown-item');
+            if (!item) return;
+            categoryMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            categorySelected.textContent = item.querySelector('span').textContent;
+            categoryMenu.classList.remove('show');
+            applyFilters();
           });
-        }
-      })();
-    </script>
-  </body>
-</html>
+      }
+
+      if(brandMenu){
+          brandMenu.addEventListener('click', (e) => {
+            const item = e.target.closest('.dropdown-item');
+            if (!item) return;
+            brandMenu.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            brandSelected.textContent = item.querySelector('span').textContent;
+            brandMenu.classList.remove('show');
+            applyFilters();
+          });
+      }
+
+      function applyFilters() {
+        const catSelected = categoryMenu ? categoryMenu.querySelector('.dropdown-item.selected') : null;
+        const brandSelItem = brandMenu ? brandMenu.querySelector('.dropdown-item.selected') : null;
+        const cat = catSelected ? catSelected.dataset.value : 'all';
+        const brand = brandSelItem ? brandSelItem.dataset.value : 'all';
+
+        cards.forEach(c => {
+          const matchCat = cat === 'all' || (c.dataset.category || '') === cat;
+          const matchBrand = brand === 'all' || (c.dataset.brand || '') === brand;
+          c.style.display = (matchCat && matchBrand) ? 'flex' : 'none';
+        });
+      }
+    })();
+  </script>
 {% endblock %}
