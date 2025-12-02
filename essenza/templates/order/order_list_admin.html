@@ -254,17 +254,35 @@
   }
   
   .btn-shop {
-      display: inline-block;
-      margin-top: 15px;
-      background-color: #c06b3e; /* btn-create style */
-      color: white;
-      padding: 12px 30px;
-      border-radius: 5px;
-      text-decoration: none;
-      font-weight: bold;
-      transition: background-color 0.3s;
+    display: inline-block;
+    margin-top: 15px;
+    background-color: #c06b3e; /* btn-create style */
+    color: white;
+    padding: 12px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s;
   }
   .btn-shop:hover { background-color: #a35a34; }
+  .payment-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: inline-block;
+  }
+  .pay-ok {
+    color: #2e7d32;
+    background: #eeffee;
+    border: 1px solid #2e7d32;
+  }
+  .pay-pending {
+    color: #c62828;
+    background: #ffebee;
+    border: 1px solid #ef9a9a;
+  }
 
   @media (max-width: 768px) {
     .card-body {
@@ -374,16 +392,29 @@
 
             <!-- Columna 3: Estado y Total -->
             <div class="status-total-col">
-              <!-- Badge -->
-              {% if order.status == "en_preparacion" %}
-                <span class="status-badge st-prep"><i class="fas fa-box-open"></i> Preparando</span>
-              {% elif order.status == "enviado" %}
-                <span class="status-badge st-sent"><i class="fas fa-truck"></i> Enviado</span>
-              {% elif order.status == "entregado" %}
-                <span class="status-badge st-done"><i class="fas fa-check-circle"></i> Entregado</span>
-              {% else %}
-                <span class="status-badge">{{ order.get_status_display }}</span>
-              {% endif %}
+              <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                <!-- Pago -->
+                {% if order.is_paid %}
+                  <span class="payment-badge pay-ok">
+                    <i class="fas fa-check"></i> Pagado
+                  </span>
+                {% else %}
+                  <span class="payment-badge pay-pending">
+                    <i class="fas fa-exclamation-circle"></i> Pendiente de pago
+                  </span>
+                {% endif %}
+
+                <!-- Estado -->
+                {% if order.status == "en_preparacion" %}
+                  <span class="status-badge st-prep"><i class="fas fa-box-open"></i> Preparando</span>
+                {% elif order.status == "enviado" %}
+                  <span class="status-badge st-sent"><i class="fas fa-truck"></i> Enviado</span>
+                {% elif order.status == "entregado" %}
+                  <span class="status-badge st-done"><i class="fas fa-check-circle"></i> Entregado</span>
+                {% else %}
+                  <span class="status-badge">{{ order.get_status_display }}</span>
+                {% endif %}
+              </div>
 
               <div>
                 <!-- Envío -->

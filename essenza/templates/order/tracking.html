@@ -390,8 +390,12 @@
                 <span>{{ order.email }}</span>
             </div>
             <div class="info-item">
-                <strong>Estado Actual</strong>
-                <span style="text-transform: uppercase; color: #c06b3e;">{{ order.get_status_display }}</span>
+                <strong>Método de Pago</strong>
+                {% if order.is_paid %}
+                    <span>Pago con Tarjeta</span>
+                {% else %}
+                    <span>Pago en efectivo en la recogida</span>
+                {% endif %}
             </div>
         </div>
 
