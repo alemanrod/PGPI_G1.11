@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 
+import dj_database_url
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -34,6 +35,11 @@ DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://pgpi-g1-11.onrender.com",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+]
 
 # Application definition
 
@@ -45,6 +51,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.humanize",
+    "anymail",
     "user",
     "product",
     "order",
@@ -85,16 +92,17 @@ TEMPLATES = [
 WSGI_APPLICATION = "essenza.wsgi.application"
 
 
-# Database
+# Database (Híbrida)
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+    "default": dj_database_url.config(
+        # Si estás en Render, usará la variable DATABASE_URL automáticamente.
+        # Si estás en Local (no hay DATABASE_URL), usará este sqlite:
+        default="sqlite:///" + str(BASE_DIR / "db.sqlite3"),
+        conn_max_age=600,
+    )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -119,10 +127,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = "es"
-
 TIME_ZONE = "Europe/Madrid"
 USE_I18N = True
-
 USE_TZ = True
 
 
@@ -156,18 +162,41 @@ AUTH_USER_MODEL = "user.Usuario"
 # -----------------------------------------------------------------
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-DOMAIN_URL = os.getenv(
-    "DOMAIN_URL", "http://127.0.0.1:8000"
-)  # Default a localhost si falla
+DOMAIN_URL = os.getenv("DOMAIN_URL", "http://127.0.0.1:8000")
 
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+# -----------------------------------------------------------------
+# CONFIGURACIÓN DE EMAIL
+# -----------------------------------------------------------------
+if not DEBUG:
+    # -----------------------------------------------------------
+    # PRODUCCIÓN (Render) -> Usa SendGrid (Anymail)
+    # -----------------------------------------------------------
+    EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+    ANYMAIL = {"SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY")}
+    DEFAULT_FROM_EMAIL = "noreply.essenza@gmail.com"
 
-# Leemos las credenciales del archivo .env (o las pones aquí directamente entre comillas si prefieres)
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+    # Logging para debuggear emails en la nube
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {"console": {"class": "logging.StreamHandler"}},
+        "loggers": {
+            "django.core.mail": {
+                "handlers": ["console"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
+        },
+    }
 
-# El remitente que aparecerá en los correos
-DEFAULT_FROM_EMAIL = "Essenza <noreply@essenza.com>"
+else:
+    # -----------------------------------------------------------
+    # LOCAL (Tu PC) -> Usa SMTP de Gmail
+    # -----------------------------------------------------------
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    EMAIL_HOST = "smtp.gmail.com"
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = "noreply@essenza.com"
