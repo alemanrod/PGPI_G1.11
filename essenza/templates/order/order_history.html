@@ -169,11 +169,17 @@
     min-height: 80px;
   }
 
+  .shipping-total {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-top: 20px;
+  }
+
   .order-total {
     font-size: 1.5rem;
     font-weight: 800;
     color: #c06b3e;
-    margin-top: 15px;
   }
 
   /* Badges */
@@ -208,15 +214,15 @@
     color: #e0e0e0;
   }
   .btn-shop {
-      display: inline-block;
-      margin-top: 15px;
-      background-color: #c06b3e;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 600;
-      transition: background 0.2s;
+    display: inline-block;
+    margin-top: 15px;
+    background-color: #c06b3e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.2s;
   }
   .btn-shop:hover { background-color: #a35a34; }
 
@@ -313,9 +319,16 @@
                 <span class="status-badge">{{ order.get_status_display }}</span>
               {% endif %}
 
-              <!-- Total -->
-              <div class="order-total">
-                {{ order.total_price|floatformat:2 }} €
+              <div>
+                <!-- Envío -->
+                <div class="shipping-total">
+                  <i class="fas fa-shipping-fast" style="margin-right:4px;"></i> Envío: {{ order.shipping|floatformat:2 }} €
+                </div>
+
+                <!-- Total -->
+                <div class="order-total">
+                  {{ order.total|floatformat:2 }} €
+                </div>
               </div>
             </div>
 

@@ -500,10 +500,10 @@ class StockTests(TestCase):
 
     # --- TESTS DE ACCESO ---
 
-    def test_anonymous_user_redirects_to_dashboard(self):
+    def test_anonymous_user_redirects_to_login(self):
         resp = self.client.get(self.stock_url)
         self.assertEqual(resp.status_code, 302)
-        self.assertRedirects(resp, self.dashboard_url)
+        self.assertRedirects(resp, self.login_url)
 
     def test_non_admin_user_redirects_to_dashboard(self):
         self.client.login(email=self.user.email, password="pass1234")

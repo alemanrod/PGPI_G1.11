@@ -208,11 +208,17 @@
     min-height: 80px;
   }
 
+  .shipping-total {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #888;
+    margin-top: 20px;
+  }
+
   .order-total {
     font-size: 1.5rem; /* Grande como en product-list */
     font-weight: 800;
     color: #c06b3e; /* Color marca */
-    margin-top: 15px;
   }
 
   /* Badges de Estado */
@@ -379,9 +385,16 @@
                 <span class="status-badge">{{ order.get_status_display }}</span>
               {% endif %}
 
-              <!-- Total -->
-              <div class="order-total">
-                {{ order.total_price|floatformat:2 }} €
+              <div>
+                <!-- Envío -->
+                <div class="shipping-total">
+                  <i class="fas fa-shipping-fast" style="margin-right:4px;"></i> Envío: {{ order.shipping|floatformat:2 }} €
+                </div>
+
+                <!-- Total -->
+                <div class="order-total">
+                  {{ order.total|floatformat:2 }} €
+                </div>
               </div>
             </div>
 

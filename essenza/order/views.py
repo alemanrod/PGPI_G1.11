@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.db import transaction  # Para la integridad de datos
 from django.db.models import (
@@ -65,8 +64,16 @@ class OrderListAdminView(LoginRequiredMixin, UserPassesTestMixin, View):
 # =======================================================
 # LISTADO DE PEDIDOS - USER
 # =======================================================
-class OrderHistoryView(LoginRequiredMixin, View):
+class OrderHistoryView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "order/order_history.html"
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.role == "user"
+
+    def handle_no_permission(self):
+        if not self.request.user.is_authenticated:
+            return redirect("login")
+        return redirect("stock")
 
     def get(self, request):
         # CORRECCIÓN 1: Usamos Q para buscar por Usuario O por Email
@@ -90,8 +97,16 @@ class OrderHistoryView(LoginRequiredMixin, View):
 # =======================================================
 # BUSQUEDA DE PEDIDO
 # =======================================================
-class OrderSearchView(View):
+class OrderSearchView(UserPassesTestMixin, View):
     template_name = "order/order_search.html"
+
+    def test_func(self):
+        return (
+            not self.request.user.is_authenticated or self.request.user.role == "user"
+        )
+
+    def handle_no_permission(self):
+        return redirect("stock")
 
     def get(self, request):
         # Solo muestra el formulario vacío
@@ -149,7 +164,7 @@ class OrderTrackingView(View):
 # =======================================================
 # ACTUALIZAR ESTADO (SOLO ADMIN)
 # =======================================================
-class OrderUpdateStatusView(LoginRequiredMixin, View):
+class OrderUpdateStatusView(LoginRequiredMixin, UserPassesTestMixin, View):
     """
     Permite a un administrador cambiar el estado de un pedido
     haciendo clic en la barra de progreso.
@@ -178,213 +193,260 @@ class OrderUpdateStatusView(LoginRequiredMixin, View):
         return redirect("order_tracking", tracking_code=order.tracking_code)
 
 
+def _process_order(request, user, email, address, is_paid):
+    """
+    Función auxiliar interna para procesar el pedido.
+    Se usa tanto para el retorno de Stripe como para Contrarreembolso.
+    """
+    items_to_process = []
+    cart_to_delete = None
+
+    # 1. Obtener items (Lógica unificada para Auth/Anon)
+    if user:  # Usuario autenticado
+        cart = Cart.objects.filter(user=user).first()
+        if cart:
+            cart_to_delete = cart
+            for cart_item in cart.cart_products.select_related("product").all():
+                items_to_process.append(
+                    {
+                        "product": cart_item.product,
+                        "quantity": cart_item.quantity,
+                    }
+                )
+    else:  # Usuario anónimo (Sesión)
+        cart_session = request.session.get("cart_session", {})
+        if cart_session:
+            product_pks = [int(pk) for pk in cart_session.keys()]
+            products = Product.objects.filter(pk__in=product_pks)
+            for product in products:
+                qty = cart_session[str(product.pk)]["quantity"]
+                items_to_process.append({"product": product, "quantity": qty})
+
+    if not items_to_process:
+        return None  # Carrito vacío o error
+
+    # 2. Buscar usuario registrado para asociar (si existe por email)
+    User = get_user_model()
+    user_for_order = user if user else User.objects.filter(email=email).first()
+
+    # 3. Crear el Pedido
+    new_order = Order.objects.create(
+        user=user_for_order,
+        email=email,
+        address=address,
+        status=Status.EN_PREPARACION,
+        is_paid=is_paid,
+    )
+
+    # 4. Crear OrderProducts y actualizar Stock
+    for item_data in items_to_process:
+        product = item_data["product"]
+        qty = item_data["quantity"]
+
+        OrderProduct.objects.create(order=new_order, product=product, quantity=qty)
+        # Actualizamos stock de forma segura
+        Product.objects.filter(pk=product.pk).update(stock=F("stock") - qty)
+
+    # 5. Borrar el carrito
+    if cart_to_delete:
+        cart_to_delete.delete()
+    else:
+        request.session["cart_session"] = {}
+        request.session.modified = True
+
+    # 6. Enviar Email (Lógica común)
+    try:
+        tracking_url = request.build_absolute_uri(
+            reverse("order_tracking", args=[new_order.tracking_code])
+        )
+        payment_msg = (
+            "Pagado con Tarjeta" if is_paid else "Pendiente de pago (Contrarreembolso)"
+        )
+
+        subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
+        message = f"""
+        Hola!
+        Gracias por tu compra en Essenza.
+        
+        Detalles del pedido:
+        Localizador: {new_order.tracking_code}
+        Total: {new_order.total:.2f} €
+        Estado del pago: {payment_msg}
+        Dirección: {new_order.address}
+
+        Sigue tu pedido aquí: {tracking_url}
+        """
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [new_order.email],
+            fail_silently=True,
+        )
+    except Exception as e:
+        print(f"Error enviando email: {e}")
+
+    return new_order
+
+
 def create_checkout(request):
     """
-    Crea la sesión de pago en Stripe y configura la recolección de dirección.
-    Restringido: Los administradores NO pueden acceder aquí.
+    Maneja el inicio del proceso de pago.
     """
-    if request.user.is_authenticated and getattr(request.user, "role", None) == "admin":
-        raise PermissionDenied("Los administradores no pueden realizar compras.")
+    if request.method != "POST":
+        return redirect("cart_detail")
 
-    domain_url = settings.DOMAIN_URL
-    cart_items_temp = []
+    payment_method = request.POST.get("payment_method")  # 'stripe' o 'cod'
 
-    if request.user.is_authenticated:
-        cart = get_object_or_404(Cart, user=request.user)
-        for item in cart.cart_products.all():
-            cart_items_temp.append(
-                {
-                    "product": item.product,
-                    "quantity": item.quantity,
-                    "price": item.product.price,
-                }
+    # --- OPCIÓN A: CONTRARREMBOLSO (COD) ---
+    if payment_method == "cod":
+        # 1. Capturamos los datos DEL FORMULARIO HTML
+        name = request.POST.get("shipping_name")
+        email_input = request.POST.get("shipping_email")
+        address = request.POST.get("shipping_address")
+        city = request.POST.get("shipping_city")
+        zip_code = request.POST.get("shipping_zip")
+
+        # 2. Validación básica (si falta algo, detenemos todo)
+        if not (name and email_input and address and city and zip_code):
+            return HttpResponse(
+                "Error: Faltan datos de envío obligatorios.", status=400
             )
-    else:
-        cart_session = request.session.get("cart_session", {})
-        if not cart_session:
+
+        # 3. Construimos la dirección completa en un solo string
+        full_address = f"{address}, {city} ({zip_code})"
+
+        # 4. Determinamos el usuario y email
+        user = request.user if request.user.is_authenticated else None
+
+        # Prioridad: Si el usuario escribió un email en el form, usamos ese.
+        final_email = email_input if email_input else user.email
+
+        if not final_email:
+            return HttpResponse("Error: Se requiere un email válido.", status=400)
+
+        # 5. Procesamos el pedido
+        with transaction.atomic():
+            order = _process_order(
+                request,
+                user=user,
+                email=final_email,
+                address=full_address,
+                is_paid=False,  # COD = No pagado aún
+            )
+
+        if order:
+            # IMPORTANTE: Redirigimos pasando el ID del pedido para mostrar éxito
+            return render(request, "order/success.html", {"order": order})
+        else:
             return redirect("cart_detail")
 
-        product_pks = [int(pk) for pk in cart_session.keys()]
-        products = Product.objects.filter(pk__in=product_pks)
+    # --- OPCIÓN B: STRIPE ---
+    elif payment_method == "stripe":
+        # --- Lógica de Items para Stripe ---
+        cart_items_temp = []
+        if request.user.is_authenticated:
+            cart = Cart.objects.filter(user=request.user).first()
+            if not cart:
+                return redirect("cart_detail")  # Seguridad extra
+            for item in cart.cart_products.all():
+                cart_items_temp.append(
+                    {
+                        "product": item.product,
+                        "quantity": item.quantity,
+                        "price": item.product.price,
+                    }
+                )
+        else:
+            cart_session = request.session.get("cart_session", {})
+            if not cart_session:
+                return redirect("cart_detail")
+            products = Product.objects.filter(
+                pk__in=[int(k) for k in cart_session.keys()]
+            )
+            for p in products:
+                cart_items_temp.append(
+                    {
+                        "product": p,
+                        "quantity": cart_session[str(p.pk)]["quantity"],
+                        "price": p.price,
+                    }
+                )
 
-        for product in products:
-            qty = cart_session[str(product.pk)]["quantity"]
-            cart_items_temp.append(
-                {"product": product, "quantity": qty, "price": product.price}
+        line_items_stripe = []
+        for item in cart_items_temp:
+            line_items_stripe.append(
+                {
+                    "price_data": {
+                        "currency": "eur",
+                        "unit_amount": int(item["price"] * 100),
+                        "product_data": {"name": item["product"].name},
+                    },
+                    "quantity": item["quantity"],
+                }
             )
 
-    line_items_stripe = []
-    for item in cart_items_temp:
-        amount_in_cents = int(item["price"] * 100)
-        line_items_stripe.append(
-            {
-                "price_data": {
-                    "currency": "eur",
-                    "unit_amount": amount_in_cents,
-                    "product_data": {
-                        "name": item["product"].name,
-                        "description": item["product"].description[:100]
-                        if item["product"].description
-                        else "Producto Essenza",
-                    },
-                },
-                "quantity": item["quantity"],
-            }
-        )
+        # --- Lógica de Envío ---
 
-    try:
-        customer_email = request.user.email if request.user.is_authenticated else None
+        domain_url = settings.DOMAIN_URL
+        try:
+            customer_email = (
+                request.user.email if request.user.is_authenticated else None
+            )
 
-        checkout_session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=line_items_stripe,
-            mode="payment",
-            shipping_address_collection={
-                "allowed_countries": ["ES"],
-            },
-            customer_email=customer_email,
-            success_url=domain_url + "/order/success/?session_id={CHECKOUT_SESSION_ID}",
-            cancel_url=domain_url + "/order/cancelled/",
-        )
-        return redirect(checkout_session.url, code=303)
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=line_items_stripe,
+                mode="payment",
+                shipping_address_collection={"allowed_countries": ["ES"]},
+                customer_email=customer_email,
+                success_url=domain_url
+                + "/order/success/?session_id={CHECKOUT_SESSION_ID}",
+                cancel_url=domain_url + "/order/cancelled/",
+            )
+            return redirect(checkout_session.url, code=303)
 
-    except Exception as e:
-        return HttpResponse(f"Error al conectar con Stripe: {e}")
+        except Exception as e:
+            return HttpResponse(f"Error al conectar con Stripe: {e}")
+
+    return redirect("cart_detail")
 
 
 def successful_payment(request):
     """
-    Verifica el pago, crea el pedido y ACTUALIZA EL STOCK.
-    Usa una transacción atómica para asegurar que todo se guarda o nada.
+    Retorno de Stripe.
     """
     session_id = request.GET.get("session_id")
-
     if not session_id:
-        return HttpResponse("Error: No se ha recibido confirmación de pago.")
+        return HttpResponse("Error: No session ID")
 
     try:
         session = stripe.checkout.Session.retrieve(session_id)
-        customer_details = session.customer_details
-        stripe_email = customer_details.email
-
-        address_data = customer_details.address
-        shipping_address = f"{address_data.line1}, {address_data.city}, {address_data.postal_code}, {address_data.country}"
-        if address_data.line2:
-            shipping_address += f", {address_data.line2}"
-
         if session.payment_status == "paid":
-            # --- INICIO DE TRANSACCIÓN ---
-            # Esto asegura que si falla la creación de productos, no se crea el pedido vacío
+            # Extraer datos de Stripe
+            stripe_email = session.customer_details.email
+            address_data = session.customer_details.address
+            shipping_address = (
+                f"{address_data.line1}, {address_data.city}, {address_data.postal_code}"
+            )
+
+            user = request.user if request.user.is_authenticated else None
+
             with transaction.atomic():
-                items_to_process = []
-                cart_to_delete = None
-
-                # Si esta logueado
-                if request.user.is_authenticated:
-                    cart = Cart.objects.filter(user=request.user).first()
-                    if cart:
-                        cart_to_delete = cart
-                        for cart_item in cart.cart_products.select_related(
-                            "product"
-                        ).all():
-                            items_to_process.append(
-                                {
-                                    "product": cart_item.product,
-                                    "quantity": cart_item.quantity,
-                                }
-                            )
-                # Si no esta logueado, usamos la sesion
-                else:
-                    cart_session = request.session.get("cart_session", {})
-                    if cart_session:
-                        product_pks = [int(pk) for pk in cart_session.keys()]
-                        products = Product.objects.filter(pk__in=product_pks)
-                        for product in products:
-                            qty = cart_session[str(product.pk)]["quantity"]
-                            items_to_process.append(
-                                {"product": product, "quantity": qty}
-                            )
-
-                if not items_to_process:
-                    # Si no hay productos, no creamos el pedido.
-                    return HttpResponse(
-                        "Error: No se encontraron productos en el carrito para procesar el pedido."
-                    )
-
-                # 3. Buscar usuario por email
-                User = get_user_model()
-                user_for_order = User.objects.filter(email=stripe_email).first()
-
-                # 4. Crear el Pedido
-                new_order = Order.objects.create(
-                    user=user_for_order,  # Si no existe el usuario, se pone None
-                    status=Status.EN_PREPARACION,
-                    address=shipping_address,
+                # Llamamos a la función común
+                new_order = _process_order(
+                    request,
+                    user=user,
                     email=stripe_email,
+                    address=shipping_address,
+                    is_paid=True,  # <--- STRIPE = TRUE
                 )
-
-                # 5. Crear OrderProducts y actualizamos el Stock
-                for item_data in items_to_process:
-                    product = item_data["product"]
-                    qty = item_data["quantity"]
-
-                    OrderProduct.objects.create(
-                        order=new_order, product=product, quantity=qty
-                    )
-
-                    Product.objects.filter(pk=product.pk).update(stock=F("stock") - qty)
-
-                # 6. Borrar el carrito
-                if cart_to_delete:
-                    cart_to_delete.delete()
-                else:
-                    request.session["cart_session"] = {}
-                    request.session.modified = True
-            # --- ENVÍO DE CORREO DE CONFIRMACIÓN ---
-            try:
-                # 1. Generar la URL absoluta de seguimiento
-                tracking_url = request.build_absolute_uri(reverse("order_search"))
-
-                # 2. Definir asunto y mensaje
-                subject = f"Confirmación de Pedido #{new_order.tracking_code} - Essenza"
-
-                # Mensaje simple en texto plano
-                message = f"""
-                Hola!
-
-                Gracias por tu compra en Essenza.
-                Tu pedido ha sido confirmado y se está preparando.
-
-                Detalles del pedido:
-                Nº de localizador: {new_order.tracking_code}
-                Total: {new_order.total_price} €
-                Dirección de envío: {new_order.address}
-
-                Puedes seguir el estado de tu pedido aquí:
-                {tracking_url}
-
-                Gracias por confiar en nosotros.
-                """
-
-                # 3. Enviar el correo
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,  # Asegúrate de tener esto en settings.py
-                    [new_order.email],  # El email del destinatario
-                    fail_silently=True,  # Si falla, no rompe la web
-                )
-            except Exception as e:
-                # Si falla el correo, lo imprimimos en consola pero dejamos pasar al usuario
-                print(f"Error enviando email: {e}")
 
             return render(request, "order/success.html", {"order": new_order})
-
         else:
-            return HttpResponse("El pago no se ha completado.")
-
+            return render(request, "order/cancel.html")
     except Exception as e:
-        return HttpResponse(f"Error verificando el pago o creando el pedido: {e}")
+        return HttpResponse(f"Error: {e}")
 
 
 def cancelled_payment(request):
