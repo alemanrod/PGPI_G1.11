@@ -12,10 +12,6 @@ venv/
 # Archivos de base de datos
 db.sqlite3
 
-# Archivos de migraciones (si quieres omitirlos)
-**/migrations/__pycache__/
-**/migrations/*.py
-
 # Archivos de configuración de VSCode
 .vscode/
 
