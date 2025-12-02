@@ -55,9 +55,9 @@ class SalesReportsViewTests(TestCase):
         OrderProduct.objects.create(order=cls.order1, product=cls.prod2, quantity=5)
         OrderProduct.objects.create(order=cls.order2, product=cls.prod1, quantity=3)
 
-        cls.history_url = reverse("info:sales_reports_view", args=["history"])
-        cls.product_url = reverse("info:sales_reports_view", args=["product"])
-        cls.user_url = reverse("info:sales_reports_view", args=["user"])
+        cls.history_url = reverse("sales_reports_view", args=["history"])
+        cls.product_url = reverse("sales_reports_view", args=["product"])
+        cls.user_url = reverse("sales_reports_view", args=["user"])
 
     def test_unauthenticated_access_is_denied(self):
         self.client.logout()
